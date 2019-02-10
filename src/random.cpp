@@ -17,6 +17,6 @@ void generate_random_bytes(size_t n, uint8_t *result)
 {
     for (size_t i = 0; i < n; i++)
     {
-        result[n] = distribution(gen);
+        result[i] = distribution(gen);
     }
 }
