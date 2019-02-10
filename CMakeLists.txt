@@ -155,7 +155,7 @@ set(SOURCES
   src/jh.c
   src/keccak.c
   src/oaes_lib.c
-  src/random.c
+  src/random.cpp
   src/skein.c
   src/slow-hash.c
   src/StringTools.cpp
