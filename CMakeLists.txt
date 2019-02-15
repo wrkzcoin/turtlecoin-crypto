@@ -162,7 +162,8 @@ set(SOURCES
   src/tree-hash.c
 )
 
-add_library(turtlecoin-crypto STATIC ${SOURCES})
+add_library(turtlecoin-crypto-static STATIC ${SOURCES})
+add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
 
 if(WIN32)
   target_link_libraries(turtlecoin-crypto ws2_32)
