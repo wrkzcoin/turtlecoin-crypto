@@ -169,5 +169,5 @@ endif()
 
 if(WIN32)
   target_link_libraries(turtlecoin-crypto-static ws2_32)
-  target_link_libraries(turtlecoin-crypto-static ws2_32)
+  target_link_libraries(turtlecoin-crypto-shared ws2_32)
 endif()
