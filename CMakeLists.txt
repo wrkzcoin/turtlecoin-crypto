@@ -163,8 +163,11 @@ set(SOURCES
 )
 
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
-add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
+if(NOT APPLE)
+  add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
+endif()
 
 if(WIN32)
-  target_link_libraries(turtlecoin-crypto ws2_32)
+  target_link_libraries(turtlecoin-crypto-static ws2_32)
+  target_link_libraries(turtlecoin-crypto-static ws2_32)
 endif()
