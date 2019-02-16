@@ -8,8 +8,7 @@
 #include "hash-ops.h"
 #include "keccak.h"
 
-const uint64_t keccakf_rndc[24] =
-{
+const uint64_t keccakf_rndc[24] = {
     0x0000000000000001, 0x0000000000008082, 0x800000000000808a,
     0x8000000080008000, 0x000000000000808b, 0x0000000080000001,
     0x8000000080008081, 0x8000000000008009, 0x000000000000008a,
@@ -20,16 +19,14 @@ const uint64_t keccakf_rndc[24] =
     0x8000000000008080, 0x0000000080000001, 0x8000000080008008
 };
 
-const int keccakf_rotc[24] =
-{
-    1,  3,  6,  10, 15, 21, 28, 36, 45, 55, 2,  14,
-    27, 41, 56, 8,  25, 43, 62, 18, 39, 61, 20, 44
+const int keccakf_rotc[24] = {
+    1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 2, 14,
+    27, 41, 56, 8, 25, 43, 62, 18, 39, 61, 20, 44
 };
 
-const int keccakf_piln[24] =
-{
-    10, 7,  11, 17, 18, 3, 5,  16, 8,  21, 24, 4,
-    15, 23, 19, 13, 12, 2, 20, 14, 22, 9,  6,  1
+const int keccakf_piln[24] = {
+    10, 7, 11, 17, 18, 3, 5, 16, 8, 21, 24, 4,
+    15, 23, 19, 13, 12, 2, 20, 14, 22, 9, 6, 1
 };
 
 // update the state with given number of rounds
@@ -37,15 +34,19 @@ const int keccakf_piln[24] =
 void keccakf(uint64_t st[25], int rounds)
 {
     int i, j, round;
+
     uint64_t t, bc[5];
 
-    for (round = 0; round < rounds; round++) {
+    for (round = 0; round < rounds; round++)
+    {
 
         // Theta
         for (i = 0; i < 5; i++)
-            bc[i] = st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20];
+            bc[i] =
+                st[i] ^ st[i + 5] ^ st[i + 10] ^ st[i + 15] ^ st[i + 20];
 
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++)
+        {
             t = bc[(i + 4) % 5] ^ ROTL64(bc[(i + 1) % 5], 1);
             for (j = 0; j < 25; j += 5)
                 st[j + i] ^= t;
@@ -53,7 +54,8 @@ void keccakf(uint64_t st[25], int rounds)
 
         // Rho Pi
         t = st[1];
-        for (i = 0; i < 24; i++) {
+        for (i = 0; i < 24; i++)
+        {
             j = keccakf_piln[i];
             bc[0] = st[j];
             st[j] = ROTL64(t, keccakf_rotc[i]);
@@ -61,7 +63,8 @@ void keccakf(uint64_t st[25], int rounds)
         }
 
         //  Chi
-        for (j = 0; j < 25; j += 5) {
+        for (j = 0; j < 25; j += 5)
+        {
             for (i = 0; i < 5; i++)
                 bc[i] = st[j + i];
             for (i = 0; i < 5; i++)
@@ -76,10 +79,12 @@ void keccakf(uint64_t st[25], int rounds)
 // compute a keccak hash (md) of given byte length from "in"
 typedef uint64_t state_t[25];
 
-int keccak(const uint8_t *in, int inlen, uint8_t *md, int mdlen)
+int keccak(const uint8_t * in, int inlen, uint8_t * md, int mdlen)
 {
     state_t st;
+
     uint8_t temp[144];
+
     int i, rsiz, rsizw;
 
 
@@ -94,7 +99,8 @@ int keccak(const uint8_t *in, int inlen, uint8_t *md, int mdlen)
 
     memset(st, 0, sizeof(st));
 
-    for ( ; inlen >= rsiz; inlen -= rsiz, in += rsiz) {
+    for (; inlen >= rsiz; inlen -= rsiz, in += rsiz)
+    {
         for (i = 0; i < rsizw; i++)
             st[i] ^= ((uint64_t *) in)[i];
         keccakf(st, KECCAK_ROUNDS);
@@ -116,7 +122,7 @@ int keccak(const uint8_t *in, int inlen, uint8_t *md, int mdlen)
     return 0;
 }
 
-void keccak1600(const uint8_t *in, int inlen, uint8_t *md)
+void keccak1600(const uint8_t * in, int inlen, uint8_t * md)
 {
     keccak(in, inlen, md, sizeof(state_t));
 }
