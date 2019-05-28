@@ -266,7 +266,7 @@ void benchmarkGenerateKeyDerivation()
 
 int main(int argc, char** argv)
 {
-    bool o_help, o_version, o_benchmark;
+    bool o_help, o_benchmark;
     int o_iterations;
 
     cxxopts::Options options(argv[0], "");
