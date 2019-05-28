@@ -169,11 +169,23 @@ set(SOURCES
 
 add_subdirectory(external)
 include_directories(external/argon2/include)
+include_directories(external/cxxopts)
 
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
 if(NOT APPLE)
   add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
 endif()
+
+target_link_libraries(turtlecoin-crypto-static argon2)
+target_link_libraries(turtlecoin-crypto-shared argon2)
+
+set(CRYPTOTEST_SOURCES
+  tests/main.cpp
+)
+
+add_executable(cryptotest ${CRYPTOTEST_SOURCES})
+target_link_libraries(cryptotest turtlecoin-crypto-static argon2)
+set_property(TARGET cryptotest PROPERTY OUTPUT_NAME "cryptotest")
 
 if(WIN32)
   target_link_libraries(turtlecoin-crypto-static ws2_32)
