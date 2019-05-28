@@ -3,7 +3,7 @@
 #
 # Please see the included LICENSE file for more information.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
 project(turtlecoin-crypto)
 
@@ -15,6 +15,11 @@ if(CCACHE_PROGRAM)
   message(STATUS "Found ccache package... Activating...")
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
+
+# Enable c++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Build statically
 add_definitions(-DSTATICLIB)
@@ -86,7 +91,7 @@ if(NOT MSVC)
     set(MAES_FLAG "-maes")
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${STATICASSERTC_FLAG} ${WARNINGS} ${C_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${STATICASSERTCPP_FLAG} ${WARNINGS} ${CXX_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 ${STATICASSERTCPP_FLAG} ${WARNINGS} ${CXX_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
 
   if(APPLE)
       if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -142,7 +147,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 set(SOURCES
   src/aesb.c
   src/blake256.c
-  src/chacha8.c
+  src/chacha8.cpp
   src/crypto.cpp
   src/crypto-ops.c
   src/crypto-ops-data.c
@@ -161,6 +166,9 @@ set(SOURCES
   src/StringTools.cpp
   src/tree-hash.c
 )
+
+add_subdirectory(external)
+include_directories(external/argon2/include)
 
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
 if(NOT APPLE)

@@ -1,11 +1,5 @@
-// Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2018-2019, The TurtleCoin Developers
-//
-// Please see the included LICENSE file for more information.
-
 #ifndef __hash_h
 #define __hash_h
-
 /*
 #include "crypto_uint8.h"
 #include "crypto_uint32.h"
@@ -40,23 +34,21 @@ typedef crypto_uint64 uint64_t;
 
 /* NIST API begin */
 typedef unsigned char BitSequence;
-
 typedef unsigned long long DataLength;
-
 typedef struct {
-    uint32_t chaining[SIZE512 / sizeof(uint32_t)];      /* actual state */
-    uint32_t block_counter1, block_counter2;    /* message block counter(s) */
-    BitSequence buffer[SIZE512];        /* data buffer */
-    int buf_ptr;                /* data buffer pointer */
-    int bits_in_last_byte;      /* no. of message bits in last byte of
-                                   data buffer */
+  uint32_t chaining[SIZE512/sizeof(uint32_t)];            /* actual state */
+  uint32_t block_counter1,
+  block_counter2;         /* message block counter(s) */
+  BitSequence buffer[SIZE512];      /* data buffer */
+  int buf_ptr;              /* data buffer pointer */
+  int bits_in_last_byte;    /* no. of message bits in last byte of
+			       data buffer */
 } hashState;
 
 /*void Init(hashState*);
 void Update(hashState*, const BitSequence*, DataLength);
 void Final(hashState*, BitSequence*); */
-void groestl(const BitSequence *, DataLength, BitSequence *);
-
+void groestl(const BitSequence*, DataLength, BitSequence*);
 /* NIST API end   */
 
 /*
@@ -65,4 +57,4 @@ int crypto_hash(unsigned char *out,
 		unsigned long long len);
 */
 
-#endif                          /* __hash_h */
+#endif /* __hash_h */

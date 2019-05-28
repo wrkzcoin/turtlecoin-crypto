@@ -1,4 +1,3 @@
-
 /*This program gives the 64-bit optimized bitslice implementation of JH using ANSI C
 
    --------------------------------
@@ -13,16 +12,10 @@
    --------------------------------
    Last Modified: January 16, 2011
 */
-// Copyright (c) 2018-2019, The TurtleCoin Developers
-//
-// Please see the included LICENSE file for more information.
-
 #pragma once
 
 typedef unsigned char BitSequence;
-
 typedef unsigned long long DataLength;
-typedef enum { SUCCESS = 0, FAIL = 1, BAD_HASHLEN = 2 } HashReturn;
+typedef enum {SUCCESS = 0, FAIL = 1, BAD_HASHLEN = 2} HashReturn;
 
-HashReturn jh_hash(int hashbitlen, const BitSequence * data,
-                   DataLength databitlen, BitSequence * hashval);
+HashReturn jh_hash(int hashbitlen, const BitSequence *data, DataLength databitlen, BitSequence *hashval);

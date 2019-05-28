@@ -9,6 +9,12 @@ This repository contains the necessary files to compile the cryptography library
 
 ### How To Compile
 
+#### Build Optimization
+
+The CMake build system will, by default, create optimized *native* builds for your particular system type when you build the software. Using this method, the binaries created provide a better experience and all together faster performance.
+
+However, if you wish to create *portable* binaries that can be shared between systems, specify `-DARCH=default` in your CMake arguments during the build process. Note that *portable* binaries will have a noticable difference in performance than *native* binaries. For this reason, it is always best to build for your particuar system if possible.
+
 #### Linux
 
 ##### Prerequisites
@@ -27,7 +33,7 @@ If you are using Clang, you will need Clang 6.0 or higher. You will also need li
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 sudo apt-get update
 sudo apt-get install aptitude -y
-sudo aptitude install -y build-essential g++ gcc git cmake
+sudo aptitude install -y build-essential g++-8 gcc-8 git cmake
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
 cd turtlecoin-crypto
 mkdir build
@@ -91,25 +97,6 @@ make -j
 
 The static library will be built as `libturtlecoin-crypto.a` in the build folder.
 
-#### OSX/Apple, using GCC
-
-##### Prerequisites
-
-- Install XCode and Developer Tools.
-
-##### Building
-
-```bash
-which brew || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
-cd turtlecoin-crypto
-mkdir build
-cd build
-cmake ..
-make
-```
-
-The static library will be built as `libturtlecoin-crypto.a` in the build folder
 
 #### OSX/Apple, using Clang
 
@@ -157,31 +144,6 @@ If you have errors on this step about not being able to find the following stati
 `MSBuild turtlecoin-crypto.sln /p:Configuration=Release /m`
 
 The static library will be built as `libturtlecoin-crypto.lib` in the `build/Release` folder
-
-#### AARCH64/ARM64
-
-The following images are known to work. Your operation system image **MUST** be 64 bit.
-
-##### Known working images
-
-- https://github.com/Crazyhead90/pi64/releases
-- https://fedoraproject.org/wiki/Architectures/ARM/Raspberry_Pi#aarch64_supported_images_for_Raspberry_Pi_3
-- https://archlinuxarm.org/platforms/armv8/broadcom/raspberry-pi-3
-
-Once you have a 64 bit image installed, setup proceeds the same as any Linux distribution. Ensure you have at least 2GB of ram, or the build is likely to fail. You may need to setup swap space.
-
-##### Building
-
-```bash
-git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
-cd turtlecoin-crypto
-mkdir build
-cd build
-cmake ..
-make
-```
-
-The static library will be built as `libturtlecoin-crypto.a` in the build folder
 
 #### Thanks
 Cryptonote Developers, Bytecoin Developers, Monero Developers, Forknote Project, TurtleCoin Community
