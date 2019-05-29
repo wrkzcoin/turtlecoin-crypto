@@ -366,6 +366,90 @@ void generateKeyImage(const Nan::FunctionCallbackInfo<v8::Value> &info)
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+void generatePrivateViewKeyFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string secretKey = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!secretKey.empty())
+        {
+            try
+            {
+                std::string privateViewKey = Core::Cryptography::generatePrivateViewKeyFromPrivateSpendKey(secretKey);
+
+                functionReturnValue = Nan::New(privateViewKey).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void generateViewKeysFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
+
+    v8::Local<v8::String> publicKeyProp = Nan::New("publicKey").ToLocalChecked();
+
+    v8::Local<v8::String> secretKeyProp = Nan::New("secretKey").ToLocalChecked();
+
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string secretKey = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!secretKey.empty())
+        {
+            try
+            {
+                const auto [privateViewKey, publicViewKey] = Core::Cryptography::generateViewKeysFromPrivateSpendKey(secretKey);
+
+                v8::Local<v8::Value> publicKeyValue = Nan::New(publicViewKey).ToLocalChecked();
+
+                v8::Local<v8::Value> secretKeyValue = Nan::New(privateViewKey).ToLocalChecked();
+
+                Nan::Set(jsonObject, publicKeyProp, publicKeyValue);
+
+                Nan::Set(jsonObject, secretKeyProp, secretKeyValue);
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, jsonObject));
+}
+
 void generateRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
     /* Setup our return object */
@@ -500,6 +584,44 @@ void generateSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+void hashToEllipticCurve(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string hash = std::string();
+
+    std::string scalar = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            hash = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!hash.empty())
+        {
+            try
+            {
+                std::string _ec = Core::Cryptography::hashToEllipticCurve(hash);
+
+                functionReturnValue = Nan::New(_ec).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
 void hashToScalar(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
     /* Setup our return object */
@@ -513,22 +635,68 @@ void hashToScalar(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     if (info.Length() == 1)
     {
-        data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string _scalar = Core::Cryptography::hashToScalar(data);
+
+                functionReturnValue = Nan::New(_scalar).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
     }
 
-    if (!data.empty())
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void scalarmultKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string keyImageA = std::string();
+
+    std::string keyImageB = std::string();
+
+    if (info.Length() == 2)
     {
-        try
+        if (info[0]->IsString())
         {
-            std::string _scalar = Core::Cryptography::hashToScalar(data);
-
-            functionReturnValue = Nan::New(_scalar).ToLocalChecked();
-
-            functionSuccess = true;
+            keyImageA = std::string(*Nan::Utf8String(info[0]->ToString()));
         }
-        catch(const std::exception & e)
+
+        if (info[1]->IsString())
         {
-            return Nan::ThrowError(e.what());
+            keyImageB = std::string(*Nan::Utf8String(info[1]->ToString()));
+        }
+
+        if (!keyImageA.empty() && !keyImageB.empty())
+        {
+            try
+            {
+                std::string keyImageC = Core::Cryptography::scalarmultKey(keyImageA, keyImageB);
+
+                functionReturnValue = Nan::New(keyImageC).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
         }
     }
 
@@ -546,22 +714,25 @@ void scReduce32(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     if (info.Length() == 1)
     {
-        data = std::string(*Nan::Utf8String(info[0]->ToString()));
-    }
-
-    if (!data.empty())
-    {
-        try
+        if (info[0]->IsString())
         {
-            std::string scalar = Core::Cryptography::scReduce32(data);
-
-            functionReturnValue = Nan::New(scalar).ToLocalChecked();
-
-            functionSuccess = true;
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
         }
-        catch(const std::exception & e)
+
+        if (!data.empty())
         {
-            return Nan::ThrowError(e.what());
+            try
+            {
+                std::string scalar = Core::Cryptography::scReduce32(data);
+
+                functionReturnValue = Nan::New(scalar).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
         }
     }
 
@@ -1429,6 +1600,14 @@ void InitModule(v8::Local<v8::Object> exports)
                  Nan::New<v8::FunctionTemplate>
                  (generateKeyImage)->GetFunction());
 
+    exports->Set(Nan::New("generatePrivateViewKeyFromPrivateSpendKey").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (generatePrivateViewKeyFromPrivateSpendKey)->GetFunction());
+
+    exports->Set(Nan::New("generateViewKeysFromPrivateSpendKey").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (generateViewKeysFromPrivateSpendKey)->GetFunction());
+
     exports->Set(Nan::New("generateRingSignatures").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (generateRingSignatures)->GetFunction());
@@ -1437,9 +1616,17 @@ void InitModule(v8::Local<v8::Object> exports)
                  Nan::New<v8::FunctionTemplate>
                  (generateSignature)->GetFunction());
 
+    exports->Set(Nan::New("hashToEllipticCurve").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (hashToEllipticCurve)->GetFunction());
+
     exports->Set(Nan::New("hashToScalar").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (hashToScalar)->GetFunction());
+
+    exports->Set(Nan::New("scalarmultKey").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (scalarmultKey)->GetFunction());
 
     exports->Set(Nan::New("scReduce32").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
