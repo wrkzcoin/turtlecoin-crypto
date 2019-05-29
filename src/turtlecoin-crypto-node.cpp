@@ -1816,6 +1816,10 @@ void InitModule(v8::Local<v8::Object> exports)
                  Nan::New<v8::FunctionTemplate>
                  (cn_fast_hash)->GetFunction());
 
+    exports->Set(Nan::New("cn_fast_hash").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_fast_hash)->GetFunction());
+
     exports->Set(Nan::New("cn_slow_hash_v0").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (cn_slow_hash_v0)->GetFunction());
