@@ -8,6 +8,9 @@
 #pragma once
 
 #include "argon2.h"
+
+#include <cstring>
+
 #include <stddef.h>
 
 #include <CryptoTypes.h>
