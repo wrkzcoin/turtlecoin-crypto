@@ -47,6 +47,7 @@ endif()
 
 ## Platform specific code base information is applied here
 if(MSVC)
+  add_definitions(-DCRYPTO_EXPORTS)
   add_definitions("/bigobj /MP /W3 /GS- /D_CRT_SECURE_NO_WARNINGS /wd4996 /wd4345 /D_WIN32_WINNT=0x0600 /DWIN32_LEAN_AND_MEAN /DGTEST_HAS_TR1_TUPLE=0 /D_VARIADIC_MAX=8 /D__SSE4_1__")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:10485760")
   foreach(VAR CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE)
@@ -144,7 +145,7 @@ endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-set(SOURCES
+set(BASE_CRYPTO
   src/aesb.c
   src/blake256.c
   src/chacha8.cpp
@@ -171,20 +172,26 @@ add_subdirectory(external)
 include_directories(external/argon2/include)
 include_directories(external/cxxopts)
 
+add_library(crypto STATIC ${BASE_CRYPTO})
+
+set(SOURCES
+  src/turtlecoin-crypto.cpp
+)
+
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
 if(NOT APPLE)
   add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
 endif()
 
-target_link_libraries(turtlecoin-crypto-static argon2)
-target_link_libraries(turtlecoin-crypto-shared argon2)
+target_link_libraries(turtlecoin-crypto-static crypto argon2)
+target_link_libraries(turtlecoin-crypto-shared crypto argon2)
 
 set(CRYPTOTEST_SOURCES
   tests/main.cpp
 )
 
 add_executable(cryptotest ${CRYPTOTEST_SOURCES})
-target_link_libraries(cryptotest turtlecoin-crypto-static argon2)
+target_link_libraries(cryptotest turtlecoin-crypto-static)
 set_property(TARGET cryptotest PROPERTY OUTPUT_NAME "cryptotest")
 
 if(WIN32)
