@@ -34,7 +34,7 @@ EXPORTDLL bool DllMain(
 # endif
 #endif
 
-namespace CryptoCore
+namespace Core
 {
     inline Crypto::BinaryArray toBinaryArray(const std::string input)
     {

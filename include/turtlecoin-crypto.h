@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-namespace CryptoCore
+namespace Core
 {
     class EXPORTDLL TurtleCoin
     {
