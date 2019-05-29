@@ -611,28 +611,28 @@ namespace Core
         return Common::podToHex(_derivedKey);
     }
 
-    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
+    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string derivedKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
         Common::podFromHex(derivation, _derivation);
 
-        Crypto::PublicKey _publicKey = Crypto::PublicKey();
-
-        Common::podFromHex(publicKey, _publicKey);
-
         Crypto::PublicKey _derivedKey = Crypto::PublicKey();
 
-        const auto success = Crypto::underive_public_key(_derivation, outputIndex, _publicKey, _derivedKey);
+        Common::podFromHex(derivedKey, _derivedKey);
 
-        std::string derivedKey;
+        Crypto::PublicKey _publicKey = Crypto::PublicKey();
+
+        const auto success = Crypto::underive_public_key(_derivation, outputIndex, _derivedKey, _publicKey);
+
+        std::string publicKey;
 
         if (success)
         {
-            derivedKey = Common::podToHex(_derivedKey);
+            publicKey = Common::podToHex(_publicKey);
         }
 
-        return {success, derivedKey};
+        return {success, publicKey};
     }
 
     std::string Cryptography::generateSignature(const std::string prefixHash, const std::string publicKey, const std::string privateKey)
