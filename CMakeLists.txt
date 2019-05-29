@@ -179,12 +179,14 @@ set(SOURCES
 )
 
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
-if(NOT APPLE)
-  add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
-endif()
-
 target_link_libraries(turtlecoin-crypto-static crypto argon2)
-target_link_libraries(turtlecoin-crypto-shared crypto argon2)
+
+if(WIN32)
+  add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
+  target_link_libraries(turtlecoin-crypto-shared crypto argon2)
+  target_link_libraries(turtlecoin-crypto-static ws2_32)
+  target_link_libraries(turtlecoin-crypto-shared ws2_32)
+endif()
 
 set(CRYPTOTEST_SOURCES
   tests/main.cpp
@@ -193,8 +195,3 @@ set(CRYPTOTEST_SOURCES
 add_executable(cryptotest ${CRYPTOTEST_SOURCES})
 target_link_libraries(cryptotest turtlecoin-crypto-static)
 set_property(TARGET cryptotest PROPERTY OUTPUT_NAME "cryptotest")
-
-if(WIN32)
-  target_link_libraries(turtlecoin-crypto-static ws2_32)
-  target_link_libraries(turtlecoin-crypto-shared ws2_32)
-endif()
