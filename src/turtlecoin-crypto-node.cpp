@@ -633,13 +633,20 @@ void underivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (!derivation.empty() && !derivedKey.empty())
         {
-            const auto [success, publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
-
-            if (success)
+            try
             {
-                functionReturnValue = Nan::New(publicKey).ToLocalChecked();
+                const auto [success, publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
 
-                functionSuccess = true;
+                if (success)
+                {
+                    functionReturnValue = Nan::New(publicKey).ToLocalChecked();
+
+                    functionSuccess = true;
+                }
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
             }
         }
     }
@@ -674,6 +681,704 @@ void cn_fast_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
             try
             {
                 std::string hash = Core::Cryptography::cn_fast_hash(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Variants */
+
+void cn_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Lite Variants */
+
+void cn_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_lite_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_lite_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_lite_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Dark Variants */
+
+void cn_dark_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_dark_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_dark_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Dark Lite Variants */
+
+void cn_dark_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_lite_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_dark_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_lite_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_dark_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_dark_lite_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Turtle Variants */
+
+void cn_turtle_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_turtle_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_turtle_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Cryptonight Turtle Lite Variants */
+
+void cn_turtle_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_lite_slow_hash_v0(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_turtle_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_lite_slow_hash_v1(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void cn_turtle_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::cn_turtle_lite_slow_hash_v2(data);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+/* Chukwa */
+
+void chukwa_slow_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = std::string();
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsString())
+        {
+            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+        }
+
+        if (!data.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::chukwa_slow_hash(data);
 
                 functionReturnValue = Nan::New(hash).ToLocalChecked();
 
@@ -752,6 +1457,82 @@ void InitModule(v8::Local<v8::Object> exports)
     exports->Set(Nan::New("cnFastHash").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (cn_fast_hash)->GetFunction());
+
+    exports->Set(Nan::New("cn_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("cn_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_lite_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_lite_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_lite_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_lite_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_lite_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_dark_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_dark_lite_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_lite_slow_hash_v0)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_lite_slow_hash_v1)->GetFunction());
+
+    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (cn_turtle_lite_slow_hash_v2)->GetFunction());
+
+    exports->Set(Nan::New("chukwa_slow_hash").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (chukwa_slow_hash)->GetFunction());
 }
 
 NODE_MODULE(turtlecoincrypto, InitModule);
