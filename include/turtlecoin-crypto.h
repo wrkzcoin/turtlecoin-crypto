@@ -10,7 +10,7 @@
 #    else
 #        define EXPORTDLL __declspec(dllimport)
 #    endif
-#elif
+#else
 #    define EXPORTDLL
 #endif
 
