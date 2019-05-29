@@ -16,10 +16,10 @@ console.log('Hashing Tests')
 
 const cnfasthash = 'b542df5b6e7f5f05275c98e7345884e2ac726aeeb07e03e44e0389eb86cd05f0'
 
-const cnfasthashdata = crypto.cnFastHash(xmrigdata)
+const cnfasthashdata = crypto.cn_fast_hash(xmrigdata)
 
 console.log('')
-console.log('[#%s] Cryptonight Fast Hash: ', ++testNumber, cnfasthashdata[1])
+console.log('[#%s] cn_fast_hash: ', ++testNumber, cnfasthashdata[1])
 assert.deepStrictEqual(cnfasthashdata[1], cnfasthash)
 
 const cnslowhashv0 = '1b606a3f4a07d6489a1bcd07697bd16696b61c8ae982f61a90160f4e52828a7f'
@@ -134,13 +134,15 @@ const testPublicKey = '7849297236cd7c0d6c69a3c8c179c038d3c1c434735741bb3c8995c3c
 
 const keycheck1 = crypto.checkKey(newKeys.publicKey)
 const keycheck2 = crypto.checkKey(testPublicKey)
+const keycheck3 = crypto.checkKey(testPrivateKey)
 
 console.log('')
 console.log('[#%s]  Public Key Check Test', ++testNumber)
 console.log('       Public Key 1: %s ', newKeys.publicKey, keycheck1)
 console.log('       Public Key 2: %s ', testPublicKey, keycheck2)
+console.log('       Public Key 3: %s ', testPrivateKey, keycheck3)
 
-assert(keycheck1 === true && keycheck2 === true)
+assert(keycheck1 === true && keycheck2 === true && keycheck3 === false)
 
 const derivedPublicKey = crypto.secretKeyToPublicKey(testPrivateKey)
 
