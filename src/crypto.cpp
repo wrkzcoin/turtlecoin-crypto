@@ -13,6 +13,10 @@
 #include <cstring>
 #include <memory>
 
+#if defined(_MSC_VER)
+#include <malloc.h>
+#endif
+
 #include "Varint.h"
 #include "crypto.h"
 #include "hash.h"

@@ -4,14 +4,18 @@
 
 #pragma once
 
-#ifdef _WIN32
-#    ifdef CRYPTO_EXPORTS
-#        define EXPORTDLL __declspec(dllexport)
-#    else
-#        define EXPORTDLL __declspec(dllimport)
-#    endif
+#ifndef NO_CRYPTO_EXPORTS
+# ifdef _WIN32
+#      ifdef CRYPTO_EXPORTS
+#         define EXPORTDLL __declspec(dllexport)
+#      else
+#         define EXPORTDLL __declspec(dllimport)
+#      endif
+# else
+#   define EXPORTDLL
+# endif
 #else
-#    define EXPORTDLL
+# define EXPORTDLL
 #endif
 
 #include <crypto.h>

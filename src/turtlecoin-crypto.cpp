@@ -6,11 +6,12 @@
 
 #include <StringTools.h>
 
-#ifdef _WIN32
-# include <windows.h>
-# ifdef _MANAGED
-#   pragma managed(push, off)
-# endif
+#ifndef NO_CRYPTO_EXPORTS
+# ifdef _WIN32
+#   include <windows.h>
+#   ifdef _MANAGED
+#     pragma managed(push, off)
+#   endif
 
 EXPORTDLL bool DllMain(
     HMODULE		/*hModule*/,
@@ -29,8 +30,9 @@ EXPORTDLL bool DllMain(
     return true;
 }
 
-# ifdef _MANAGED
-#   pragma managed(pop)
+#   ifdef _MANAGED
+#     pragma managed(pop)
+#   endif
 # endif
 #endif
 
