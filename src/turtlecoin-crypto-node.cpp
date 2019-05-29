@@ -771,6 +771,165 @@ void secretKeyToPublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+void tree_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::vector<std::string> hashes;
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+
+                hashes.push_back(hash);
+            }
+        }
+
+        if (hashes.size() != 0)
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::tree_hash(hashes);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void tree_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::vector<std::string> hashes;
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+
+                hashes.push_back(hash);
+            }
+        }
+
+        if (hashes.size() != 0)
+        {
+            try
+            {
+                std::vector<std::string> _branches = Core::Cryptography::tree_branch(hashes);
+
+                v8::Local<v8::Array> branches = Nan::New <v8::Array>(_branches.size());
+
+                for (size_t i = 0; i < _branches.size(); i++)
+                {
+                    v8::Local<v8::String> result = Nan::New(_branches[i]).ToLocalChecked();
+
+                    Nan::Set(branches, i, result);
+                }
+
+                functionReturnValue = branches;
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::vector<std::string> branches;
+
+    size_t depth = 0;
+
+    std::string leaf = std::string();
+
+    std::string path = std::string();
+
+    if (info.Length() == 4)
+    {
+        if (info[0]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+
+                branches.push_back(hash);
+            }
+        }
+
+        if (info[1]->IsNumber())
+        {
+            depth = (size_t) info[1]->NumberValue();
+        }
+
+        if (info[2]->IsString())
+        {
+            leaf = std::string(*Nan::Utf8String(info[2]->ToString()));
+        }
+
+        if (info[3]->IsString())
+        {
+            path = std::string(*Nan::Utf8String(info[3]->ToString()));
+        }
+
+        if (branches.size() != 0 && !leaf.empty() && !path.empty())
+        {
+            try
+            {
+                std::string hash = Core::Cryptography::tree_hash_from_branch(branches, depth, leaf, path);
+
+                functionReturnValue = Nan::New(hash).ToLocalChecked();;
+
+                functionSuccess = true;
+            }
+            catch(const std::exception & e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
 void underivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
     /* Setup our return object */
@@ -1635,6 +1794,18 @@ void InitModule(v8::Local<v8::Object> exports)
     exports->Set(Nan::New("secretKeyToPublicKey").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (secretKeyToPublicKey)->GetFunction());
+
+    exports->Set(Nan::New("tree_hash").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (tree_hash)->GetFunction());
+
+    exports->Set(Nan::New("tree_branch").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (tree_branch)->GetFunction());
+
+    exports->Set(Nan::New("tree_hash_from_branch").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (tree_hash_from_branch)->GetFunction());
 
     exports->Set(Nan::New("underivePublicKey").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
