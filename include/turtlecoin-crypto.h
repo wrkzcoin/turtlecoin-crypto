@@ -22,7 +22,7 @@ extern "C" {
 
 namespace Core
 {
-    class EXPORTDLL TurtleCoin
+    class EXPORTDLL Cryptography
     {
         public:
             /* Hashing Methods */

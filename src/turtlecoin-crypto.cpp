@@ -42,7 +42,7 @@ namespace Core
     }
 
     /* Hashing Methods */
-    std::string TurtleCoin::cn_fast_hash(const std::string input)
+    std::string Cryptography::cn_fast_hash(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -53,7 +53,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -64,7 +64,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -75,7 +75,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -86,7 +86,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_lite_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_lite_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -97,7 +97,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_lite_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_lite_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -108,7 +108,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_lite_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_lite_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -119,7 +119,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_dark_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -130,7 +130,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_dark_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -141,7 +141,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_dark_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -152,7 +152,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_lite_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_dark_lite_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -163,7 +163,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_lite_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_dark_lite_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -174,7 +174,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_dark_lite_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_dark_lite_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -185,7 +185,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_turtle_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -196,7 +196,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_turtle_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -207,7 +207,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_turtle_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -218,7 +218,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_lite_slow_hash_v0(const std::string input)
+    std::string Cryptography::cn_turtle_lite_slow_hash_v0(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -229,7 +229,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_lite_slow_hash_v1(const std::string input)
+    std::string Cryptography::cn_turtle_lite_slow_hash_v1(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -240,7 +240,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_turtle_lite_slow_hash_v2(const std::string input)
+    std::string Cryptography::cn_turtle_lite_slow_hash_v2(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -251,7 +251,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_soft_shell_slow_hash_v0(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v0(const std::string input, const uint32_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -262,7 +262,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_soft_shell_slow_hash_v1(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v1(const std::string input, const uint32_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -273,7 +273,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::cn_soft_shell_slow_hash_v2(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v2(const std::string input, const uint32_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -284,7 +284,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::chukwa_slow_hash(const std::string input)
+    std::string Cryptography::chukwa_slow_hash(const std::string input)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -295,7 +295,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string TurtleCoin::tree_hash(const std::vector<std::string> hashes)
+    std::string Cryptography::tree_hash(const std::vector<std::string> hashes)
     {
         std::vector<Crypto::Hash> treeHashes;
 
@@ -315,7 +315,7 @@ namespace Core
         return Common::podToHex(treeHash);
     }
 
-    std::vector<std::string> TurtleCoin::tree_branch(const std::vector<std::string> hashes)
+    std::vector<std::string> Cryptography::tree_branch(const std::vector<std::string> hashes)
     {
         std::vector<Crypto::Hash> _hashes;
 
@@ -342,7 +342,7 @@ namespace Core
         return branch;
     }
 
-    std::string TurtleCoin::tree_hash_from_branch(const std::vector<std::string> branches, const size_t depth, const std::string leaf, const std::string path)
+    std::string Cryptography::tree_hash_from_branch(const std::vector<std::string> branches, const size_t depth, const std::string leaf, const std::string path)
     {
         std::vector<Crypto::Hash> _branches;
 
@@ -371,7 +371,7 @@ namespace Core
     }
 
     /* Crypto Methods */
-    std::tuple<bool, std::vector<std::string>> TurtleCoin::generateRingSignatures(
+    std::tuple<bool, std::vector<std::string>> Cryptography::generateRingSignatures(
         const std::string prefixHash,
         const std::string keyImage,
         const std::vector<std::string> publicKeys,
@@ -423,7 +423,7 @@ namespace Core
         return {success, signatures};
     }
 
-    bool TurtleCoin::checkRingSignature(
+    bool Cryptography::checkRingSignature(
         const std::string prefixHash,
         const std::string keyImage,
         const std::vector<std::string> publicKeys,
@@ -468,7 +468,7 @@ namespace Core
         );
     }
 
-    std::string TurtleCoin::generatePrivateViewKeyFromPrivateSpendKey(const std::string privateSpendKey)
+    std::string Cryptography::generatePrivateViewKeyFromPrivateSpendKey(const std::string privateSpendKey)
     {
         Crypto::SecretKey _privateSpendKey = Crypto::SecretKey();
 
@@ -481,7 +481,7 @@ namespace Core
         return Common::podToHex(privateViewKey);
     }
 
-    std::tuple<std::string, std::string> TurtleCoin::generateViewKeysFromPrivateSpendKey(const std::string privateSpendKey)
+    std::tuple<std::string, std::string> Cryptography::generateViewKeysFromPrivateSpendKey(const std::string privateSpendKey)
     {
         Crypto::SecretKey _privateSpendKey = Crypto::SecretKey();
 
@@ -500,7 +500,7 @@ namespace Core
         return {privateViewKey, publicViewKey};
     }
 
-    std::tuple<std::string, std::string> TurtleCoin::generateKeys()
+    std::tuple<std::string, std::string> Cryptography::generateKeys()
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -515,7 +515,7 @@ namespace Core
         return {privateKey, publicKey};
     }
 
-    bool TurtleCoin::checkKey(const std::string publicKey)
+    bool Cryptography::checkKey(const std::string publicKey)
     {
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
@@ -524,7 +524,7 @@ namespace Core
         return Crypto::check_key(_publicKey);
     }
 
-    std::tuple<bool, std::string> TurtleCoin::secretKeyToPublicKey(const std::string privateKey)
+    std::tuple<bool, std::string> Cryptography::secretKeyToPublicKey(const std::string privateKey)
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -544,7 +544,7 @@ namespace Core
         return {success, publicKey};
     }
 
-    std::tuple<bool, std::string> TurtleCoin::generateKeyDerivation(const std::string publicKey, const std::string privateKey)
+    std::tuple<bool, std::string> Cryptography::generateKeyDerivation(const std::string publicKey, const std::string privateKey)
     {
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
@@ -568,7 +568,7 @@ namespace Core
         return {success, derivation};
     }
 
-    std::tuple<bool, std::string> TurtleCoin::derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
+    std::tuple<bool, std::string> Cryptography::derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -592,7 +592,7 @@ namespace Core
         return {success, derivedKey};
     }
 
-    std::string TurtleCoin::deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string privateKey)
+    std::string Cryptography::deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string privateKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -609,7 +609,7 @@ namespace Core
         return Common::podToHex(_derivedKey);
     }
 
-    std::tuple<bool, std::string> TurtleCoin::underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
+    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -633,7 +633,7 @@ namespace Core
         return {success, derivedKey};
     }
 
-    std::string TurtleCoin::generateSignature(const std::string prefixHash, const std::string publicKey, const std::string privateKey)
+    std::string Cryptography::generateSignature(const std::string prefixHash, const std::string publicKey, const std::string privateKey)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -654,7 +654,7 @@ namespace Core
         return Common::podToHex(_signature);
     }
 
-    bool TurtleCoin::checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature)
+    bool Cryptography::checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -671,7 +671,7 @@ namespace Core
         return Crypto::check_signature(_prefixHash, _publicKey, _signature);
     }
 
-    std::string TurtleCoin::generateKeyImage(const std::string publicKey, const std::string privateKey)
+    std::string Cryptography::generateKeyImage(const std::string publicKey, const std::string privateKey)
     {
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
@@ -688,7 +688,7 @@ namespace Core
         return Common::podToHex(_keyImage);
     }
 
-    std::string TurtleCoin::scalarmultKey(const std::string keyImageA, const std::string keyImageB)
+    std::string Cryptography::scalarmultKey(const std::string keyImageA, const std::string keyImageB)
     {
         Crypto::KeyImage _keyImageA = Crypto::KeyImage();
 
@@ -703,7 +703,7 @@ namespace Core
         return Common::podToHex(_keyImage);
     }
 
-    std::string TurtleCoin::hashToEllipticCurve(const std::string hash)
+    std::string Cryptography::hashToEllipticCurve(const std::string hash)
     {
         Crypto::Hash _hash = Crypto::Hash();
 
