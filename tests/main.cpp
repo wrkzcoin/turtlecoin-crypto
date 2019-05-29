@@ -1,21 +1,19 @@
-// Copyright (c) 2018, The TurtleCoin Developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
 #include <iostream>
+
 #include <chrono>
+
 #include <assert.h>
 
 #include <cxxopts.hpp>
 
-#include <CryptoTypes.h>
-#include <StringTools.h>
-#include <crypto.h>
+#include <turtlecoin-crypto.h>
 
 #define PERFORMANCE_ITERATIONS  1000
 #define PERFORMANCE_ITERATIONS_LONG_MULTIPLIER 10
-
-using namespace Crypto;
 
 const std::string INPUT_DATA = "0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946127c7a97418f9348828f0f02";
 
@@ -107,14 +105,9 @@ const std::string CN_SOFT_SHELL_V2[] = {
   "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26"
 };
 
-static inline bool CompareHashes(const Hash leftHash, const std::string right)
+static inline bool CompareHashes(const std::string left, const std::string right)
 {
-  Hash rightHash = Hash();
-  if (!Common::podFromHex(right, rightHash)) {
-    return false;
-  }
-
-  return (leftHash == rightHash);
+    return (left == right);
 }
 
 /* Check if we're testing a v1 or v2 hash function */
@@ -141,17 +134,13 @@ void testHashFunction(
     int64_t height,
     Args && ... args)
 {
-    const BinaryArray& rawData = Common::fromHex(INPUT_DATA);
-
-    if (need43BytesOfData(hashFunctionName) && rawData.size() < 43)
+    if (need43BytesOfData(hashFunctionName) && INPUT_DATA.size() < 43)
     {
         return;
     }
 
-    Hash hash = Hash();
-
     /* Perform the hash, with a height if given */
-    hashFunction(rawData.data(), rawData.size(), hash, std::forward<Args>(args)...);
+    std::string hash = hashFunction(INPUT_DATA, std::forward<Args>(args)...);
 
     if (height == -1)
     {
@@ -180,20 +169,16 @@ void testHashFunction(
 template<typename T>
 void benchmark(T hashFunction, std::string hashFunctionName, uint64_t iterations)
 {
-    const BinaryArray& rawData = Common::fromHex(INPUT_DATA);
-
-    if (need43BytesOfData(hashFunctionName) && rawData.size() < 43)
+    if (need43BytesOfData(hashFunctionName) && INPUT_DATA.size() < 43)
     {
         return;
     }
-
-    Hash hash = Hash();
 
     auto startTimer = std::chrono::high_resolution_clock::now();
 
     for (uint64_t i = 0; i < iterations; i++)
     {
-        hashFunction(rawData.data(), rawData.size(), hash);
+        std::string hash = hashFunction(INPUT_DATA);
     }
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
@@ -205,29 +190,22 @@ void benchmark(T hashFunction, std::string hashFunctionName, uint64_t iterations
 
 void benchmarkUnderivePublicKey()
 {
-    Crypto::KeyDerivation derivation;
+    std::string txPublicKey = "f235acd76ee38ec4f7d95123436200f9ed74f9eb291b1454fbc30742481be1ab";
 
-    Crypto::PublicKey txPublicKey;
-    Common::podFromHex("f235acd76ee38ec4f7d95123436200f9ed74f9eb291b1454fbc30742481be1ab", txPublicKey);
+    std::string privateViewKey = "89df8c4d34af41a51cfae0267e8254cadd2298f9256439fa1cfa7e25ee606606";
 
-    Crypto::SecretKey privateViewKey;
-    Common::podFromHex("89df8c4d34af41a51cfae0267e8254cadd2298f9256439fa1cfa7e25ee606606", privateViewKey);
-
-    Crypto::generate_key_derivation(txPublicKey, privateViewKey, derivation);
+    const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey);
 
     const uint64_t loopIterations = 600000;
 
     auto startTimer = std::chrono::high_resolution_clock::now();
 
-    Crypto::PublicKey spendKey;
-
-    Crypto::PublicKey outputKey;
-    Common::podFromHex("4a078e76cd41a3d3b534b83dc6f2ea2de500b653ca82273b7bfad8045d85a400", outputKey);
+    std::string outputKey = "4a078e76cd41a3d3b534b83dc6f2ea2de500b653ca82273b7bfad8045d85a400";
 
     for (uint64_t i = 0; i < loopIterations; i++)
     {
         /* Use i as output index to prevent optimization */
-        Crypto::underive_public_key(derivation, i, outputKey, spendKey);
+        const auto [success, spendKey] = Core::Cryptography::underivePublicKey(derivation, i, outputKey);
     }
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
@@ -240,13 +218,9 @@ void benchmarkUnderivePublicKey()
 
 void benchmarkGenerateKeyDerivation()
 {
-    Crypto::KeyDerivation derivation;
+    std::string txPublicKey = "f235acd76ee38ec4f7d95123436200f9ed74f9eb291b1454fbc30742481be1ab";
 
-    Crypto::PublicKey txPublicKey;
-    Common::podFromHex("f235acd76ee38ec4f7d95123436200f9ed74f9eb291b1454fbc30742481be1ab", txPublicKey);
-
-    Crypto::SecretKey privateViewKey;
-    Common::podFromHex("89df8c4d34af41a51cfae0267e8254cadd2298f9256439fa1cfa7e25ee606606", privateViewKey);
+    std::string privateViewKey = "89df8c4d34af41a51cfae0267e8254cadd2298f9256439fa1cfa7e25ee606606";
 
     const uint64_t loopIterations = 60000;
 
@@ -254,7 +228,7 @@ void benchmarkGenerateKeyDerivation()
 
     for (uint64_t i = 0; i < loopIterations; i++)
     {
-        Crypto::generate_key_derivation(txPublicKey, privateViewKey, derivation);
+        const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey);
     }
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
@@ -308,63 +282,63 @@ int main(int argc, char** argv)
     {
         std::cout << "Input: " << INPUT_DATA << std::endl << std::endl;
 
-        TEST_HASH_FUNCTION(cn_slow_hash_v0, CN_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_slow_hash_v1, CN_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_slow_hash_v2, CN_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_slow_hash_v0, CN_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_slow_hash_v1, CN_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_slow_hash_v2, CN_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(cn_lite_slow_hash_v0, CN_LITE_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_lite_slow_hash_v1, CN_LITE_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_lite_slow_hash_v2, CN_LITE_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_lite_slow_hash_v0, CN_LITE_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_lite_slow_hash_v1, CN_LITE_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_lite_slow_hash_v2, CN_LITE_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(cn_dark_slow_hash_v0, CN_DARK_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_dark_slow_hash_v1, CN_DARK_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_dark_slow_hash_v2, CN_DARK_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_slow_hash_v0, CN_DARK_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_slow_hash_v1, CN_DARK_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_slow_hash_v2, CN_DARK_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(cn_dark_lite_slow_hash_v0, CN_DARK_LITE_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_dark_lite_slow_hash_v1, CN_DARK_LITE_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_dark_lite_slow_hash_v2, CN_DARK_LITE_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_lite_slow_hash_v0, CN_DARK_LITE_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_lite_slow_hash_v1, CN_DARK_LITE_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_dark_lite_slow_hash_v2, CN_DARK_LITE_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(cn_turtle_slow_hash_v0, CN_TURTLE_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_turtle_slow_hash_v1, CN_TURTLE_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_turtle_slow_hash_v2, CN_TURTLE_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_slow_hash_v0, CN_TURTLE_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_slow_hash_v1, CN_TURTLE_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_slow_hash_v2, CN_TURTLE_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(cn_turtle_lite_slow_hash_v0, CN_TURTLE_LITE_SLOW_HASH_V0);
-        TEST_HASH_FUNCTION(cn_turtle_lite_slow_hash_v1, CN_TURTLE_LITE_SLOW_HASH_V1);
-        TEST_HASH_FUNCTION(cn_turtle_lite_slow_hash_v2, CN_TURTLE_LITE_SLOW_HASH_V2);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_lite_slow_hash_v0, CN_TURTLE_LITE_SLOW_HASH_V0);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_lite_slow_hash_v1, CN_TURTLE_LITE_SLOW_HASH_V1);
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_turtle_lite_slow_hash_v2, CN_TURTLE_LITE_SLOW_HASH_V2);
 
         std::cout << std::endl;
 
-        TEST_HASH_FUNCTION(chukwa_slow_hash, CHUKWA);
+        TEST_HASH_FUNCTION(Core::Cryptography::chukwa_slow_hash, CHUKWA);
 
         std::cout << std::endl;
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(cn_soft_shell_slow_hash_v0, CN_SOFT_SHELL_V0[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v0, CN_SOFT_SHELL_V0[height / 512], height);
         }
 
         std::cout << std::endl;
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(cn_soft_shell_slow_hash_v1, CN_SOFT_SHELL_V1[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v1, CN_SOFT_SHELL_V1[height / 512], height);
         }
 
         std::cout << std::endl;
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(cn_soft_shell_slow_hash_v2, CN_SOFT_SHELL_V2[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v2, CN_SOFT_SHELL_V2[height / 512], height);
         }
 
         if (o_benchmark)
@@ -374,31 +348,31 @@ int main(int argc, char** argv)
             benchmarkUnderivePublicKey();
             benchmarkGenerateKeyDerivation();
 
-            BENCHMARK(cn_slow_hash_v0, o_iterations);
-            BENCHMARK(cn_slow_hash_v1, o_iterations);
-            BENCHMARK(cn_slow_hash_v2, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_slow_hash_v0, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_slow_hash_v1, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_slow_hash_v2, o_iterations);
 
-            BENCHMARK(cn_lite_slow_hash_v0, o_iterations);
-            BENCHMARK(cn_lite_slow_hash_v1, o_iterations);
-            BENCHMARK(cn_lite_slow_hash_v2, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_lite_slow_hash_v0, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_lite_slow_hash_v1, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_lite_slow_hash_v2, o_iterations);
 
-            BENCHMARK(cn_dark_slow_hash_v0, o_iterations);
-            BENCHMARK(cn_dark_slow_hash_v1, o_iterations);
-            BENCHMARK(cn_dark_slow_hash_v2, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_slow_hash_v0, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_slow_hash_v1, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_slow_hash_v2, o_iterations);
 
-            BENCHMARK(cn_dark_lite_slow_hash_v0, o_iterations);
-            BENCHMARK(cn_dark_lite_slow_hash_v1, o_iterations);
-            BENCHMARK(cn_dark_lite_slow_hash_v2, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_lite_slow_hash_v0, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_lite_slow_hash_v1, o_iterations);
+            BENCHMARK(Core::Cryptography::cn_dark_lite_slow_hash_v2, o_iterations);
 
-            BENCHMARK(cn_turtle_slow_hash_v0, o_iterations_long);
-            BENCHMARK(cn_turtle_slow_hash_v1, o_iterations_long);
-            BENCHMARK(cn_turtle_slow_hash_v2, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_slow_hash_v0, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_slow_hash_v1, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_slow_hash_v2, o_iterations_long);
 
-            BENCHMARK(cn_turtle_lite_slow_hash_v0, o_iterations_long);
-            BENCHMARK(cn_turtle_lite_slow_hash_v1, o_iterations_long);
-            BENCHMARK(cn_turtle_lite_slow_hash_v2, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_lite_slow_hash_v0, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_lite_slow_hash_v1, o_iterations_long);
+            BENCHMARK(Core::Cryptography::cn_turtle_lite_slow_hash_v2, o_iterations_long);
 
-            BENCHMARK(chukwa_slow_hash, o_iterations_long);
+            BENCHMARK(Core::Cryptography::chukwa_slow_hash, o_iterations_long);
         }
     }
     catch (std::exception& e)
