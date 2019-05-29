@@ -231,11 +231,11 @@ else()
   
   if(BUILD_JS)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 --bind")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind")
   endif()
   
   if(BUILD_WASM)
     set(CMAKE_EXECUTABLE_SUFFIX "-wasm.js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s BINARYEN_METHOD='native-wasm' -s POLYFILL_OLD_MATH_FUNCTIONS=1 --bind")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind BINARYEN_METHOD='native-wasm'")
   endif()
 endif()
