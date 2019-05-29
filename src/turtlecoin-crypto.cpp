@@ -717,4 +717,26 @@ namespace Core
 
         return Common::podToHex(_ellipticCurve);
     }
+
+    std::string Cryptography::scReduce32(const std::string data)
+    {
+        Crypto::EllipticCurveScalar _scalar;
+
+        Common::podFromHex(data, _scalar);
+
+        Crypto::scReduce32(_scalar);
+
+        return Common::podToHex(_scalar);
+    }
+
+    std::string Cryptography::hashToScalar(const std::string hash)
+    {
+        Crypto::BinaryArray _hash = toBinaryArray(hash);
+
+        Crypto::EllipticCurveScalar _scalar;
+
+        Crypto::hashToScalar(_hash.data(), _hash.size(), _scalar);
+
+        return Common::podToHex(_scalar);
+    }
 }

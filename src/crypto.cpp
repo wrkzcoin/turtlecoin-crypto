@@ -2,7 +2,7 @@
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2016-2018, The Karbowanec developers
 // Copyright (c) 2018-2019, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.
 
 #include <alloca.h>
@@ -39,6 +39,14 @@ namespace Crypto {
   static inline void hash_to_scalar(const void *data, size_t length, EllipticCurveScalar &res) {
     cn_fast_hash(data, length, reinterpret_cast<Hash &>(res));
     sc_reduce32(reinterpret_cast<unsigned char*>(&res));
+  }
+
+  void crypto_ops::scReduce32(EllipticCurveScalar & scalar) {
+    sc_reduce32(reinterpret_cast < unsigned char *>(&scalar));
+  }
+
+  void crypto_ops::hashToScalar(const void *data, size_t length, EllipticCurveScalar & res) {
+    hash_to_scalar(data, length, res);
   }
 
   void crypto_ops::generate_keys(PublicKey &pub, SecretKey &sec) {
@@ -332,7 +340,7 @@ namespace Crypto {
     ge_p1p1_to_p2(&point, &point2);
     ge_tobytes(reinterpret_cast<unsigned char*>(&key), &point);
   }
-  
+
   void crypto_ops::generate_key_image(const PublicKey &pub, const SecretKey &sec, KeyImage &image) {
     ge_p3 point;
     ge_p2 point2;
@@ -341,7 +349,7 @@ namespace Crypto {
     ge_scalarmult(&point2, reinterpret_cast<const unsigned char*>(&sec), &point);
     ge_tobytes(reinterpret_cast<unsigned char*>(&image), &point2);
   }
-  
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4200)
 #endif
@@ -489,7 +497,7 @@ namespace Crypto {
             ge_p2 tmp2;
             ge_p3 tmp3;
 
-            if (sc_check(reinterpret_cast<const unsigned char*>(&signatures[i])) != 0 
+            if (sc_check(reinterpret_cast<const unsigned char*>(&signatures[i])) != 0
              || sc_check(reinterpret_cast<const unsigned char*>(&signatures[i]) + 32) != 0)
             {
                 return false;

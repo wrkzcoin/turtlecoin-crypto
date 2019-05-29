@@ -94,6 +94,8 @@ namespace Core
             static std::string generateKeyImage(const std::string, const std::string);
             static std::string scalarmultKey(const std::string, const std::string);
             static std::string hashToEllipticCurve(const std::string);
+            static std::string scReduce32(const std::string);
+            static std::string hashToScalar(const std::string hash);
     };
 }
 
