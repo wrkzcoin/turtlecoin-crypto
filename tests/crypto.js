@@ -122,16 +122,33 @@ assert.deepStrictEqual(chukwadata[1], chukwa)
 console.log('')
 console.log('Core Crypto Tests')
 
+const [keyError, newKeys] = crypto.generateKeys()
+console.log('')
+console.log('[#%s]  Key Generation Test', ++testNumber)
+assert(keyError === false)
+console.log('       Private Key: ', newKeys.secretKey)
+console.log('       Public Key: ', newKeys.publicKey)
+
 const testPrivateKey = '4a078e76cd41a3d3b534b83dc6f2ea2de500b653ca82273b7bfad8045d85a400'
 const testPublicKey = '7849297236cd7c0d6c69a3c8c179c038d3c1c434735741bb3c8995c3c9d6f2ac'
+
+const keycheck1 = crypto.checkKey(newKeys.publicKey)
+const keycheck2 = crypto.checkKey(testPublicKey)
+
+console.log('')
+console.log('[#%s]  Public Key Check Test', ++testNumber)
+console.log('       Public Key 1: %s ', newKeys.publicKey, keycheck1)
+console.log('       Public Key 2: %s ', testPublicKey, keycheck2)
+
+assert(keycheck1 === true && keycheck2 === true)
 
 const derivedPublicKey = crypto.secretKeyToPublicKey(testPrivateKey)
 
 console.log('')
-console.log('[#%s] Secret Key to Public Key', ++testNumber)
-console.log('     In Test Private Key: ', testPrivateKey)
-console.log('     In Test Public Key: ', testPublicKey)
-console.log('     Out Derived Public Key: ', derivedPublicKey[1])
+console.log('[#%s]  Secret Key to Public Key', ++testNumber)
+console.log('       In Test Private Key: ', testPrivateKey)
+console.log('       In Test Public Key: ', testPublicKey)
+console.log('       Out Derived Public Key: ', derivedPublicKey[1])
 
 assert(derivedPublicKey[1] === testPublicKey)
 
@@ -150,9 +167,9 @@ const expectedDerivation = '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff
 var [err, derivation] = crypto.generateKeyDerivation(walletPrivateViewKey, txPublicKey)
 
 console.log('')
-console.log('[#%s] Generate Key Derivation', ++testNumber)
-console.log('     Key Derivation: ', derivation)
-console.log('     Expected Key Derivation: ', expectedDerivation)
+console.log('[#%s]  Generate Key Derivation', ++testNumber)
+console.log('       Key Derivation: ', derivation)
+console.log('       Expected Key Derivation: ', expectedDerivation)
 
 assert(derivation === expectedDerivation)
 
@@ -163,9 +180,9 @@ var publicSpendKey1
 [err, publicSpendKey1] = crypto.underivePublicKey(derivation, 0, 'aae1b90b4d0a7debb417d91b7f7aa8fdfd80c42ebc6757e1449fd1618a5a3ff1')
 
 console.log('')
-console.log('[#%s] Underive Public Key: False Test', ++testNumber)
-console.log('     Derived public spend key: ', publicSpendKey1)
-console.log('     Our public spend key: ', walletPublicSpendKey)
+console.log('[#%s]  Underive Public Key: False Test', ++testNumber)
+console.log('       Derived public spend key: ', publicSpendKey1)
+console.log('       Our public spend key: ', walletPublicSpendKey)
 
 assert(publicSpendKey1 !== walletPublicSpendKey && !err)
 
@@ -173,9 +190,9 @@ var publicSpendKey2
 [err, publicSpendKey2] = crypto.underivePublicKey(derivation, ourOutputIndex, 'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d')
 
 console.log('')
-console.log('[#%s] Underive Public Key: True Test', ++testNumber)
-console.log('     Derived public spend key: ', publicSpendKey2)
-console.log('     Our public spend key: ', walletPublicSpendKey)
+console.log('[#%s]  Underive Public Key: True Test', ++testNumber)
+console.log('       Derived public spend key: ', publicSpendKey2)
+console.log('       Our public spend key: ', walletPublicSpendKey)
 
 assert(publicSpendKey2 === walletPublicSpendKey && !err)
 
@@ -188,9 +205,9 @@ var keyImage
   const [err1, publicKey] = crypto.derivePublicKey(derivation, ourOutputIndex, walletPublicSpendKey)
 
   console.log('')
-  console.log('[#%s] Derive Public Key', ++testNumber)
-  console.log('     Derived Public Key: ', publicKey)
-  console.log('     Expected Derived Public Key: ', expectedPublicKey)
+  console.log('[#%s]  Derive Public Key', ++testNumber)
+  console.log('       Derived Public Key: ', publicKey)
+  console.log('       Expected Derived Public Key: ', expectedPublicKey)
 
   assert(publicKey === expectedPublicKey)
 
@@ -199,9 +216,9 @@ var keyImage
   const [err2, secretKey] = crypto.deriveSecretKey(derivation, ourOutputIndex, walletPrivateSpendKey)
 
   console.log('')
-  console.log('[#%s] Derive Secret Key', ++testNumber)
-  console.log('     Derived Secret Key: ', secretKey)
-  console.log('     Expected Derived Secret Key: ', expectedSecretKey)
+  console.log('[#%s]  Derive Secret Key', ++testNumber)
+  console.log('       Derived Secret Key: ', secretKey)
+  console.log('       Expected Derived Secret Key: ', expectedSecretKey)
 
   assert(secretKey === expectedSecretKey)
 
@@ -211,8 +228,8 @@ var keyImage
 })()
 
 console.log('')
-console.log('[#%s] Generate KeyImage', ++testNumber)
-console.log('     Generated key image: ', keyImage)
-console.log('     Expected key image: ', expectedKeyImage)
+console.log('[#%s]  Generate KeyImage', ++testNumber)
+console.log('       Generated key image: ', keyImage)
+console.log('       Expected key image: ', expectedKeyImage)
 
 assert(keyImage === expectedKeyImage && !err)
