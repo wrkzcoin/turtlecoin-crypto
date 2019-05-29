@@ -189,7 +189,7 @@ if(WIN32)
 endif()
 
 set(CRYPTOTEST_SOURCES
-  tests/main.cpp
+  tests/cryptotest.cpp
 )
 
 add_executable(cryptotest ${CRYPTOTEST_SOURCES})
