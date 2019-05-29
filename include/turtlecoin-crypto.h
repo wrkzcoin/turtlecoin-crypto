@@ -6,12 +6,12 @@
 
 #ifdef _WIN32
 #    ifdef CRYPTO_EXPORTS
-#        define CRYTPO_API __declspec(dllexport)
+#        define EXPORTDLL __declspec(dllexport)
 #    else
-#        define CRYTPO_API __declspec(dllimport)
+#        define EXPORTDLL __declspec(dllimport)
 #    endif
 #elif
-#    define CRYTPO_API
+#    define EXPORTDLL
 #endif
 
 #include <crypto.h>
@@ -22,7 +22,7 @@ extern "C" {
 
 namespace CryptoCore
 {
-    class CRYTPO_API TurtleCoin
+    class EXPORTDLL TurtleCoin
     {
         public:
             /* Hashing Methods */

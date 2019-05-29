@@ -12,7 +12,7 @@
 #   pragma managed(push, off)
 # endif
 
-CRYTPO_API bool DllMain(
+EXPORTDLL bool DllMain(
     HMODULE		/*hModule*/,
     DWORD		ul_reason_for_call,
     LPVOID		/*lpReserved*/
