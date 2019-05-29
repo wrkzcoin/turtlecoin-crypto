@@ -165,3 +165,5 @@ crashlytics-build.properties
 fabric.properties
 test.js
 build
+emsdk
+jsbuild
