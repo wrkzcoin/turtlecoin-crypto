@@ -90,4 +90,4 @@ script:
 - mkdir build && cd build
 - cmake .. ${CUSTOM_TOOLCHAIN}
 - make -j2
-- if [[ "$LABEL" != "aarch64" ]]; then ./src/cryptotest ; fi
+- if [[ "$LABEL" != "aarch64" ]]; then ./cryptotest ; fi
