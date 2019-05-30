@@ -1003,8 +1003,8 @@ extern "C"
         output = strdup(Core::Cryptography::scReduce32(data).c_str());
     }
 
-    EXPORTDLL void _hashToScalar(const char* data, char* &output)
+    EXPORTDLL void _hashToScalar(const char* hash, char* &output)
     {
-        output = strdup(Core::Cryptography::hashToScalar(data).c_str());
+        output = strdup(Core::Cryptography::hashToScalar(hash).c_str());
     }
 }
