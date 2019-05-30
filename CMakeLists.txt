@@ -221,15 +221,18 @@ else()
   set(JAVSCRIPT_SOURCES
     src/turtlecoin-crypto-js.cpp
   )
-  
+
   add_executable(turtlecoin-crypto ${JAVSCRIPT_SOURCES})
   target_link_libraries(turtlecoin-crypto turtlecoin-crypto-static)
-  
+
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
   if(BUILD_JS)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind")
   endif()
-  
+
   if(BUILD_WASM)
     set(CMAKE_EXECUTABLE_SUFFIX "-wasm.js")
     set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind -s BINARYEN_METHOD='native-wasm'")
