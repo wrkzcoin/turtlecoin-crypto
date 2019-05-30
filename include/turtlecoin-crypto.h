@@ -26,7 +26,7 @@ extern "C" {
 
 namespace Core
 {
-    class EXPORTDLL Cryptography
+    class Cryptography
     {
         public:
             /* Hashing Methods */
