@@ -105,7 +105,6 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" OR "${LABEL}" STREQUAL "aarch64")
       set(MAES_FLAG "")
-      set(CRYPTOPP_AARCH64 ON CACHE BOOL FORCE "Tell CryptoPP that we are building for aarch64")
     elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64" AND NOT "${LABEL}" STREQUAL "aarch64")
       set(MAES_FLAG "-maes")
     endif()
@@ -116,9 +115,6 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
         if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
             # Need to build against libc++ instead of libstc++ on apple
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdinc++ -I/usr/local/opt/llvm/include/c++/v1 -nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc -lgcc_eh")
-
-            # Need these flags so gcc OSX works on the cryptopp ASM - https://groups.google.com/forum/#!topic/cryptopp-users/po8yO-vYaac
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1")
 
         elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
             # Need to link against the llvm libc++ library, default is too old for std::filesystem
@@ -236,6 +232,6 @@ else()
   
   if(BUILD_WASM)
     set(CMAKE_EXECUTABLE_SUFFIX "-wasm.js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind BINARYEN_METHOD='native-wasm'")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind -s BINARYEN_METHOD='native-wasm'")
   endif()
 endif()
