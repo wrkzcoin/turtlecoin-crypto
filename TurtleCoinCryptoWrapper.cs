@@ -517,6 +517,18 @@ namespace Core
 
             return Marshal.PtrToStringAnsi(signature);
         }
+        
+        [DllImport(LibraryName)]
+        private static extern bool _checkSignature([MarshalAs(UnmanagedType.LPStr)]string prefixHash, [MarshalAs(UnmanagedType.LPStr)]string publicKey, [MarshalAs(UnmanagedType.LPStr)]string signature);
+
+        public static bool CheckSignature(string prefixHash, string publicKey, string signature)
+        {
+            if (!IsKey(prefixHash) || !IsKey(publicKey)) return false;
+
+            if (!CheckKey(publicKey)) return false;
+
+            return _checkSignature(prefixHash, publicKey, signature);
+        }
 
         [DllImport("turtlecoin-crypto-shared")]
         private static extern void _generateKeyImage([MarshalAs(UnmanagedType.LPStr)]string publicKey, [MarshalAs(UnmanagedType.LPStr)]string privateKey, ref IntPtr keyImage);
