@@ -255,7 +255,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string Cryptography::cn_soft_shell_slow_hash_v0(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v0(const std::string input, const uint64_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -266,7 +266,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string Cryptography::cn_soft_shell_slow_hash_v1(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v1(const std::string input, const uint64_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 
@@ -277,7 +277,7 @@ namespace Core
         return Common::podToHex(hash);
     }
 
-    std::string Cryptography::cn_soft_shell_slow_hash_v2(const std::string input, const uint32_t height)
+    std::string Cryptography::cn_soft_shell_slow_hash_v2(const std::string input, const uint64_t height)
     {
         Crypto::Hash hash = Crypto::Hash();
 

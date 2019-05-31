@@ -156,47 +156,47 @@ namespace Crypto {
   }
 
   // CryptoNight Soft Shell
-  inline  void cn_soft_shell_slow_hash_v0(const void *data, size_t length, Hash &hash, uint32_t height) {
-    uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-    int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+  inline  void cn_soft_shell_slow_hash_v0(const void *data, size_t length, Hash &hash, uint64_t height) {
+    uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+    int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
     if (offset < 0) {
       offset = base_offset;
     }
 
-    uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+    uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
 	scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-    uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-    uint32_t pagesize = scratchpad;
+    uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+    uint64_t pagesize = scratchpad;
 
     cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 0, 0, pagesize, scratchpad, iterations);
   }
 
-  inline void cn_soft_shell_slow_hash_v1(const void *data, size_t length, Hash &hash, uint32_t height) {
-    uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-    int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+  inline void cn_soft_shell_slow_hash_v1(const void *data, size_t length, Hash &hash, uint64_t height) {
+    uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+    int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
     if (offset < 0) {
       offset = base_offset;
     }
 
-    uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+    uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
 	scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-    uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-    uint32_t pagesize = scratchpad;
+    uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+    uint64_t pagesize = scratchpad;
 
     cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 1, 0, pagesize, scratchpad, iterations);
   }
 
-  inline void cn_soft_shell_slow_hash_v2(const void *data, size_t length, Hash &hash, uint32_t height) {
-    uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-    int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+  inline void cn_soft_shell_slow_hash_v2(const void *data, size_t length, Hash &hash, uint64_t height) {
+    uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+    int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
     if (offset < 0) {
       offset = base_offset;
     }
 
-    uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+    uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
 	scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-    uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-    uint32_t pagesize = scratchpad;
+    uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+    uint64_t pagesize = scratchpad;
 
     cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 2, 0, pagesize, scratchpad, iterations);
   }

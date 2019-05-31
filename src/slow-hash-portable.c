@@ -112,10 +112,10 @@ union cn_slow_hash_state
 };
   #pragma pack(pop)
 
-void cn_slow_hash(const void *data, size_t length, char *hash, int light, int variant, int prehashed, uint32_t page_size, uint32_t scratchpad, uint32_t iterations)
+void cn_slow_hash(const void *data, size_t length, char *hash, int light, int variant, int prehashed, uint64_t page_size, uint64_t scratchpad, uint64_t iterations)
 {
-    uint32_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
-    uint32_t aes_rounds = (iterations / 2);
+    uint64_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
+    uint64_t aes_rounds = (iterations / 2);
     size_t aes_init = (page_size / AES_BLOCK_SIZE);
 
   #ifndef FORCE_USE_HEAP
