@@ -163,7 +163,7 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("secretKeyToPublicKey", &secretKeyToPublicKey);
     function("generateKeyDerivation", &generateKeyDerivation);
     function("derivePublicKey", &derivePublicKey);
-    function("deriveSecretKey", &Core::Cryptography::deriveSecretKey);
+    function("deriveSecretKey", &deriveSecretKey);
     function("underivePublicKey", &underivePublicKey);
     function("generateSignature", &Core::Cryptography::generateSignature);
     function("checkSignature", &Core::Cryptography::checkSignature);
