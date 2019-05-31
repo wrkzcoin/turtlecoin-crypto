@@ -841,18 +841,9 @@ void tree_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
         {
             try
             {
-                std::vector<std::string> _branches = Core::Cryptography::tree_branch(hashes);
+                std::string branch = Core::Cryptography::tree_branch(hashes);
 
-                v8::Local<v8::Array> branches = Nan::New <v8::Array>(_branches.size());
-
-                for (size_t i = 0; i < _branches.size(); i++)
-                {
-                    v8::Local<v8::String> result = Nan::New(_branches[i]).ToLocalChecked();
-
-                    Nan::Set(branches, i, result);
-                }
-
-                functionReturnValue = branches;
+                functionReturnValue = Nan::New(branch).ToLocalChecked();
 
                 functionSuccess = true;
             }
@@ -881,7 +872,7 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string path = std::string();
 
-    if (info.Length() == 4)
+    if (info.Length() == 3)
     {
         if (info[0]->IsArray())
         {
@@ -895,17 +886,12 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
             }
         }
 
-        if (info[1]->IsNumber())
-        {
-            depth = (size_t) info[1]->NumberValue();
-        }
-
-        if (info[2]->IsString())
+        if (info[1]->IsString())
         {
             leaf = std::string(*Nan::Utf8String(info[2]->ToString()));
         }
 
-        if (info[3]->IsString())
+        if (info[2]->IsString())
         {
             path = std::string(*Nan::Utf8String(info[3]->ToString()));
         }
@@ -914,7 +900,7 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
         {
             try
             {
-                std::string hash = Core::Cryptography::tree_hash_from_branch(branches, depth, leaf, path);
+                std::string hash = Core::Cryptography::tree_hash_from_branch(branches, leaf, path);
 
                 functionReturnValue = Nan::New(hash).ToLocalChecked();;
 
