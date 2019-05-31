@@ -346,7 +346,7 @@ namespace Core
         return branch;
     }
 
-    std::string Cryptography::tree_hash_from_branch(const std::vector<std::string> branches, const size_t depth, const std::string leaf, const std::string path)
+    std::string Cryptography::tree_hash_from_branch(const std::vector<std::string> branches, const uint64_t depth, const std::string leaf, const std::string path)
     {
         std::vector<Crypto::Hash> _branches;
 
@@ -572,7 +572,7 @@ namespace Core
         return {success, derivation};
     }
 
-    std::tuple<bool, std::string> Cryptography::derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
+    std::tuple<bool, std::string> Cryptography::derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -596,7 +596,7 @@ namespace Core
         return {success, derivedKey};
     }
 
-    std::string Cryptography::deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string privateKey)
+    std::string Cryptography::deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string privateKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -613,7 +613,7 @@ namespace Core
         return Common::podToHex(_derivedKey);
     }
 
-    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string derivedKey)
+    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -743,6 +743,91 @@ namespace Core
     }
 }
 
+inline void tree_hash(const char* hashes, const uint64_t hashesLength, char* &hash)
+{
+    const std::string* hashesBuffer = reinterpret_cast<const std::string*>(hashes);
+
+    std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
+
+    std::string result = Core::Cryptography::tree_hash(_hashes);
+
+    hash = strdup(result.c_str());
+}
+
+inline void tree_branch(const char* hashes, const uint64_t hashesLength, char* &branches, uint64_t* &branchesLength)
+{
+    const std::string* hashesBuffer = reinterpret_cast<const std::string*>(hashes);
+
+    std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
+
+    std::vector<std::string> _branches = Core::Cryptography::tree_branch(_hashes);
+
+    branches = reinterpret_cast<char*>(_branches.data());
+
+    branchesLength = reinterpret_cast<uint64_t*>(_branches.size());
+}
+
+inline void tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const uint64_t depth, const char* leaf, const char* path, char* &hash)
+{
+    const std::string* branchesBuffer = reinterpret_cast<const std::string*>(branches);
+
+    std::vector<std::string> _branches(branchesBuffer, branchesBuffer + branchesLength);
+
+    std::string _hash = Core::Cryptography::tree_hash_from_branch(_branches, depth, leaf, path);
+
+    hash = strdup(_hash.c_str());
+}
+
+inline int generateRingSignatures(
+    const char* prefixHash,
+    const char* keyImage,
+    const char* publicKeys,
+    uint64_t publicKeysLength,
+    const char* transactionSecretKey,
+    const uint64_t realOutputIndex,
+    char* &signatures
+)
+{
+    const std::string* publicKeysBuffer = reinterpret_cast<const std::string*>(publicKeys);
+
+    std::vector<std::string> _publicKeys(publicKeysBuffer, publicKeysBuffer + publicKeysLength);
+
+    auto [success, _signatures] = Core::Cryptography::generateRingSignatures(
+        prefixHash,
+        keyImage,
+        _publicKeys,
+        transactionSecretKey,
+        realOutputIndex
+    );
+
+    if (success)
+    {
+        signatures = reinterpret_cast<char*>(_signatures.data());
+    }
+
+    return success;
+}
+
+inline bool checkRingSignature(
+    const char* prefixHash,
+    const char* keyImage,
+    const char* publicKeys,
+    const uint64_t publicKeysLength,
+    const char* signatures,
+    const uint64_t signaturesLength
+)
+{
+    const std::string* publicKeysBuffer = reinterpret_cast<const std::string*>(publicKeys);
+
+    std::vector<std::string> _publicKeys(publicKeysBuffer, publicKeysBuffer + publicKeysLength);
+
+    const std::string* signaturesBuffer = reinterpret_cast<const std::string*>(signatures);
+
+    std::vector<std::string> _signatures(signaturesBuffer, signaturesBuffer + signaturesLength);
+
+    return Core::Cryptography::checkRingSignature(prefixHash, keyImage, _publicKeys, _signatures);
+}
+
 inline void generateViewKeysFromPrivateSpendKey(const char* privateSpendKey, char* &privateKey, char* &publicKey)
 {
     const auto [_privateKey, _publicKey] = Core::Cryptography::generateViewKeysFromPrivateSpendKey(privateSpendKey);
@@ -779,7 +864,7 @@ inline int generateKeyDerivation(const char* publicKey, const char* privateKey, 
     return success;
 }
 
-inline int derivePublicKey(const char* derivation, const size_t outputIndex, const char* publicKey, char* &outPublicKey)
+inline int derivePublicKey(const char* derivation, const uint64_t outputIndex, const char* publicKey, char* &outPublicKey)
 {
     const auto [success, _outPublicKey] = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey);
 
@@ -788,7 +873,7 @@ inline int derivePublicKey(const char* derivation, const size_t outputIndex, con
     return success;
 }
 
-inline int underivePublicKey(const char* derivation, const size_t outputIndex, const char* derivedKey, char* &publicKey)
+inline int underivePublicKey(const char* derivation, const uint64_t outputIndex, const char* derivedKey, char* &publicKey)
 {
     const auto [success, _publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
 
@@ -916,17 +1001,47 @@ extern "C"
         output = strdup(Core::Cryptography::chukwa_slow_hash(input).c_str());
     }
 
-    /* tree_hash */
+    EXPORTDLL void _tree_hash(const char* hashes, const uint64_t hashesLength, char* &hash)
+    {
+        tree_hash(hashes, hashesLength, hash);
+    }
 
-    /* tree_branch */
+    EXPORTDLL void _tree_branch(const char* hashes, const uint64_t hashesLength, char* &branches, uint64_t* &branchesLength)
+    {
+        tree_branch(hashes, hashesLength, branches, branchesLength);
+    }
 
-    /* tree_hash_from_branch */
+    EXPORTDLL void _tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const uint64_t depth, const char* leaf, const char* path, char* &hash)
+    {
+        tree_hash_from_branch(branches, branchesLength, depth, leaf, path, hash);
+    }
 
     /* Crypto Methods */
 
-    /* generateRingSignatures */
+    EXPORTDLL int _generateRingSignatures(
+        const char* prefixHash,
+        const char* keyImage,
+        const char* publicKeys,
+        const uint64_t publicKeysLength,
+        const char* transactionSecretKey,
+        const uint64_t realOutputIndex,
+        char* &signatures
+    )
+    {
+        return generateRingSignatures(prefixHash, keyImage, publicKeys, publicKeysLength, transactionSecretKey, realOutputIndex, signatures);
+    }
 
-    /* checkRingSignature */
+    EXPORTDLL bool _checkRingSignature(
+        const char* prefixHash,
+        const char* keyImage,
+        const char* publicKeys,
+        const uint64_t publicKeysLength,
+        const char* signatures,
+        const uint64_t signaturesLength
+    )
+    {
+        return checkRingSignature(prefixHash, keyImage, publicKeys, publicKeysLength, signatures, signaturesLength);
+    }
 
     EXPORTDLL void _generatePrivateViewKeyFromPrivateSpendKey(const char* spendPrivateKey, char* &output)
     {
@@ -968,7 +1083,7 @@ extern "C"
         outPrivateKey = strdup(Core::Cryptography::deriveSecretKey(derivation, outputIndex, privateKey).c_str());
     }
 
-    EXPORTDLL int _underivePublicKey(const char* derivation, const size_t outputIndex, const char* derivedKey, char* &publicKey)
+    EXPORTDLL int _underivePublicKey(const char* derivation, const uint64_t outputIndex, const char* derivedKey, char* &publicKey)
     {
         return underivePublicKey(derivation, outputIndex, derivedKey, publicKey);
     }
