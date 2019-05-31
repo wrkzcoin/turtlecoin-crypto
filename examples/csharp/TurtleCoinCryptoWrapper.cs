@@ -248,7 +248,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v0([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v0(string data)
@@ -262,7 +262,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v1([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v1(string data)
@@ -276,7 +276,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v2([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v2(string data)
@@ -383,7 +383,7 @@ namespace Core
 
             Keys viewKeys = new Keys();
 
-            _generateViewKeysFromPrivateSpendKey(spendPrivateKey, ref viewPrivateKey, ref viewPrivateKey);
+            _generateViewKeysFromPrivateSpendKey(spendPrivateKey, ref viewPrivateKey, ref viewPublicKey);
 
             viewKeys.privateKey = Marshal.PtrToStringAnsi(viewPrivateKey);
 
@@ -516,6 +516,18 @@ namespace Core
             _generateSignature(prefixHash, publicKey, privateKey, ref signature);
 
             return Marshal.PtrToStringAnsi(signature);
+        }
+        
+        [DllImport("turtlecoin-crypto-shared")]
+        private static extern bool _checkSignature([MarshalAs(UnmanagedType.LPStr)]string prefixHash, [MarshalAs(UnmanagedType.LPStr)]string publicKey, [MarshalAs(UnmanagedType.LPStr)]string signature);
+
+        public static bool CheckSignature(string prefixHash, string publicKey, string signature)
+        {
+            if (!IsKey(prefixHash) || !IsKey(publicKey)) return false;
+
+            if (!CheckKey(publicKey)) return false;
+
+            return _checkSignature(prefixHash, publicKey, signature);
         }
 
         [DllImport("turtlecoin-crypto-shared")]
