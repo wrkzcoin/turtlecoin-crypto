@@ -517,7 +517,7 @@ namespace Core
 
             return Marshal.PtrToStringAnsi(signature);
         }
-        
+
         [DllImport("turtlecoin-crypto-shared")]
         private static extern bool _checkSignature([MarshalAs(UnmanagedType.LPStr)]string prefixHash, [MarshalAs(UnmanagedType.LPStr)]string publicKey, [MarshalAs(UnmanagedType.LPStr)]string signature);
 
