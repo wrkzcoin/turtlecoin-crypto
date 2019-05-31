@@ -289,20 +289,20 @@ void generateKeyDerivation(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     bool functionSuccess = false;
 
-    std::string secretKey = std::string();
-
     std::string publicKey = std::string();
+
+    std::string secretKey = std::string();
 
     if (info.Length() == 2)
     {
         if (info[0]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[0]->ToString()));
         }
 
         if (info[1]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[1]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[1]->ToString()));
         }
 
         if (!secretKey.empty() && !publicKey.empty())
