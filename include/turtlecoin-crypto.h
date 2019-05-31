@@ -88,7 +88,7 @@ namespace Core
             static std::tuple<bool, std::string> generateKeyDerivation(const std::string publicKey, const std::string secretKey);
             static std::tuple<bool, std::string> derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey);
             static std::string deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string secretKey);
-            static std::tuple<bool, std::string> underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedPublicKey);
+            static std::tuple<bool, std::string> underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey);
             static std::string generateSignature(const std::string prefixHash, const std::string publicKey, const std::string secretKey);
             static bool checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature);
             static std::string generateKeyImage(const std::string publicKey, const std::string secretKey);
