@@ -77,7 +77,7 @@ set(NO_OPTIMIZED_MULTIPLY_ON_ARM OFF CACHE BOOL "Turn off Optimized Multiplicati
 
 message(STATUS "Building for target architecture: ${ARCH}")
 
-if(FORCE_USE_HEAP)
+if(FORCE_USE_HEAP OR BUILD_JS OR BUILD_WASM)
   add_definitions(-DFORCE_USE_HEAP)
   message(STATUS "FORCE_USE_HEAP: ENABLED")
 else()
@@ -276,16 +276,19 @@ else()
   add_executable(turtlecoin-crypto ${JAVSCRIPT_SOURCES})
   target_link_libraries(turtlecoin-crypto turtlecoin-crypto-static)
 
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+  # Override our release flags for emscripten compatibility
+  set(CMAKE_C_FLAGS_DEBUG "")
+  set(CMAKE_CXX_FLAGS_DEBUG "")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
 
   if(BUILD_JS)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 --bind --js-opts 0")
   endif()
 
   if(BUILD_WASM)
     set(CMAKE_EXECUTABLE_SUFFIX "-wasm.js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 -s ASM_JS=2 --bind -s BINARYEN_METHOD='native-wasm'")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 --bind -s BINARYEN_METHOD='native-wasm'")
   endif()
 endif()

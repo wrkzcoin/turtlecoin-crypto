@@ -6,7 +6,7 @@ if [[ -z "${EMSDK}" ]]; then
   echo "Installing emscripten..."
   echo ""
   if [[ ! -e ./emsdk ]]; then
-    git clone https://github.com/juj/emsdk.git
+    git clone https://github.com/emscripten-core/emsdk
   fi
   cd emsdk && git pull
   ./emsdk install latest && ./emsdk activate latest
