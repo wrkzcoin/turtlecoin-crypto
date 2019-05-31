@@ -17,7 +17,7 @@ namespace Core
 
         private const int MinimumVariationBytes = 43 * 2;
 
-        private static bool isKey(string key)
+        private static bool IsKey(string key)
         {
             if (key.Length % 2 == 0 && key.Length == 64) return true;
 
@@ -361,7 +361,7 @@ namespace Core
 
         static public string generatePrivateViewKeyFromPrivateSpendKey(string spendPrivateKey)
         {
-            if (!isKey(spendPrivateKey)) return null;
+            if (!IsKey(spendPrivateKey)) return null;
 
             IntPtr viewPrivateKey = new IntPtr();
 
@@ -375,7 +375,7 @@ namespace Core
 
         static public Keys generateViewKeysFromPrivateSpendKey(string spendPrivateKey)
         {
-            if (!isKey(spendPrivateKey)) return new Keys();
+            if (!IsKey(spendPrivateKey)) return new Keys();
 
             IntPtr viewPrivateKey = new IntPtr();
 
@@ -401,7 +401,7 @@ namespace Core
 
             IntPtr publicKey = new IntPtr();
 
-            _generateKeys(ref privateKey,ref publicKey);
+            _generateKeys(ref privateKey, ref publicKey);
 
             Keys keys = new Keys();
 
@@ -417,7 +417,7 @@ namespace Core
 
         static public bool checkKey(string publicKey)
         {
-            if (!isKey(publicKey)) return false;
+            if (!IsKey(publicKey)) return false;
 
             int success = _checkKey(publicKey);
 
@@ -431,7 +431,7 @@ namespace Core
 
         static public string secretKeyToPublicKey(string privateKey)
         {
-            if (!isKey(privateKey)) return null;
+            if (!IsKey(privateKey)) return null;
 
             IntPtr publicKey = new IntPtr();
 
@@ -447,7 +447,7 @@ namespace Core
 
         static public string generateKeyDerivation(string publicKey, string privateKey)
         {
-            if (!isKey(publicKey) || !isKey(privateKey)) return null;
+            if (!IsKey(publicKey) || !IsKey(privateKey)) return null;
 
             IntPtr derivation = new IntPtr();
 
@@ -463,7 +463,7 @@ namespace Core
 
         static public string derivePublicKey(string derivation, UInt32 outputIndex, string publicKey)
         {
-            if (!isKey(derivation) || !isKey(publicKey)) return null;
+            if (!IsKey(derivation) || !IsKey(publicKey)) return null;
 
             IntPtr derivedKey = new IntPtr();
 
@@ -479,7 +479,7 @@ namespace Core
 
         static public string deriveSecretKey(string derivation, UInt32 outputIndex, string privateKey)
         {
-            if (!isKey(derivation) || !isKey(privateKey)) return null;
+            if (!IsKey(derivation) || !IsKey(privateKey)) return null;
 
             IntPtr derivedKey = new IntPtr();
 
@@ -493,7 +493,7 @@ namespace Core
 
         static public string underivePublicKey(string derivation, UInt32 outputIndex, string derivedKey)
         {
-            if (!isKey(derivation) || !isKey(derivedKey)) return null;
+            if (!IsKey(derivation) || !IsKey(derivedKey)) return null;
 
             IntPtr publicKey = new IntPtr();
 
@@ -509,7 +509,7 @@ namespace Core
 
         static public string generateSignature(string prefixHash, string publicKey, string privateKey)
         {
-            if (!isKey(prefixHash) || !isKey(publicKey) || !isKey(privateKey)) return null;
+            if (!IsKey(prefixHash) || !IsKey(publicKey) || !IsKey(privateKey)) return null;
 
             IntPtr signature = new IntPtr();
 
@@ -525,7 +525,7 @@ namespace Core
         {
             if (!IsKey(prefixHash) || !IsKey(publicKey)) return false;
 
-            if (!CheckKey(publicKey)) return false;
+            if (!checkKey(publicKey)) return false;
 
             return _checkSignature(prefixHash, publicKey, signature);
         }
@@ -535,7 +535,7 @@ namespace Core
 
         static public string generateKeyImage(string publicKey, string privateKey)
         {
-            if (!isKey(publicKey) || !isKey(privateKey)) return null;
+            if (!IsKey(publicKey) || !IsKey(privateKey)) return null;
 
             IntPtr keyImage = new IntPtr();
 
@@ -549,7 +549,7 @@ namespace Core
 
         static public string scalarmultKey(string keyImageA, string keyImageB)
         {
-            if (!isKey(keyImageA) || !isKey(keyImageB)) return null;
+            if (!IsKey(keyImageA) || !IsKey(keyImageB)) return null;
 
             IntPtr keyImageC = new IntPtr();
 
@@ -563,7 +563,7 @@ namespace Core
 
         static public string hashToEllipticCurve(string hash)
         {
-            if (!isKey(hash)) return null;
+            if (!IsKey(hash)) return null;
 
             IntPtr ec = new IntPtr();
 
@@ -577,7 +577,7 @@ namespace Core
 
         static public string scReduce32(string input)
         {
-            if (!isKey(input)) return null;
+            if (!IsKey(input)) return null;
 
             IntPtr output = new IntPtr();
 
@@ -591,7 +591,7 @@ namespace Core
 
         static public string hashToScalar(string hash)
         {
-            if (!isKey(hash)) return null;
+            if (!IsKey(hash)) return null;
 
             IntPtr scalar = new IntPtr();
 
