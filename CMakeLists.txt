@@ -5,16 +5,48 @@
 
 cmake_minimum_required(VERSION 3.8)
 
-project(turtlecoin-crypto)
-
-enable_language(C)
-enable_language(CXX)
-
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
   message(STATUS "Found ccache package... Activating...")
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
+
+set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug, Release, RelWithDebInfo")
+set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo Release CACHE TYPE INTERNAL)
+set(ARCH default CACHE STRING "CPU to build for: -march value or default")
+
+project(turtlecoin-crypto)
+
+# Required for finding Threads on ARM
+enable_language(C)
+enable_language(CXX)
+
+# Assert our compiler is good
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC 7.0 or higher
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7)
+        message(FATAL_ERROR "GCC/G++ 7.0 or greater is required to compile. Please check the README.md for detailed compilation instructions.")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # Clang 6.0 or higher
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
+        message(FATAL_ERROR "Clang 6.0 or greater is required to compile. Please check the README.md for detailed compilation instructions.")
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # Visual Studio 15 2017 or higher
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
+        message(FATAL_ERROR "MSVC 19.10 or greater is required to compile (Latest Visual Studio 15 2017 should suffice). Please check the README.md for detailed compilation instructions.")
+    endif()
+else()
+    message(WARNING "You are using an unsupported compiler. The compilation is very likely to fail. God speed.")
+endif()
+
+## This section describes our general CMake setup options
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_SKIP_INSTALL_RULES OFF FORCE)
+set(CMAKE_SKIP_PACKAGE_ALL_DEPENDENCY ON FORCE)
+set(CMAKE_SUPPRESS_REGENERATION ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Enable c++17
 set(CMAKE_CXX_STANDARD 17)
@@ -38,8 +70,12 @@ if(BUILD_WASM)
   message(STATUS "Building native WASM binary...")
 endif()
 
-# Build statically
-add_definitions(-DSTATICLIB)
+## This section is for settings found in the slow-hash routine(s) that may benefit some systems (mostly ARM)
+set(FORCE_USE_HEAP ON CACHE BOOL "Force the use of heap memory allocation")
+set(NO_AES OFF CACHE BOOL "Turn off Hardware AES instructions?")
+set(NO_OPTIMIZED_MULTIPLY_ON_ARM OFF CACHE BOOL "Turn off Optimized Multiplication on ARM?")
+
+message(STATUS "Building for target architecture: ${ARCH}")
 
 if(FORCE_USE_HEAP)
   add_definitions(-DFORCE_USE_HEAP)
@@ -61,6 +97,17 @@ if(NO_OPTIMIZED_MULTIPLY_ON_ARM)
 else()
   message(STATUS "OPTIMIZED_ARM_MULTIPLICATION: ENABLED")
 endif()
+
+# We need to set the label and import it into CMake if it exists
+set(LABEL "")
+if(DEFINED ENV{LABEL})
+  set(LABEL $ENV{LABEL})
+  message(STATUS "Found LABEL: ${LABEL}")
+endif()
+
+## We only build static binaries -- this is left here for our dependencies
+set(STATIC ON CACHE BOOL FORCE "Link libraries statically? Forced to ON")
+add_definitions(-DSTATICLIB)
 
 if (NOT BUILD_JS AND NOT BUILD_WASM)
   ## Platform specific code base information is applied here
@@ -85,7 +132,6 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
     endif()
 
     ## This is here to support building for multiple architecture types... but we all know how well that usually goes...
-    set(ARCH default CACHE STRING "CPU to build for: -march value or default")
     if("${ARCH}" STREQUAL "default")
       set(ARCH_FLAG "")
     else()
@@ -100,6 +146,9 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
       set(WARNINGS "${WARNINGS} -Wlogical-op -Wno-error=maybe-uninitialized -Wno-error=clobbered -Wno-error=unused-but-set-variable")
     endif()
 
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+      set(WARNINGS "${WARNINGS} -Wno-error=odr")
+    endif()
     set(C_WARNINGS "-Waggregate-return -Wnested-externs -Wold-style-definition -Wstrict-prototypes")
     set(CXX_WARNINGS "-Wno-reorder -Wno-missing-field-initializers")
 
@@ -107,6 +156,8 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
       set(MAES_FLAG "")
     elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64" AND NOT "${LABEL}" STREQUAL "aarch64")
       set(MAES_FLAG "-maes")
+    else()
+      set(MAES_FLAG "")
     endif()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${STATICASSERTC_FLAG} ${WARNINGS} ${C_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 ${STATICASSERTCPP_FLAG} ${WARNINGS} ${CXX_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
