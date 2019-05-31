@@ -319,7 +319,7 @@ namespace Core
         return Common::podToHex(treeHash);
     }
 
-    std::vector<std::string> Cryptography::tree_branch(const std::vector<std::string> hashes)
+    std::string Cryptography::tree_branch(const std::vector<std::string> hashes)
     {
         std::vector<Crypto::Hash> _hashes;
 
@@ -332,18 +332,11 @@ namespace Core
             _hashes.push_back(tempHash);
         }
 
-        std::vector<Crypto::Hash> _branch;
+        std::vector<Crypto::Hash> _branches(1);
 
-        Crypto::tree_branch(_hashes.data(), _hashes.size(), _branch.data());
+        Crypto::tree_branch(_hashes.data(), _hashes.size(), _branches.data());
 
-        std::vector<std::string> branch;
-
-        for (const auto hash : _branch)
-        {
-            branch.push_back(Common::podToHex(hash));
-        }
-
-        return branch;
+        return Common::podToHex(_branches[0]);
     }
 
     std::string Cryptography::tree_hash_from_branch(const std::vector<std::string> branches, const uint64_t depth, const std::string leaf, const std::string path)
@@ -754,17 +747,15 @@ inline void tree_hash(const char* hashes, const uint64_t hashesLength, char* &ha
     hash = strdup(result.c_str());
 }
 
-inline void tree_branch(const char* hashes, const uint64_t hashesLength, char* &branches, uint64_t* &branchesLength)
+inline void tree_branch(const char* hashes, const uint64_t hashesLength, char* &branch)
 {
     const std::string* hashesBuffer = reinterpret_cast<const std::string*>(hashes);
 
     std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
 
-    std::vector<std::string> _branches = Core::Cryptography::tree_branch(_hashes);
+    std::string _branch = Core::Cryptography::tree_branch(_hashes);
 
-    branches = reinterpret_cast<char*>(_branches.data());
-
-    branchesLength = reinterpret_cast<uint64_t*>(_branches.size());
+    branch = strdup(_branch.c_str());
 }
 
 inline void tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const uint64_t depth, const char* leaf, const char* path, char* &hash)
@@ -1006,9 +997,9 @@ extern "C"
         tree_hash(hashes, hashesLength, hash);
     }
 
-    EXPORTDLL void _tree_branch(const char* hashes, const uint64_t hashesLength, char* &branches, uint64_t* &branchesLength)
+    EXPORTDLL void _tree_branch(const char* hashes, const uint64_t hashesLength, char* &branch)
     {
-        tree_branch(hashes, hashesLength, branches, branchesLength);
+        tree_branch(hashes, hashesLength, branch);
     }
 
     EXPORTDLL void _tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const uint64_t depth, const char* leaf, const char* path, char* &hash)
