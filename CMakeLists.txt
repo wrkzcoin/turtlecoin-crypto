@@ -282,13 +282,26 @@ else()
   set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
 
+  set(JS_LINKFLAGS
+    -s EXPORT_NAME="'TurtleCoinCrypto'"
+    -s POLYFILL_OLD_MATH_FUNCTIONS=1
+    -s MODULARIZE=1
+    --bind
+  )
+
+  string(REPLACE ";" " " JS_LINKFLAGS_STR "${JS_LINKFLAGS}")
+
   if(BUILD_JS)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=0 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 --bind --js-opts 0")
+    set(JS_LINKFLAGS_STR "${JS_LINKFLAGS_STR} -s WASM=0 --js-opts 0")
+    message(STATUS "emcc flags: ${JS_LINKFLAGS_STR}")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "${JS_LINKFLAGS_STR}")
   endif()
 
   if(BUILD_WASM)
     set(CMAKE_EXECUTABLE_SUFFIX "-wasm.js")
-    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "-s WASM=1 -s POLYFILL_OLD_MATH_FUNCTIONS=1 -s NO_FILESYSTEM=1 --bind -s BINARYEN_METHOD='native-wasm'")
+    set(JS_LINKFLAGS_STR "${JS_LINKFLAGS_STR} -s WASM=1 -s BINARYEN_METHOD='native-wasm'")
+    message(STATUS "emcc flags: ${JS_LINKFLAGS_STR}")
+    set_target_properties(turtlecoin-crypto PROPERTIES LINK_FLAGS "${JS_LINKFLAGS_STR} -s WASM=1 -s BINARYEN_METHOD='native-wasm'")
   endif()
 endif()
