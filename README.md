@@ -1,11 +1,24 @@
 ![image](https://user-images.githubusercontent.com/34389545/35821974-62e0e25c-0a70-11e8-87dd-2cfffeb6ed47.png)
 
+[![NPM](https://nodei.co/npm/turtlecoin-crypto.png?downloads=true&stars=true)](https://nodei.co/npm/turtlecoin-crypto/)
+
 #### Master Build Status
 [![Build Status](https://travis-ci.org/turtlecoin/turtlecoin-crypto.svg?branch=master)](https://travis-ci.org/turtlecoin/turtlecoin-crypto) [![Build status](https://ci.appveyor.com/api/projects/status/github/turtlecoin/turtlecoin-crypto?branch=master&svg=true)](https://ci.appveyor.com/project/brandonlehmann/turtlecoin-crypto)
 
+#### Development Build Status
+[![Build Status](https://travis-ci.org/turtlecoin/turtlecoin-crypto.svg?branch=development)](https://travis-ci.org/turtlecoin/turtlecoin-crypto) [![Build status](https://ci.appveyor.com/api/projects/status/github/turtlecoin/turtlecoin-crypto?branch=development&svg=true)](https://ci.appveyor.com/project/brandonlehmann/turtlecoin-crypto)
+
 # TurtleCoin: Standalone Cryptography Library
 
-This repository contains the necessary files to compile the cryptography library used within [TurtleCoin](https://turtlecoin.lol) as a standalone static library that can be included in various other projects.
+This repository contains the necessary files to compile the cryptography library used within [TurtleCoin](https://turtlecoin.lol) as a standalone library that can be included in various other projects in a variety of development environments, including:
+
+* C++
+* C# (via C++ shared library & P/Invoke)
+* Node.JS >= 6.x
+* Native Javascript
+* WASM
+
+## C++ Library
 
 ### How To Compile
 
@@ -19,7 +32,7 @@ However, if you wish to create *portable* binaries that can be shared between sy
 
 ##### Prerequisites
 
-You will need the following packages: cmake (2.8 or higher), make, and git.
+You will need the following packages: CMake (2.8 or higher), make, and git.
 
 You will also need either GCC/G++, or Clang.
 
@@ -77,7 +90,9 @@ cmake ..
 make -j
 ```
 
-The static library will be built as `libturtlecoin-crypto.a` in the build folder.
+The following library files will be created in the `build` folder:
+
+* `libturtlecoin-crypto-static.a`
 
 ##### Generic Linux
 
@@ -95,8 +110,9 @@ cmake ..
 make -j
 ```
 
-The static library will be built as `libturtlecoin-crypto.a` in the build folder.
+The following library files will be created in the `build` folder:
 
+* `libturtlecoin-crypto-static.a`
 
 #### OSX/Apple, using Clang
 
@@ -119,7 +135,9 @@ cmake ..
 make
 ```
 
-The static library will be built as `libturtlecoin-crypto.a` in the build folder
+The following library files will be created in the `build` folder:
+
+* `libturtlecoin-crypto-static.a`
 
 #### Windows
 
@@ -139,16 +157,68 @@ set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\
 cmake -G "Visual Studio 15 2017 Win64" ..
 ```
 
-If you have errors on this step about not being able to find the following static libraries, you may need to update your cmake. Open 'Visual Studio Installer' and click 'Update'.
+**Note:** If you have errors on this step about not being able to find the some libraries, you may need to update your cmake. Open 'Visual Studio Installer' and click 'Update'.
 
 `MSBuild turtlecoin-crypto.sln /p:Configuration=Release /m`
 
-The static library will be built as `libturtlecoin-crypto.lib` in the `build/Release` folder
+The following library files will be created in the `build/Release` folder:
 
-#### Thanks
+* `turtlecoin-crypto-static.lib`
+* `turtlecoin-crypto-shared.lib`
+* `turtlecoin-crypto-shared.dll`
+
+## Node.JS Module
+
+### Dependencies
+
+* [Node.js](https://nodejs.org) >= +6.x LTS (or Node v11)
+
+#### Windows
+
+##### Prerequisites
+
+Read very careful if you want this to work right the first time.
+
+1) Open a *Windows Powershell* console as **Administrator**
+2) Run the command: `npm install -g windows-build-tools --vs2015`
+   ***This will take a while. Sit tight.***
+
+### Installation
+
+```bash
+npm install turtlecoin-crypto
+```
+
+### Intialization
+
+```javascript
+const TurtleCoinCrypto = require('turtlecoin-crypto')
+```
+
+## Native Javascript & WASM
+
+**Note:** Hashing functions (except `cn_fast_hash`) are intentionally not compiled by default as they are currently unsupported in this build mode.
+
+```bash
+git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
+cd turtlecoin-crypto
+./build_js.sh
+```
+
+This script will install the necessary dependencies on your machine and then proceed to compile the library to Native Javascript and WASM.
+
+The following library files will be created in the `jsbuild` folder:
+
+* Native Javascript
+  * `turtlecoin-crypto.js`
+* WASM
+  * `turtlecoin-crypto-wasm.js`: WASM Loader file
+  * `turtlecoin-crypto-wasm.wasm`: WASM file
+
+## Thanks
 Cryptonote Developers, Bytecoin Developers, Monero Developers, Forknote Project, TurtleCoin Community
 
-### Copypasta for license when editing files
+## Copypasta for license when editing files
 
 Hi TurtleCoin contributor, thanks for forking and sending back Pull Requests. Extensive docs about contributing are in the works or elsewhere. For now this is the bit we need to get into all the files we touch. Please add it to the top of the files.
 
