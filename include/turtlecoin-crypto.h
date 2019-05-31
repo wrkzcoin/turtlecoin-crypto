@@ -64,7 +64,7 @@ namespace Core
 
             static std::string tree_hash(const std::vector<std::string> hashes);
             static std::vector<std::string> tree_branch(const std::vector<std::string> hashes);
-            static std::string tree_hash_from_branch(const std::vector<std::string> branches, const size_t depth, const std::string leaf, const std::string path);
+            static std::string tree_hash_from_branch(const std::vector<std::string> branches, const uint64_t depth, const std::string leaf, const std::string path);
 
             /* Crypto Methods */
             static std::tuple<bool, std::vector<std::string>> generateRingSignatures(
@@ -86,9 +86,9 @@ namespace Core
             static bool checkKey(const std::string publicKey);
             static std::tuple<bool, std::string> secretKeyToPublicKey(const std::string secretKey);
             static std::tuple<bool, std::string> generateKeyDerivation(const std::string publicKey, const std::string secretKey);
-            static std::tuple<bool, std::string> derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey);
-            static std::string deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string secretKey);
-            static std::tuple<bool, std::string> underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string derivedPublicKey);
+            static std::tuple<bool, std::string> derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey);
+            static std::string deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string secretKey);
+            static std::tuple<bool, std::string> underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedPublicKey);
             static std::string generateSignature(const std::string prefixHash, const std::string publicKey, const std::string secretKey);
             static bool checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature);
             static std::string generateKeyImage(const std::string publicKey, const std::string secretKey);
