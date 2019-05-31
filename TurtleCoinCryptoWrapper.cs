@@ -248,7 +248,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v0([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v0(string data)
@@ -262,7 +262,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v1([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v1(string data)
@@ -276,7 +276,7 @@ namespace Core
             return Marshal.PtrToStringAnsi(output);
         }
 
-        [DllImport("turtle_litecoin-crypto-shared")]
+        [DllImport("turtle-crypto-shared")]
         private static extern void _cn_turtle_lite_slow_hash_v2([MarshalAs(UnmanagedType.LPStr)]string input, ref IntPtr output);
 
         static public string cn_turtle_lite_slow_hash_v2(string data)
@@ -383,7 +383,7 @@ namespace Core
 
             Keys viewKeys = new Keys();
 
-            _generateViewKeysFromPrivateSpendKey(spendPrivateKey, ref viewPrivateKey, ref viewPrivateKey);
+            _generateViewKeysFromPrivateSpendKey(spendPrivateKey, ref viewPrivateKey, ref viewPublicKey);
 
             viewKeys.privateKey = Marshal.PtrToStringAnsi(viewPrivateKey);
 
