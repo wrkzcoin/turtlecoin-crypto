@@ -166,7 +166,7 @@ const walletPublicSpendKey = '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976f
 
 const expectedDerivation = '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20'
 
-var [err, derivation] = crypto.generateKeyDerivation(walletPrivateViewKey, txPublicKey)
+var [err, derivation] = crypto.generateKeyDerivation(txPublicKey, walletPrivateViewKey)
 
 console.log('')
 console.log('[#%s]  Generate Key Derivation', ++testNumber)
