@@ -4,7 +4,8 @@
       "target_name": "turtlecoin-crypto",
       "defines": [
         "NDEBUG",
-        "NO_CRYPTO_EXPORTS"
+        "NO_CRYPTO_EXPORTS",
+        "FORCE_USE_HEAP"
       ],
       "include_dirs": [
         "include",
@@ -73,6 +74,9 @@
         "-Wstrict-prototypes",
         "-fno-exceptions"
       ],
+      "cflags": [
+        "-maes"
+      ],
       "cflags_cc!": [
         "-fno-exceptions"
       ],
@@ -99,7 +103,8 @@
         "-Wno-error=unused-but-set-variable",
         "-Wno-reorder",
         "-Wno-missing-field-initializers",
-        "-fexceptions"
+        "-fexceptions",
+        "-maes"
       ],
       "conditions": [
         [
@@ -156,11 +161,6 @@
                 }
               }
             }
-          },
-          {
-            "defines": [
-              "NO_AES"
-            ]
           }
         ]
       ]
