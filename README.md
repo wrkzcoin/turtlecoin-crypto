@@ -12,11 +12,49 @@
 
 This repository contains the necessary files to compile the cryptography library used within [TurtleCoin](https://turtlecoin.lol) as a standalone library that can be included in various other projects in a variety of development environments, including:
 
+* Node.js >= 6.x
 * C++
 * C# (via C++ shared library & P/Invoke)
-* Node.JS >= 6.x
 * Native Javascript
 * WASM
+
+## Node.js Module
+
+### Dependencies
+
+* [Node.js](https://nodejs.org) >= +6.x LTS (or Node v11)
+
+#### Windows
+
+##### Prerequisites
+
+Read very careful if you want this to work right the first time.
+
+1) Open a *Windows Powershell* console as **Administrator**
+2) Run the command: `npm install -g windows-build-tools --vs2015`
+   ***This will take a while. Sit tight.***
+   
+#### Linux
+
+##### Prerequisites
+
+You will need either GCC/G++, or Clang.
+
+If you are using GCC, you will need GCC-7.0 or higher.
+
+If you are using Clang, you will need Clang 6.0 or higher. You will also need libstdc++\-6.0 or higher.
+
+### Installation
+
+```bash
+npm install turtlecoin-crypto
+```
+
+### Intialization
+
+```javascript
+const TurtleCoinCrypto = require('turtlecoin-crypto')
+```
 
 ## C++ Library
 
@@ -167,35 +205,19 @@ The following library files will be created in the `build/Release` folder:
 * `turtlecoin-crypto-shared.lib`
 * `turtlecoin-crypto-shared.dll`
 
-## Node.JS Module
-
-### Dependencies
-
-* [Node.js](https://nodejs.org) >= +6.x LTS (or Node v11)
-
-#### Windows
-
-##### Prerequisites
-
-Read very careful if you want this to work right the first time.
-
-1) Open a *Windows Powershell* console as **Administrator**
-2) Run the command: `npm install -g windows-build-tools --vs2015`
-   ***This will take a while. Sit tight.***
-
-### Installation
-
-```bash
-npm install turtlecoin-crypto
-```
-
-### Intialization
-
-```javascript
-const TurtleCoinCrypto = require('turtlecoin-crypto')
-```
-
 ## Native Javascript & WASM
+
+### Prerequisites
+
+You will need the following packages: CMake (2.8 or higher), make, and git.
+
+You will also need either GCC/G++, or Clang.
+
+If you are using GCC, you will need GCC-7.0 or higher.
+
+If you are using Clang, you will need Clang 6.0 or higher. You will also need libstdc++\-6.0 or higher.
+
+### Compiling
 
 ```bash
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
