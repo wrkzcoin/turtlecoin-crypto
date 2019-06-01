@@ -118,7 +118,6 @@ EMSCRIPTEN_BINDINGS(signatures)
 {
     function("cn_fast_hash", &Core::Cryptography::cn_fast_hash);
 
-#ifdef HASHFUNCTIONS
     function("cn_slow_hash_v0", &Core::Cryptography::cn_slow_hash_v0);
     function("cn_slow_hash_v1", &Core::Cryptography::cn_slow_hash_v1);
     function("cn_slow_hash_v2", &Core::Cryptography::cn_slow_hash_v2);
@@ -148,7 +147,6 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("cn_soft_shell_slow_hash_v2", &cn_soft_shell_slow_hash_v2);
 
     function("chukwa_slow_hash", &Core::Cryptography::chukwa_slow_hash);
-#endif
 
     function("tree_hash", &Core::Cryptography::tree_hash);
     function("tree_branch", &Core::Cryptography::tree_branch);

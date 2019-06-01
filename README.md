@@ -197,8 +197,6 @@ const TurtleCoinCrypto = require('turtlecoin-crypto')
 
 ## Native Javascript & WASM
 
-**Note:** Hashing functions (except `cn_fast_hash`) are intentionally not compiled by default as they are currently unsupported in this build mode.
-
 ```bash
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
 cd turtlecoin-crypto

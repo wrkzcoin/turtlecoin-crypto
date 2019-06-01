@@ -265,10 +265,6 @@ if(NOT BUILD_JS AND NOT BUILD_WASM)
   target_link_libraries(cryptotest turtlecoin-crypto-static)
   set_property(TARGET cryptotest PROPERTY OUTPUT_NAME "cryptotest")
 else()
-  if(JS_HASHFUNCTIONS)
-    add_definitions(-DHASHFUNCTIONS)
-  endif()
-
   set(JAVSCRIPT_SOURCES
     src/turtlecoin-crypto-js.cpp
   )
