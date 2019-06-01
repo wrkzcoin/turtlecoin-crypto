@@ -77,14 +77,14 @@ set(NO_OPTIMIZED_MULTIPLY_ON_ARM OFF CACHE BOOL "Turn off Optimized Multiplicati
 
 message(STATUS "Building for target architecture: ${ARCH}")
 
-if(FORCE_USE_HEAP OR BUILD_JS OR BUILD_WASM)
+if(FORCE_USE_HEAP)
   add_definitions(-DFORCE_USE_HEAP)
   message(STATUS "FORCE_USE_HEAP: ENABLED")
 else()
   message(STATUS "FORCE_USE_HEAP: DISABLED")
 endif()
 
-if(NO_AES OR BUILD_JS OR BUILD_WASM)
+if(NO_AES)
   add_definitions(-DNO_AES)
   message(STATUS "HW AES: DISABLED")
 else()
