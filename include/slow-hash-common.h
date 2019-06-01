@@ -28,6 +28,18 @@
 extern void aesb_single_round(const uint8_t *in, uint8_t*out, const uint8_t *expandedKey);
 extern void aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey);
 
+#pragma pack(push, 1)
+union cn_slow_hash_state
+{
+    union hash_state hs;
+    struct
+    {
+        uint8_t k[64];
+        uint8_t init[INIT_SIZE_BYTE];
+    };
+};
+#pragma pack(pop)
+
 #define VARIANT1_1(p) \
   do if (variant == 1) \
   { \

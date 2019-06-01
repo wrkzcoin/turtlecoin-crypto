@@ -5,7 +5,8 @@
       "defines": [
         "NDEBUG",
         "NO_CRYPTO_EXPORTS",
-        "FORCE_USE_HEAP"
+        "FORCE_USE_HEAP",
+        "NO_AES"
       ],
       "include_dirs": [
         "include",
@@ -74,9 +75,6 @@
         "-Wstrict-prototypes",
         "-fno-exceptions"
       ],
-      "cflags": [
-        "-maes"
-      ],
       "cflags_cc!": [
         "-fno-exceptions"
       ],
@@ -103,8 +101,7 @@
         "-Wno-error=unused-but-set-variable",
         "-Wno-reorder",
         "-Wno-missing-field-initializers",
-        "-fexceptions",
-        "-maes"
+        "-fexceptions"
       ],
       "conditions": [
         [
