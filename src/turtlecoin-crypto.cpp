@@ -904,7 +904,7 @@ extern "C"
 
     EXPORTDLL void _cn_lite_slow_hash_v1(const char* input, char* &output)
     {
-        output = strdup(Core::Cryptography::cn_lite_slow_hash_v0(input).c_str());
+        output = strdup(Core::Cryptography::cn_lite_slow_hash_v1(input).c_str());
     }
 
     EXPORTDLL void _cn_lite_slow_hash_v2(const char* input, char* &output)
