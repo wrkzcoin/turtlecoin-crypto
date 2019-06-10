@@ -79,7 +79,6 @@
         "-fno-exceptions"
       ],
       "cflags_cc": [
-        "-std=c++17",
         "-Wall",
         "-Wextra",
         "-Wpointer-arith",
@@ -109,7 +108,6 @@
           {
             'xcode_settings': {
               'OTHER_CPLUSPLUSFLAGS': [
-                '-std=c++17',
                 '-stdlib=libc++',
                 '-fexceptions',
               ],
@@ -140,7 +138,7 @@
                     "RuntimeTypeInfo": "false",
                     "ExceptionHandling": "0",
                     "AdditionalOptions": [
-                      "/std:c++17 /EHsc -D_WIN32_WINNT=0x0501 /bigobj /MP /W3 /D_CRT_SECURE_NO_WARNINGS /wd4996 /wd4345 /D_WIN32_WINNT=0x0600 /DWIN32_LEAN_AND_MEAN /DGTEST_HAS_TR1_TUPLE=0 /D_VARIADIC_MAX=8 /D__SSE4_1__"
+                      "/EHsc -D_WIN32_WINNT=0x0501 /bigobj /MP /W3 /D_CRT_SECURE_NO_WARNINGS /wd4996 /wd4345 /D_WIN32_WINNT=0x0600 /DWIN32_LEAN_AND_MEAN /DGTEST_HAS_TR1_TUPLE=0 /D_VARIADIC_MAX=8 /D__SSE4_1__"
                     ]
                   },
                   "VCLibrarianTool": {

@@ -368,12 +368,13 @@ namespace Core
     }
 
     /* Crypto Methods */
-    std::tuple<bool, std::vector<std::string>> Cryptography::generateRingSignatures(
+    bool Cryptography::generateRingSignatures(
         const std::string prefixHash,
         const std::string keyImage,
         const std::vector<std::string> publicKeys,
         const std::string transactionSecretKey,
-        const uint64_t realOutputIndex
+        const uint64_t realOutputIndex,
+        std::vector<std::string>& signatures
     )
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
@@ -399,15 +400,18 @@ namespace Core
 
         Common::podFromHex(transactionSecretKey, _transactionSecretKey);
 
-        const auto [success, _signatures] = Crypto::crypto_ops::generateRingSignatures(
+        std::vector<Crypto::Signature> _signatures;
+
+        bool success = Crypto::crypto_ops::generateRingSignatures(
             _prefixHash,
             _keyImage,
             _publicKeys,
             _transactionSecretKey,
-            realOutputIndex
+            realOutputIndex,
+            _signatures
         );
 
-        std::vector<std::string> signatures;
+        signatures.clear();
 
         if (success)
         {
@@ -417,7 +421,7 @@ namespace Core
             }
         }
 
-        return {success, signatures};
+        return success;
     }
 
     bool Cryptography::checkRingSignature(
@@ -478,7 +482,7 @@ namespace Core
         return Common::podToHex(privateViewKey);
     }
 
-    std::tuple<std::string, std::string> Cryptography::generateViewKeysFromPrivateSpendKey(const std::string privateSpendKey)
+    void Cryptography::generateViewKeysFromPrivateSpendKey(const std::string privateSpendKey, std::string& privateViewKey, std::string& publicViewKey)
     {
         Crypto::SecretKey _privateSpendKey = Crypto::SecretKey();
 
@@ -490,14 +494,12 @@ namespace Core
 
         Crypto::crypto_ops::generateViewFromSpend(_privateSpendKey, _privateViewKey, _publicViewKey);
 
-        std::string privateViewKey = Common::podToHex(_privateViewKey);
+        privateViewKey = Common::podToHex(_privateViewKey);
 
-        std::string publicViewKey = Common::podToHex(_publicViewKey);
-
-        return {privateViewKey, publicViewKey};
+        publicViewKey = Common::podToHex(_publicViewKey);
     }
 
-    std::tuple<std::string, std::string> Cryptography::generateKeys()
+    void Cryptography::generateKeys(std::string& privateKey, std::string& publicKey)
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -505,11 +507,9 @@ namespace Core
 
         Crypto::generate_keys(_publicKey, _privateKey);
 
-        std::string privateKey = Common::podToHex(_privateKey);
+        privateKey = Common::podToHex(_privateKey);
 
-        std::string publicKey = Common::podToHex(_publicKey);
-
-        return {privateKey, publicKey};
+        publicKey = Common::podToHex(_publicKey);
     }
 
     bool Cryptography::checkKey(const std::string publicKey)
@@ -521,7 +521,7 @@ namespace Core
         return Crypto::check_key(_publicKey);
     }
 
-    std::tuple<bool, std::string> Cryptography::secretKeyToPublicKey(const std::string privateKey)
+    bool Cryptography::secretKeyToPublicKey(const std::string privateKey, std::string& publicKey)
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -529,19 +529,17 @@ namespace Core
 
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
-        const auto success = Crypto::secret_key_to_public_key(_privateKey, _publicKey);
-
-        std::string publicKey;
+        bool success = Crypto::secret_key_to_public_key(_privateKey, _publicKey);
 
         if (success)
         {
             publicKey = Common::podToHex(_publicKey);
         }
 
-        return {success, publicKey};
+        return success;
     }
 
-    std::tuple<bool, std::string> Cryptography::generateKeyDerivation(const std::string publicKey, const std::string privateKey)
+    bool Cryptography::generateKeyDerivation(const std::string publicKey, const std::string privateKey, std::string& derivation)
     {
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
@@ -553,19 +551,17 @@ namespace Core
 
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
-        const auto success = Crypto::generate_key_derivation(_publicKey, _privateKey, _derivation);
-
-        std::string derivation;
+        bool success = Crypto::generate_key_derivation(_publicKey, _privateKey, _derivation);
 
         if (success)
         {
             derivation = Common::podToHex(_derivation);
         }
 
-        return {success, derivation};
+        return success;
     }
 
-    std::tuple<bool, std::string> Cryptography::derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey)
+    bool Cryptography::derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey, std::string& derivedKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -577,16 +573,14 @@ namespace Core
 
         Crypto::PublicKey _derivedKey = Crypto::PublicKey();
 
-        const auto success = Crypto::derive_public_key(_derivation, outputIndex, _publicKey, _derivedKey);
-
-        std::string derivedKey;
+        bool success = Crypto::derive_public_key(_derivation, outputIndex, _publicKey, _derivedKey);
 
         if (success)
         {
             derivedKey = Common::podToHex(_derivedKey);
         }
 
-        return {success, derivedKey};
+        return success;
     }
 
     std::string Cryptography::deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string privateKey)
@@ -606,7 +600,7 @@ namespace Core
         return Common::podToHex(_derivedKey);
     }
 
-    std::tuple<bool, std::string> Cryptography::underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey)
+    bool Cryptography::underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey, std::string& publicKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -618,16 +612,14 @@ namespace Core
 
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
-        const auto success = Crypto::underive_public_key(_derivation, outputIndex, _derivedKey, _publicKey);
-
-        std::string publicKey;
+        bool success = Crypto::underive_public_key(_derivation, outputIndex, _derivedKey, _publicKey);
 
         if (success)
         {
             publicKey = Common::podToHex(_publicKey);
         }
 
-        return {success, publicKey};
+        return success;
     }
 
     std::string Cryptography::generateSignature(const std::string prefixHash, const std::string publicKey, const std::string privateKey)
@@ -783,12 +775,15 @@ inline int generateRingSignatures(
 
     std::vector<std::string> _publicKeys(publicKeysBuffer, publicKeysBuffer + publicKeysLength);
 
-    auto [success, _signatures] = Core::Cryptography::generateRingSignatures(
+    std::vector<std::string> _signatures;
+
+    bool success = Core::Cryptography::generateRingSignatures(
         prefixHash,
         keyImage,
         _publicKeys,
         transactionSecretKey,
-        realOutputIndex
+        realOutputIndex,
+        _signatures
     );
 
     if (success)
@@ -821,7 +816,11 @@ inline bool checkRingSignature(
 
 inline void generateViewKeysFromPrivateSpendKey(const char* privateSpendKey, char* &privateKey, char* &publicKey)
 {
-    const auto [_privateKey, _publicKey] = Core::Cryptography::generateViewKeysFromPrivateSpendKey(privateSpendKey);
+    std::string _privateKey;
+
+    std::string _publicKey;
+
+    Core::Cryptography::generateViewKeysFromPrivateSpendKey(privateSpendKey, _privateKey, _publicKey);
 
     privateKey = strdup(_privateKey.c_str());
 
@@ -830,7 +829,11 @@ inline void generateViewKeysFromPrivateSpendKey(const char* privateSpendKey, cha
 
 inline void generateKeys(char* &privateKey, char* &publicKey)
 {
-    const auto [_privateKey, _publicKey] = Core::Cryptography::generateKeys();
+    std::string _privateKey;
+
+    std::string _publicKey;
+
+    Core::Cryptography::generateKeys(_privateKey, _publicKey);
 
     privateKey = strdup(_privateKey.c_str());
 
@@ -839,7 +842,9 @@ inline void generateKeys(char* &privateKey, char* &publicKey)
 
 inline int secretKeyToPublicKey(const char* privateKey, char* &publicKey)
 {
-    const auto [success, _publicKey] = Core::Cryptography::secretKeyToPublicKey(privateKey);
+    std::string _publicKey;
+
+    bool success = Core::Cryptography::secretKeyToPublicKey(privateKey, _publicKey);
 
     publicKey = strdup(_publicKey.c_str());
 
@@ -848,7 +853,9 @@ inline int secretKeyToPublicKey(const char* privateKey, char* &publicKey)
 
 inline int generateKeyDerivation(const char* publicKey, const char* privateKey, char* &derivation)
 {
-    const auto [success, _derivation] = Core::Cryptography::generateKeyDerivation(publicKey, privateKey);
+    std::string _derivation;
+
+    bool success = Core::Cryptography::generateKeyDerivation(publicKey, privateKey, _derivation);
 
     derivation = strdup(_derivation.c_str());
 
@@ -857,7 +864,9 @@ inline int generateKeyDerivation(const char* publicKey, const char* privateKey, 
 
 inline int derivePublicKey(const char* derivation, const uint64_t outputIndex, const char* publicKey, char* &outPublicKey)
 {
-    const auto [success, _outPublicKey] = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey);
+    std::string _outPublicKey;
+
+    bool success = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey, _outPublicKey);
 
     outPublicKey = strdup(_outPublicKey.c_str());
 
@@ -866,7 +875,9 @@ inline int derivePublicKey(const char* derivation, const uint64_t outputIndex, c
 
 inline int underivePublicKey(const char* derivation, const uint64_t outputIndex, const char* derivedKey, char* &publicKey)
 {
-    const auto [success, _publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
+    std::string _publicKey;
+
+    bool success = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey, _publicKey);
 
     publicKey = strdup(_publicKey.c_str());
 

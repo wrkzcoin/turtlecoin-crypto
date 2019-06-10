@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2018-2019, The TurtleCoin Developers
-// 
+//
 // Please see the included LICENSE file for more information.#pragma once
 
 #pragma once
@@ -11,8 +11,8 @@
 #include <hash.h>
 #include <random.h>
 
-constexpr inline int CHACHA8_KEY_SIZE = 32;
-constexpr inline int CHACHA8_IV_SIZE = 8;
+constexpr int CHACHA8_KEY_SIZE = 32;
+constexpr int CHACHA8_IV_SIZE = 8;
 
 namespace Crypto
 {

@@ -194,7 +194,9 @@ void benchmarkUnderivePublicKey()
 
     std::string privateViewKey = "89df8c4d34af41a51cfae0267e8254cadd2298f9256439fa1cfa7e25ee606606";
 
-    const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey);
+    std::string derivation;
+
+    bool success = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey, derivation);
 
     const uint64_t loopIterations = 600000;
 
@@ -204,8 +206,10 @@ void benchmarkUnderivePublicKey()
 
     for (uint64_t i = 0; i < loopIterations; i++)
     {
+        std::string spendKey;
+
         /* Use i as output index to prevent optimization */
-        const auto [success, spendKey] = Core::Cryptography::underivePublicKey(derivation, i, outputKey);
+        bool success = Core::Cryptography::underivePublicKey(derivation, i, outputKey, spendKey);
     }
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
@@ -228,7 +232,9 @@ void benchmarkGenerateKeyDerivation()
 
     for (uint64_t i = 0; i < loopIterations; i++)
     {
-        const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey);
+        std::string derivation;
+        
+        bool success = Core::Cryptography::generateKeyDerivation(txPublicKey, privateViewKey, derivation);
     }
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;

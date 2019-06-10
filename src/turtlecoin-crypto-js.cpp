@@ -14,12 +14,12 @@ using namespace emscripten;
 
 struct Keys
 {
-  std::string PublicKey;
-  std::string SecretKey;
+    std::string PublicKey;
+    std::string SecretKey;
 };
 
-/* Most of the redefintions below are the result of either emscripten not
-   handling std::tuple or issues with method signatures having a uint64_t */
+/* Most of the redefintions below are the result of the methods returning a bool instead
+   of the value we need or issues with method signatures having a uint64_t */
 
 std::string cn_soft_shell_slow_hash_v0(const std::string data, const int height)
 {
@@ -44,12 +44,15 @@ std::vector<std::string> generateRingSignatures(
     const int realOutputIndex
 )
 {
-    const auto [success, signatures] = Core::Cryptography::generateRingSignatures(
+    std::vector<std::string> signatures;
+
+    bool success = Core::Cryptography::generateRingSignatures(
         prefixHash,
         keyImage,
         publicKeys,
         transactionSecretKey,
-        realOutputIndex
+        realOutputIndex,
+        signatures
     );
 
     return signatures;
@@ -57,7 +60,11 @@ std::vector<std::string> generateRingSignatures(
 
 Keys generateViewKeysFromPrivateSpendKey(const std::string secretKey)
 {
-    const auto [viewSecretKey, viewPublicKey] = Core::Cryptography::generateViewKeysFromPrivateSpendKey(secretKey);
+    std::string viewSecretKey;
+
+    std::string viewPublicKey;
+
+    Core::Cryptography::generateViewKeysFromPrivateSpendKey(secretKey, viewSecretKey, viewPublicKey);
 
     Keys keys;
 
@@ -70,7 +77,11 @@ Keys generateViewKeysFromPrivateSpendKey(const std::string secretKey)
 
 Keys generateKeys()
 {
-    const auto [secretKey, publicKey] = Core::Cryptography::generateKeys();
+    std::string secretKey;
+
+    std::string publicKey;
+
+    Core::Cryptography::generateKeys(secretKey, publicKey);
 
     Keys keys;
 
@@ -83,21 +94,27 @@ Keys generateKeys()
 
 std::string secretKeyToPublicKey(const std::string secretKey)
 {
-    const auto [success, publicKey] = Core::Cryptography::secretKeyToPublicKey(secretKey);
+    std::string publicKey;
+
+    bool success = Core::Cryptography::secretKeyToPublicKey(secretKey, publicKey);
 
     return publicKey;
 }
 
 std::string generateKeyDerivation(const std::string publicKey, const std::string secretKey)
 {
-    const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(publicKey, secretKey);
+    std::string derivation;
+
+    bool success = Core::Cryptography::generateKeyDerivation(publicKey, secretKey, derivation);
 
     return derivation;
 }
 
 std::string derivePublicKey(const std::string derivation, const int outputIndex, const std::string publicKey)
 {
-    const auto [success, derivedKey] = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey);
+    std::string derivedKey;
+
+    bool success = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey, derivedKey);
 
     return derivedKey;
 }
@@ -109,7 +126,9 @@ std::string deriveSecretKey(const std::string derivation, const int outputIndex,
 
 std::string underivePublicKey(const std::string derivation, const int outputIndex, const std::string derivedKey)
 {
-    const auto [success, publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
+    std::string publicKey;
+
+    bool success = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey, publicKey);
 
     return publicKey;
 }

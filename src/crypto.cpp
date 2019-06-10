@@ -365,14 +365,17 @@ namespace Crypto {
     return sizeof(rs_comm) + pubs_count * sizeof(((rs_comm*)0)->ab[0]);
   }
 
-    std::tuple<bool, std::vector<Signature>> crypto_ops::generateRingSignatures(
+    bool crypto_ops::generateRingSignatures(
         const Hash prefixHash,
         const KeyImage keyImage,
         const std::vector<PublicKey> publicKeys,
         const Crypto::SecretKey transactionSecretKey,
-        uint64_t realOutput)
+        uint64_t realOutput,
+        std::vector<Signature>& signatures)
     {
-        std::vector<Signature> signatures(publicKeys.size());
+        signatures.clear();
+
+        signatures.resize(publicKeys.size());
 
         ge_p3 image_unp;
         ge_dsmp image_pre;
@@ -382,7 +385,7 @@ namespace Crypto {
 
         if (ge_frombytes_vartime(&image_unp, reinterpret_cast<const unsigned char*>(&keyImage)) != 0)
         {
-            return {false, signatures};
+            return false;
         }
 
         ge_dsm_precomp(image_pre, &image_unp);
@@ -412,7 +415,7 @@ namespace Crypto {
 
                 if (ge_frombytes_vartime(&tmp3, reinterpret_cast<const unsigned char*>(&publicKeys[i])) != 0)
                 {
-                    return {false, signatures};
+                    return false;
                 }
 
                 ge_double_scalarmult_base_vartime(
@@ -459,7 +462,7 @@ namespace Crypto {
             reinterpret_cast<unsigned char*>(&k)
         );
 
-        return {true, signatures};
+        return true;
     }
 
     bool crypto_ops::checkRingSignature(

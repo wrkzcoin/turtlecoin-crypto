@@ -21,26 +21,6 @@ project(turtlecoin-crypto)
 enable_language(C)
 enable_language(CXX)
 
-# Assert our compiler is good
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # GCC 7.0 or higher
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7)
-        message(FATAL_ERROR "GCC/G++ 7.0 or greater is required to compile. Please check the README.md for detailed compilation instructions.")
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # Clang 6.0 or higher
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6)
-        message(FATAL_ERROR "Clang 6.0 or greater is required to compile. Please check the README.md for detailed compilation instructions.")
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # Visual Studio 15 2017 or higher
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
-        message(FATAL_ERROR "MSVC 19.10 or greater is required to compile (Latest Visual Studio 15 2017 should suffice). Please check the README.md for detailed compilation instructions.")
-    endif()
-else()
-    message(WARNING "You are using an unsupported compiler. The compilation is very likely to fail. God speed.")
-endif()
-
 ## This section describes our general CMake setup options
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_SKIP_INSTALL_RULES OFF FORCE)
@@ -48,8 +28,8 @@ set(CMAKE_SKIP_PACKAGE_ALL_DEPENDENCY ON FORCE)
 set(CMAKE_SUPPRESS_REGENERATION ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-# Enable c++17
-set(CMAKE_CXX_STANDARD 17)
+# Enable c++11
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -160,7 +140,7 @@ if (NOT BUILD_JS AND NOT BUILD_WASM)
       set(MAES_FLAG "")
     endif()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 ${STATICASSERTC_FLAG} ${WARNINGS} ${C_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 ${STATICASSERTCPP_FLAG} ${WARNINGS} ${CXX_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${STATICASSERTCPP_FLAG} ${WARNINGS} ${CXX_WARNINGS} ${ARCH_FLAG} ${MAES_FLAG}")
 
     if(APPLE)
         if (CMAKE_C_COMPILER_ID STREQUAL "GNU")

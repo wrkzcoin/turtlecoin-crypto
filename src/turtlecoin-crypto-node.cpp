@@ -195,7 +195,9 @@ void derivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (!derivation.empty() && !publicKey.empty())
         {
-            const auto [success, outPublicKey] = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey);
+            std::string outPublicKey;
+
+            bool success = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey, outPublicKey);
 
             if (success)
             {
@@ -263,7 +265,11 @@ void deriveSecretKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
 void generateKeys(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
-    const auto [secretKey, publicKey] = Core::Cryptography::generateKeys();
+    std::string secretKey;
+
+    std::string publicKey;
+
+    Core::Cryptography::generateKeys(secretKey, publicKey);
 
     v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
 
@@ -307,7 +313,9 @@ void generateKeyDerivation(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (!secretKey.empty() && !publicKey.empty())
         {
-            const auto [success, derivation] = Core::Cryptography::generateKeyDerivation(publicKey, secretKey);
+            std::string derivation;
+
+            bool success = Core::Cryptography::generateKeyDerivation(publicKey, secretKey, derivation);
 
             if (success)
             {
@@ -411,8 +419,6 @@ void generateViewKeysFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Val
 
     v8::Local<v8::String> secretKeyProp = Nan::New("secretKey").ToLocalChecked();
 
-    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
-
     bool functionSuccess = false;
 
     std::string secretKey = std::string();
@@ -428,7 +434,11 @@ void generateViewKeysFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Val
         {
             try
             {
-                const auto [privateViewKey, publicViewKey] = Core::Cryptography::generateViewKeysFromPrivateSpendKey(secretKey);
+                std::string privateViewKey;
+
+                std::string publicViewKey;
+
+                Core::Cryptography::generateViewKeysFromPrivateSpendKey(secretKey, privateViewKey, publicViewKey);
 
                 v8::Local<v8::Value> publicKeyValue = Nan::New(publicViewKey).ToLocalChecked();
 
@@ -503,12 +513,15 @@ void generateRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (!prefixHash.empty() && !keyImage.empty() && !transactionSecretKey.empty() && publicKeys.size() != 0)
         {
-            const auto [success, signatures] = Core::Cryptography::generateRingSignatures(
+            std::vector<std::string> signatures;
+
+            bool success = Core::Cryptography::generateRingSignatures(
                 prefixHash,
                 keyImage,
                 publicKeys,
                 transactionSecretKey,
-                realOutput
+                realOutput,
+                signatures
             );
 
             if (success)
@@ -757,7 +770,9 @@ void secretKeyToPublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (!secretKey.empty())
         {
-            const auto [success, publicKey] = Core::Cryptography::secretKeyToPublicKey(secretKey);
+            std::string publicKey;
+
+            bool success = Core::Cryptography::secretKeyToPublicKey(secretKey, publicKey);
 
             if (success)
             {
@@ -866,8 +881,6 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::vector<std::string> branches;
 
-    size_t depth = 0;
-
     std::string leaf = std::string();
 
     std::string path = std::string();
@@ -951,7 +964,9 @@ void underivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
         {
             try
             {
-                const auto [success, publicKey] = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey);
+                std::string publicKey;
+
+                bool success = Core::Cryptography::underivePublicKey(derivation, outputIndex, derivedKey, publicKey);
 
                 if (success)
                 {

@@ -67,12 +67,13 @@ namespace Core
             static std::string tree_hash_from_branch(const std::vector<std::string> branches, const std::string leaf, const std::string path);
 
             /* Crypto Methods */
-            static std::tuple<bool, std::vector<std::string>> generateRingSignatures(
+            static bool generateRingSignatures(
                 const std::string prefixHash,
                 const std::string keyImage,
                 const std::vector<std::string> publicKeys,
                 const std::string transactionSecretKey,
-                const uint64_t realOutputIndex
+                const uint64_t realOutputIndex,
+                std::vector<std::string>& signatures
             );
             static bool checkRingSignature(
                 const std::string prefixHash,
@@ -81,14 +82,14 @@ namespace Core
                 const std::vector<std::string> signatures
             );
             static std::string generatePrivateViewKeyFromPrivateSpendKey(const std::string secretKey);
-            static std::tuple<std::string, std::string> generateViewKeysFromPrivateSpendKey(const std::string secretKey);
-            static std::tuple<std::string, std::string> generateKeys();
+            static void generateViewKeysFromPrivateSpendKey(const std::string secretKey, std::string& privateViewKey, std::string& publicViewKey);
+            static void generateKeys(std::string& privateKey, std::string& publicKey);
             static bool checkKey(const std::string publicKey);
-            static std::tuple<bool, std::string> secretKeyToPublicKey(const std::string secretKey);
-            static std::tuple<bool, std::string> generateKeyDerivation(const std::string publicKey, const std::string secretKey);
-            static std::tuple<bool, std::string> derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey);
+            static bool secretKeyToPublicKey(const std::string secretKey, std::string& publicKey);
+            static bool generateKeyDerivation(const std::string publicKey, const std::string secretKey, std::string& derivation);
+            static bool derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey, std::string& derivedPublicKey);
             static std::string deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string secretKey);
-            static std::tuple<bool, std::string> underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey);
+            static bool underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey, std::string& publicKey);
             static std::string generateSignature(const std::string prefixHash, const std::string publicKey, const std::string secretKey);
             static bool checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature);
             static std::string generateKeyImage(const std::string publicKey, const std::string secretKey);

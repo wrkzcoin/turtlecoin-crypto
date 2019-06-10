@@ -36,14 +36,6 @@ Read very careful if you want this to work right the first time.
    
 #### Linux
 
-##### Prerequisites
-
-You will need either GCC/G++, or Clang.
-
-If you are using GCC, you will need GCC-7.0 or higher.
-
-If you are using Clang, you will need Clang 6.0 or higher. You will also need libstdc++\-6.0 or higher.
-
 ### Installation
 
 ```bash
@@ -68,23 +60,13 @@ However, if you wish to create *portable* binaries that can be shared between sy
 
 #### Linux
 
-##### Prerequisites
-
-You will need the following packages: CMake (2.8 or higher), make, and git.
-
-You will also need either GCC/G++, or Clang.
-
-If you are using GCC, you will need GCC-7.0 or higher.
-
-If you are using Clang, you will need Clang 6.0 or higher. You will also need libstdc++\-6.0 or higher.
-
 ##### Ubuntu, using GCC
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 sudo apt-get update
 sudo apt-get install aptitude -y
-sudo aptitude install -y build-essential g++-8 gcc-8 git cmake
+sudo aptitude install -y build-essential git cmake
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
 cd turtlecoin-crypto
 mkdir build
@@ -211,18 +193,12 @@ The following library files will be created in the `build/Release` folder:
 
 You will need the following packages: CMake (2.8 or higher), make, and git.
 
-You will also need either GCC/G++, or Clang.
-
-If you are using GCC, you will need GCC-7.0 or higher.
-
-If you are using Clang, you will need Clang 6.0 or higher. You will also need libstdc++\-6.0 or higher.
-
 ### Compiling
 
 ```bash
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
 cd turtlecoin-crypto
-./build_js.sh
+bash ./build_js.sh
 ```
 
 This script will install the necessary dependencies on your machine and then proceed to compile the library to Native Javascript and WASM.

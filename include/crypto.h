@@ -78,12 +78,13 @@ struct EllipticCurveScalar {
 
     public:
 
-        static std::tuple<bool, std::vector<Signature>> generateRingSignatures(
+        static bool generateRingSignatures(
             const Hash prefixHash,
             const KeyImage keyImage,
             const std::vector<PublicKey> publicKeys,
             const Crypto::SecretKey transactionSecretKey,
-            uint64_t realOutput);
+            uint64_t realOutput,
+            std::vector<Signature>& signatures);
 
         static bool checkRingSignature(
             const Hash &prefix_hash,
