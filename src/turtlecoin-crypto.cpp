@@ -356,13 +356,20 @@ namespace Core
 
         Common::podFromHex(leaf, _leaf);
 
-        Crypto::Hash _path = Crypto::Hash();
-
-        Common::podFromHex(path, _path);
-
         Crypto::Hash _hash = Crypto::Hash();
 
-        Crypto::tree_hash_from_branch(_branches.data(), branches.size(), _leaf, _path.data, _hash);
+        if (path != "0")
+        {
+            Crypto::Hash _path = Crypto::Hash();
+
+            Common::podFromHex(path, _path);
+
+            Crypto::tree_hash_from_branch(_branches.data(), branches.size(), _leaf, _path.data, _hash);
+        }
+        else
+        {
+            Crypto::tree_hash_from_branch(_branches.data(), branches.size(), _leaf, 0, _hash);
+        }
 
         return Common::podToHex(_hash);
     }

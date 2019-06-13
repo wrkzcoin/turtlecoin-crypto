@@ -901,15 +901,19 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (info[1]->IsString())
         {
-            leaf = std::string(*Nan::Utf8String(info[2]->ToString()));
+            leaf = std::string(*Nan::Utf8String(info[1]->ToString()));
         }
 
         if (info[2]->IsString())
         {
-            path = std::string(*Nan::Utf8String(info[3]->ToString()));
+            path = std::string(*Nan::Utf8String(info[2]->ToString()));
+        }
+        else if (info[2]->IsNumber())
+        {
+            path = std::to_string((size_t) info[2]->NumberValue());
         }
 
-        if (branches.size() != 0 && !leaf.empty() && !path.empty())
+        if (!leaf.empty() && !path.empty())
         {
             try
             {
