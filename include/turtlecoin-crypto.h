@@ -62,6 +62,7 @@ namespace Core
 
             static std::string chukwa_slow_hash(const std::string data);
 
+            static uint32_t tree_depth(const uint32_t count);
             static std::string tree_hash(const std::vector<std::string> hashes);
             static std::string tree_branch(const std::vector<std::string> hashes);
             static std::string tree_hash_from_branch(const std::vector<std::string> branches, const std::string leaf, const std::string path);

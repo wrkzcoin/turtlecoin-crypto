@@ -299,6 +299,11 @@ namespace Core
         return Common::podToHex(hash);
     }
 
+    uint32_t Cryptography::tree_depth(const uint32_t count)
+    {
+        return Crypto::tree_depth(count);
+    }
+
     std::string Cryptography::tree_hash(const std::vector<std::string> hashes)
     {
         std::vector<Crypto::Hash> treeHashes;
@@ -1008,6 +1013,11 @@ extern "C"
     EXPORTDLL void _chukwa_slow_hash(const char* input, char* &output)
     {
         output = strdup(Core::Cryptography::chukwa_slow_hash(input).c_str());
+    }
+
+    EXPORTDLL uint32_t _tree_depth(const uint32_t count)
+    {
+        return Core::Cryptography::tree_depth(count);
     }
 
     EXPORTDLL void _tree_hash(const char* hashes, const uint64_t hashesLength, char* &hash)

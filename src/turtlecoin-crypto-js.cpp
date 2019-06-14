@@ -167,6 +167,7 @@ EMSCRIPTEN_BINDINGS(signatures)
 
     function("chukwa_slow_hash", &Core::Cryptography::chukwa_slow_hash);
 
+    function("tree_depth", &Core::Cryptography::tree_depth);
     function("tree_hash", &Core::Cryptography::tree_hash);
     function("tree_branch", &Core::Cryptography::tree_branch);
     function("tree_hash_from_branch", &Core::Cryptography::tree_hash_from_branch);

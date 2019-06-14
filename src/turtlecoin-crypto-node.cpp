@@ -786,6 +786,32 @@ void secretKeyToPublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+void tree_depth(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    uint32_t count = 0;
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsNumber())
+        {
+            count = (uint32_t) info[0]->NumberValue();
+
+            uint32_t depth = Core::Cryptography::tree_depth(count);
+
+            functionReturnValue = Nan::New(depth);
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
 void tree_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
     /* Setup our return object */
@@ -1799,6 +1825,10 @@ void InitModule(v8::Local<v8::Object> exports)
     exports->Set(Nan::New("secretKeyToPublicKey").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
                  (secretKeyToPublicKey)->GetFunction());
+
+    exports->Set(Nan::New("tree_depth").ToLocalChecked(),
+                 Nan::New<v8::FunctionTemplate>
+                 (tree_depth)->GetFunction());
 
     exports->Set(Nan::New("tree_hash").ToLocalChecked(),
                  Nan::New<v8::FunctionTemplate>
