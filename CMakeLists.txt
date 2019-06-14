@@ -259,6 +259,7 @@ else()
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
 
   set(JS_LINKFLAGS
+    -s NO_FILESYSTEM=1
     -s EXPORT_NAME="'TurtleCoinCrypto'"
     -s POLYFILL_OLD_MATH_FUNCTIONS=1
     -s MODULARIZE=1
