@@ -255,11 +255,11 @@ else()
   # Override our release flags for emscripten compatibility
   set(CMAKE_C_FLAGS_DEBUG "")
   set(CMAKE_CXX_FLAGS_DEBUG "")
-  set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -Wno-unused-variable")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 --llvm-lto 1 -DNDEBUG -Wno-unused-variable")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 --llvm-lto 1 -DNDEBUG -Wno-unused-variable")
 
   set(JS_LINKFLAGS
-    -s NO_FILESYSTEM=1
+    -s SINGLE_FILE=1
     -s EXPORT_NAME="'TurtleCoinCrypto'"
     -s POLYFILL_OLD_MATH_FUNCTIONS=1
     -s MODULARIZE=1
