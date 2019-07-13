@@ -1,12 +1,12 @@
 {
   "name": "turtlecoin-crypto",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Node C++ Addon for TurtleCoin Cryptographic Functions",
   "main": "index.js",
   "scripts": {
     "build": "node-gyp build",
     "install": "node-gyp rebuild",
-    "test": "standard && node-gyp rebuild && node tests/crypto.js"
+    "test": "node-gyp rebuild && node tests/crypto.js"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,5 @@
     "bindings": "^1.5.0",
     "nan": "^2.14.0"
   },
-  "devDependencies": {
-    "standard": "^12.0.1"
-  }
+  "devDependencies": {}
 }
