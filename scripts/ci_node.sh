@@ -58,7 +58,19 @@ npm install && npm test
 
 rm -rf node_modules
 
-# Test on Node v11
+# Test on Node v12
+
+nvm install 12 >/dev/null
+
+nvm use 12
+
+node --version
+
+npm install && npm test
+
+rm -rf node_modules
+
+# Test on Node latest
 
 nvm install latest >/dev/null
 

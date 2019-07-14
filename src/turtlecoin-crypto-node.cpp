@@ -49,7 +49,7 @@ void checkKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!publicKey.empty())
@@ -80,12 +80,12 @@ void checkRingSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString()));
+            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            keyImage = std::string(*Nan::Utf8String(info[1]->ToString()));
+            keyImage = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[2]->IsArray())
@@ -94,7 +94,7 @@ void checkRingSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 publicKeys.push_back(hash);
             }
@@ -106,7 +106,7 @@ void checkRingSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 signatures.push_back(hash);
             }
@@ -138,17 +138,17 @@ void checkSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString()));
+            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[1]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[2]->IsString())
         {
-            signature = std::string(*Nan::Utf8String(info[2]->ToString()));
+            signature = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!prefixHash.empty() && !publicKey.empty() && !signature.empty())
@@ -180,17 +180,17 @@ void derivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
         if (info[0]->IsString())
         {
             derivation =
-                std::string(*Nan::Utf8String(info[0]->ToString()));
+                std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsNumber())
         {
-            outputIndex = (size_t) info[1]->NumberValue();
+            outputIndex = (size_t) Nan::To<uint32_t>(info[1]).FromJust();
         }
 
         if (info[2]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[2]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!derivation.empty() && !publicKey.empty())
@@ -228,17 +228,17 @@ void deriveSecretKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            derivation = std::string(*Nan::Utf8String(info[0]->ToString()));
+            derivation = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsNumber())
         {
-            outputIndex = (size_t) info[1]->NumberValue();
+            outputIndex = (size_t) Nan::To<uint32_t>(info[1]).FromJust();
         }
 
         if (info[2]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[2]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!derivation.empty() && !secretKey.empty())
@@ -303,12 +303,12 @@ void generateKeyDerivation(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[1]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!secretKey.empty() && !publicKey.empty())
@@ -344,12 +344,12 @@ void generateKeyImage(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[1]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!publicKey.empty() && !secretKey.empty())
@@ -387,7 +387,7 @@ void generatePrivateViewKeyFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v
     {
         if (info[0]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!secretKey.empty())
@@ -427,7 +427,7 @@ void generateViewKeysFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Val
     {
         if (info[0]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!secretKey.empty())
@@ -481,12 +481,12 @@ void generateRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString()));
+            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            keyImage = std::string(*Nan::Utf8String(info[1]->ToString()));
+            keyImage = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[2]->IsArray())
@@ -495,7 +495,7 @@ void generateRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 publicKeys.push_back(hash);
             }
@@ -503,12 +503,12 @@ void generateRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (info[3]->IsString())
         {
-            transactionSecretKey = std::string(*Nan::Utf8String(info[3]->ToString()));
+            transactionSecretKey = std::string(*Nan::Utf8String(info[3]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[4]->IsNumber())
         {
-            realOutput = (uint64_t) info[4]->NumberValue();
+            realOutput = (uint64_t) Nan::To<uint32_t>(info[4]).FromJust();
         }
 
         if (!prefixHash.empty() && !keyImage.empty() && !transactionSecretKey.empty() && publicKeys.size() != 0)
@@ -562,17 +562,17 @@ void generateSignature(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString()));
+            prefixHash = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            publicKey = std::string(*Nan::Utf8String(info[1]->ToString()));
+            publicKey = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[2]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[2]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!prefixHash.empty() && !publicKey.empty() && !secretKey.empty())
@@ -612,7 +612,7 @@ void hashToEllipticCurve(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            hash = std::string(*Nan::Utf8String(info[0]->ToString()));
+            hash = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!hash.empty())
@@ -650,7 +650,7 @@ void hashToScalar(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -688,12 +688,12 @@ void scalarmultKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            keyImageA = std::string(*Nan::Utf8String(info[0]->ToString()));
+            keyImageA = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsString())
         {
-            keyImageB = std::string(*Nan::Utf8String(info[1]->ToString()));
+            keyImageB = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!keyImageA.empty() && !keyImageB.empty())
@@ -729,7 +729,7 @@ void scReduce32(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -765,7 +765,7 @@ void secretKeyToPublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            secretKey = std::string(*Nan::Utf8String(info[0]->ToString()));
+            secretKey = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!secretKey.empty())
@@ -799,7 +799,7 @@ void tree_depth(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsNumber())
         {
-            count = (uint32_t) info[0]->NumberValue();
+            count = (uint32_t) Nan::To<uint32_t>(info[0]).FromJust();
 
             uint32_t depth = Core::Cryptography::tree_depth(count);
 
@@ -829,7 +829,7 @@ void tree_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 hashes.push_back(hash);
             }
@@ -872,7 +872,7 @@ void tree_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 hashes.push_back(hash);
             }
@@ -919,7 +919,7 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
             for (size_t i = 0; i < array->Length(); i++)
             {
-                std::string hash = std::string(*Nan::Utf8String(array->Get(i)));
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
 
                 branches.push_back(hash);
             }
@@ -927,16 +927,16 @@ void tree_hash_from_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (info[1]->IsString())
         {
-            leaf = std::string(*Nan::Utf8String(info[1]->ToString()));
+            leaf = std::string(*Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[2]->IsString())
         {
-            path = std::string(*Nan::Utf8String(info[2]->ToString()));
+            path = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
         else if (info[2]->IsNumber())
         {
-            path = std::to_string((size_t) info[2]->NumberValue());
+            path = std::to_string((size_t) Nan::To<uint32_t>(info[2]).FromJust());
         }
 
         if (!leaf.empty() && !path.empty())
@@ -977,17 +977,17 @@ void underivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
         if (info[0]->IsString())
         {
-            derivation = std::string(*Nan::Utf8String(info[0]->ToString()));
+            derivation = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (info[1]->IsNumber())
         {
-            outputIndex = (size_t) info[1]->NumberValue();
+            outputIndex = (size_t) Nan::To<uint32_t>(info[1]).FromJust();
         }
 
         if (info[2]->IsString())
         {
-            derivedKey = std::string(*Nan::Utf8String(info[2]->ToString()));
+            derivedKey = std::string(*Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!derivation.empty() && !derivedKey.empty())
@@ -1034,7 +1034,7 @@ void cn_fast_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1072,7 +1072,7 @@ void cn_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1108,7 +1108,7 @@ void cn_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1144,7 +1144,7 @@ void cn_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1182,7 +1182,7 @@ void cn_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1218,7 +1218,7 @@ void cn_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1254,7 +1254,7 @@ void cn_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1292,7 +1292,7 @@ void cn_dark_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1328,7 +1328,7 @@ void cn_dark_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1364,7 +1364,7 @@ void cn_dark_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1402,7 +1402,7 @@ void cn_dark_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1438,7 +1438,7 @@ void cn_dark_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1474,7 +1474,7 @@ void cn_dark_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1512,7 +1512,7 @@ void cn_turtle_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1548,7 +1548,7 @@ void cn_turtle_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1584,7 +1584,7 @@ void cn_turtle_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1622,7 +1622,7 @@ void cn_turtle_lite_slow_hash_v0(const Nan::FunctionCallbackInfo<v8::Value> &inf
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1658,7 +1658,7 @@ void cn_turtle_lite_slow_hash_v1(const Nan::FunctionCallbackInfo<v8::Value> &inf
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1694,7 +1694,7 @@ void cn_turtle_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &inf
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1732,7 +1732,7 @@ void chukwa_slow_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
     {
         if (info[0]->IsString())
         {
-            data = std::string(*Nan::Utf8String(info[0]->ToString()));
+            data = std::string(*Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
         }
 
         if (!data.empty())
@@ -1755,181 +1755,138 @@ void chukwa_slow_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
-void InitModule(v8::Local<v8::Object> exports)
+NAN_MODULE_INIT(InitModule)
 {
     /* Core Cryptographic Operations */
-    exports->Set(Nan::New("checkKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (checkKey)->GetFunction());
+    Nan::Set(target, Nan::New("checkKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(checkKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("checkRingSignature").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (checkRingSignature)->GetFunction());
+    Nan::Set(target, Nan::New("checkRingSignature").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(checkRingSignature)).ToLocalChecked());
 
-    exports->Set(Nan::New("checkSignature").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (checkSignature)->GetFunction());
+    Nan::Set(target, Nan::New("checkSignature").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(checkSignature)).ToLocalChecked());
 
-    exports->Set(Nan::New("derivePublicKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (derivePublicKey)->GetFunction());
+    Nan::Set(target, Nan::New("derivePublicKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(derivePublicKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("deriveSecretKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (deriveSecretKey)->GetFunction());
+    Nan::Set(target, Nan::New("deriveSecretKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(deriveSecretKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateKeys").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateKeys)->GetFunction());
+    Nan::Set(target, Nan::New("generateKeys").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateKeys)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateKeyDerivation").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateKeyDerivation)->GetFunction());
+    Nan::Set(target, Nan::New("generateKeyDerivation").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateKeyDerivation)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateKeyImage").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateKeyImage)->GetFunction());
+    Nan::Set(target, Nan::New("generateKeyImage").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateKeyImage)).ToLocalChecked());
 
-    exports->Set(Nan::New("generatePrivateViewKeyFromPrivateSpendKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generatePrivateViewKeyFromPrivateSpendKey)->GetFunction());
+    Nan::Set(target, Nan::New("generatePrivateViewKeyFromPrivateSpendKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generatePrivateViewKeyFromPrivateSpendKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateViewKeysFromPrivateSpendKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateViewKeysFromPrivateSpendKey)->GetFunction());
+    Nan::Set(target, Nan::New("generateViewKeysFromPrivateSpendKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateViewKeysFromPrivateSpendKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateRingSignatures").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateRingSignatures)->GetFunction());
+    Nan::Set(target, Nan::New("generateRingSignatures").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateRingSignatures)).ToLocalChecked());
 
-    exports->Set(Nan::New("generateSignature").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (generateSignature)->GetFunction());
+    Nan::Set(target, Nan::New("generateSignature").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateSignature)).ToLocalChecked());
 
-    exports->Set(Nan::New("hashToEllipticCurve").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (hashToEllipticCurve)->GetFunction());
+    Nan::Set(target, Nan::New("hashToEllipticCurve").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(hashToEllipticCurve)).ToLocalChecked());
 
-    exports->Set(Nan::New("hashToScalar").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (hashToScalar)->GetFunction());
+    Nan::Set(target, Nan::New("hashToScalar").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(hashToScalar)).ToLocalChecked());
 
-    exports->Set(Nan::New("scalarmultKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (scalarmultKey)->GetFunction());
+    Nan::Set(target, Nan::New("scalarmultKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(scalarmultKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("scReduce32").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (scReduce32)->GetFunction());
+    Nan::Set(target, Nan::New("scReduce32").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(scReduce32)).ToLocalChecked());
 
-    exports->Set(Nan::New("secretKeyToPublicKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (secretKeyToPublicKey)->GetFunction());
+    Nan::Set(target, Nan::New("secretKeyToPublicKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(secretKeyToPublicKey)).ToLocalChecked());
 
-    exports->Set(Nan::New("tree_depth").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (tree_depth)->GetFunction());
+    Nan::Set(target, Nan::New("tree_depth").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(tree_depth)).ToLocalChecked());
 
-    exports->Set(Nan::New("tree_hash").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (tree_hash)->GetFunction());
+    Nan::Set(target, Nan::New("tree_hash").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(tree_hash)).ToLocalChecked());
 
-    exports->Set(Nan::New("tree_branch").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (tree_branch)->GetFunction());
+    Nan::Set(target, Nan::New("tree_branch").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(tree_branch)).ToLocalChecked());
 
-    exports->Set(Nan::New("tree_hash_from_branch").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (tree_hash_from_branch)->GetFunction());
+    Nan::Set(target, Nan::New("tree_hash_from_branch").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(tree_hash_from_branch)).ToLocalChecked());
 
-    exports->Set(Nan::New("underivePublicKey").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (underivePublicKey)->GetFunction());
+    Nan::Set(target, Nan::New("underivePublicKey").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(underivePublicKey)).ToLocalChecked());
 
     /* Hashing Operations */
-    exports->Set(Nan::New("cnFastHash").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_fast_hash)->GetFunction());
+    Nan::Set(target, Nan::New("cnFastHash").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_fast_hash)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_fast_hash").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_fast_hash)->GetFunction());
+    Nan::Set(target, Nan::New("cn_fast_hash").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_fast_hash)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_lite_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_lite_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_lite_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_lite_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_lite_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_lite_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_lite_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_lite_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_lite_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_lite_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_lite_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_lite_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_lite_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_lite_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_lite_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_dark_lite_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_dark_lite_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_dark_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_dark_lite_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v0").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_lite_slow_hash_v0)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_lite_slow_hash_v0").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_lite_slow_hash_v0)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v1").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_lite_slow_hash_v1)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_lite_slow_hash_v1").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_lite_slow_hash_v1)).ToLocalChecked());
 
-    exports->Set(Nan::New("cn_turtle_lite_slow_hash_v2").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (cn_turtle_lite_slow_hash_v2)->GetFunction());
+    Nan::Set(target, Nan::New("cn_turtle_lite_slow_hash_v2").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_lite_slow_hash_v2)).ToLocalChecked());
 
-    exports->Set(Nan::New("chukwa_slow_hash").ToLocalChecked(),
-                 Nan::New<v8::FunctionTemplate>
-                 (chukwa_slow_hash)->GetFunction());
+    Nan::Set(target, Nan::New("chukwa_slow_hash").ToLocalChecked(),
+                 Nan::GetFunction(Nan::New<v8::FunctionTemplate>(chukwa_slow_hash)).ToLocalChecked());
 }
 
 NODE_MODULE(turtlecoincrypto, InitModule);

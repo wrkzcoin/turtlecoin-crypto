@@ -235,3 +235,18 @@ console.log('       Generated key image: ', keyImage)
 console.log('       Expected key image: ', expectedKeyImage)
 
 assert(keyImage === expectedKeyImage && !err)
+
+const expectedTreeHash = 'dff9b4e047803822e97fb25bb9acb8320648954e15a6ddf6fa757873793c535e'
+const [terr, treeHash] = crypto.tree_hash([
+  cnfasthash,
+  cnslowhashv0,
+  cnslowhashv1,
+  cnslowhashv2
+])
+
+console.log('')
+console.log('[#%s]  Generate Tree Hash', ++testNumber)
+console.log('       Generated Tree Hash: ', treeHash)
+console.log('       Expected Tree Hash: ', expectedTreeHash)
+
+assert(keyImage === expectedKeyImage && !err)
