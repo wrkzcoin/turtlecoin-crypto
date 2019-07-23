@@ -1,5 +1,5 @@
-#ifndef ARGON2_SSSE3_H
-#define ARGON2_SSSE3_H
+#ifndef ARGON2_SSE3_H
+#define ARGON2_SSE3_H
 
 #include "core.h"
 

@@ -3,7 +3,7 @@
 #
 # Please see the included LICENSE file for more information.
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 2.8)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
