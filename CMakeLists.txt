@@ -13,7 +13,7 @@ endif()
 
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug, Release, RelWithDebInfo")
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo Release CACHE TYPE INTERNAL)
-set(ARCH default CACHE STRING "CPU to build for: -march value or default")
+set(ARCH native CACHE STRING "CPU to build for: -march value or default")
 
 project(turtlecoin-crypto)
 
@@ -36,7 +36,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set up options
 option(BUILD_JS "Compile to native Javascript" OFF)
 option(BUILD_WASM "Compile to WASM" OFF)
-option(JS_HASHFUNCTIONS "Compile JS or WASM with Hash Functions" OFF)
 
 if(BUILD_JS AND BUILD_WASM)
   message(FATAL_ERROR "You may only specify either BUILD_JS or BUILD_WASM at a single time")

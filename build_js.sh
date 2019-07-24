@@ -15,7 +15,7 @@ if [[ -z "${EMSDK}" ]]; then
 fi
 
 mkdir -p jsbuild && cd jsbuild && rm -rf *
-emconfigure cmake .. -DNO_AES=1 -DBUILD_WASM=1 -DBUILD_JS=0
+emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=1 -DBUILD_JS=0
 make
-emconfigure cmake .. -DNO_AES=1 -DBUILD_WASM=0 -DBUILD_JS=1
+emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=0 -DBUILD_JS=1
 make

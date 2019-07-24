@@ -208,8 +208,7 @@ The following library files will be created in the `jsbuild` folder:
 * Native Javascript
   * `turtlecoin-crypto.js`
 * WASM
-  * `turtlecoin-crypto-wasm.js`: WASM Loader file
-  * `turtlecoin-crypto-wasm.wasm`: WASM file
+  * `turtlecoin-crypto-wasm.js`
 
 ## Thanks
 Cryptonote Developers, Bytecoin Developers, Monero Developers, Forknote Project, TurtleCoin Community
