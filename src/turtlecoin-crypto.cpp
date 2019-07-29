@@ -2,23 +2,21 @@
 //
 // Please see the included LICENSE file for more information.
 
+#include <StringTools.h>
+#include <string.h>
 #include <turtlecoin-crypto.h>
 
-#include <StringTools.h>
-
-#include <string.h>
-
 #ifndef NO_CRYPTO_EXPORTS
-# ifdef _WIN32
-#   include <windows.h>
-#   ifdef _MANAGED
-#     pragma managed(push, off)
-#   endif
+#ifdef _WIN32
+#include <windows.h>
+#ifdef _MANAGED
+#pragma managed(push, off)
+#endif
 
 EXPORTDLL bool DllMain(
-    HMODULE		/*hModule*/,
-    DWORD		ul_reason_for_call,
-    LPVOID		/*lpReserved*/
+    HMODULE /*hModule*/,
+    DWORD ul_reason_for_call,
+    LPVOID /*lpReserved*/
 )
 {
     switch (ul_reason_for_call)
@@ -32,10 +30,10 @@ EXPORTDLL bool DllMain(
     return true;
 }
 
-#   ifdef _MANAGED
-#     pragma managed(pop)
-#   endif
-# endif
+#ifdef _MANAGED
+#pragma managed(pop)
+#endif
+#endif
 #endif
 
 namespace Core
@@ -344,7 +342,10 @@ namespace Core
         return Common::podToHex(_branches[0]);
     }
 
-    std::string Cryptography::tree_hash_from_branch(const std::vector<std::string> branches, const std::string leaf, const std::string path)
+    std::string Cryptography::tree_hash_from_branch(
+        const std::vector<std::string> branches,
+        const std::string leaf,
+        const std::string path)
     {
         std::vector<Crypto::Hash> _branches;
 
@@ -386,8 +387,7 @@ namespace Core
         const std::vector<std::string> publicKeys,
         const std::string transactionSecretKey,
         const uint64_t realOutputIndex,
-        std::vector<std::string>& signatures
-    )
+        std::vector<std::string> &signatures)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -415,13 +415,7 @@ namespace Core
         std::vector<Crypto::Signature> _signatures;
 
         bool success = Crypto::crypto_ops::generateRingSignatures(
-            _prefixHash,
-            _keyImage,
-            _publicKeys,
-            _transactionSecretKey,
-            realOutputIndex,
-            _signatures
-        );
+            _prefixHash, _keyImage, _publicKeys, _transactionSecretKey, realOutputIndex, _signatures);
 
         signatures.clear();
 
@@ -440,8 +434,7 @@ namespace Core
         const std::string prefixHash,
         const std::string keyImage,
         const std::vector<std::string> publicKeys,
-        const std::vector<std::string> signatures
-    )
+        const std::vector<std::string> signatures)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -473,12 +466,7 @@ namespace Core
             _signatures.push_back(_signature);
         }
 
-        return Crypto::crypto_ops::checkRingSignature(
-            _prefixHash,
-            _keyImage,
-            _publicKeys,
-            _signatures
-        );
+        return Crypto::crypto_ops::checkRingSignature(_prefixHash, _keyImage, _publicKeys, _signatures);
     }
 
     std::string Cryptography::generatePrivateViewKeyFromPrivateSpendKey(const std::string privateSpendKey)
@@ -494,7 +482,10 @@ namespace Core
         return Common::podToHex(privateViewKey);
     }
 
-    void Cryptography::generateViewKeysFromPrivateSpendKey(const std::string privateSpendKey, std::string& privateViewKey, std::string& publicViewKey)
+    void Cryptography::generateViewKeysFromPrivateSpendKey(
+        const std::string privateSpendKey,
+        std::string &privateViewKey,
+        std::string &publicViewKey)
     {
         Crypto::SecretKey _privateSpendKey = Crypto::SecretKey();
 
@@ -511,7 +502,7 @@ namespace Core
         publicViewKey = Common::podToHex(_publicViewKey);
     }
 
-    void Cryptography::generateKeys(std::string& privateKey, std::string& publicKey)
+    void Cryptography::generateKeys(std::string &privateKey, std::string &publicKey)
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -533,7 +524,7 @@ namespace Core
         return Crypto::check_key(_publicKey);
     }
 
-    bool Cryptography::secretKeyToPublicKey(const std::string privateKey, std::string& publicKey)
+    bool Cryptography::secretKeyToPublicKey(const std::string privateKey, std::string &publicKey)
     {
         Crypto::SecretKey _privateKey = Crypto::SecretKey();
 
@@ -551,7 +542,10 @@ namespace Core
         return success;
     }
 
-    bool Cryptography::generateKeyDerivation(const std::string publicKey, const std::string privateKey, std::string& derivation)
+    bool Cryptography::generateKeyDerivation(
+        const std::string publicKey,
+        const std::string privateKey,
+        std::string &derivation)
     {
         Crypto::PublicKey _publicKey = Crypto::PublicKey();
 
@@ -573,7 +567,11 @@ namespace Core
         return success;
     }
 
-    bool Cryptography::derivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string publicKey, std::string& derivedKey)
+    bool Cryptography::derivePublicKey(
+        const std::string derivation,
+        const uint64_t outputIndex,
+        const std::string publicKey,
+        std::string &derivedKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -595,7 +593,10 @@ namespace Core
         return success;
     }
 
-    std::string Cryptography::deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string privateKey)
+    std::string Cryptography::deriveSecretKey(
+        const std::string derivation,
+        const uint64_t outputIndex,
+        const std::string privateKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -612,7 +613,11 @@ namespace Core
         return Common::podToHex(_derivedKey);
     }
 
-    bool Cryptography::underivePublicKey(const std::string derivation, const uint64_t outputIndex, const std::string derivedKey, std::string& publicKey)
+    bool Cryptography::underivePublicKey(
+        const std::string derivation,
+        const uint64_t outputIndex,
+        const std::string derivedKey,
+        std::string &publicKey)
     {
         Crypto::KeyDerivation _derivation = Crypto::KeyDerivation();
 
@@ -634,7 +639,10 @@ namespace Core
         return success;
     }
 
-    std::string Cryptography::generateSignature(const std::string prefixHash, const std::string publicKey, const std::string privateKey)
+    std::string Cryptography::generateSignature(
+        const std::string prefixHash,
+        const std::string publicKey,
+        const std::string privateKey)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -655,7 +663,10 @@ namespace Core
         return Common::podToHex(_signature);
     }
 
-    bool Cryptography::checkSignature(const std::string prefixHash, const std::string publicKey, const std::string signature)
+    bool Cryptography::checkSignature(
+        const std::string prefixHash,
+        const std::string publicKey,
+        const std::string signature)
     {
         Crypto::Hash _prefixHash = Crypto::Hash();
 
@@ -738,11 +749,11 @@ namespace Core
 
         return Common::podToHex(_scalar);
     }
-}
+} // namespace Core
 
-inline void tree_hash(const char* hashes, const uint64_t hashesLength, char* &hash)
+inline void tree_hash(const char *hashes, const uint64_t hashesLength, char *&hash)
 {
-    const std::string* hashesBuffer = reinterpret_cast<const std::string*>(hashes);
+    const std::string *hashesBuffer = reinterpret_cast<const std::string *>(hashes);
 
     std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
 
@@ -751,9 +762,9 @@ inline void tree_hash(const char* hashes, const uint64_t hashesLength, char* &ha
     hash = strdup(result.c_str());
 }
 
-inline void tree_branch(const char* hashes, const uint64_t hashesLength, char* &branch)
+inline void tree_branch(const char *hashes, const uint64_t hashesLength, char *&branch)
 {
-    const std::string* hashesBuffer = reinterpret_cast<const std::string*>(hashes);
+    const std::string *hashesBuffer = reinterpret_cast<const std::string *>(hashes);
 
     std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
 
@@ -762,9 +773,14 @@ inline void tree_branch(const char* hashes, const uint64_t hashesLength, char* &
     branch = strdup(_branch.c_str());
 }
 
-inline void tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const char* leaf, const char* path, char* &hash)
+inline void tree_hash_from_branch(
+    const char *branches,
+    const uint64_t branchesLength,
+    const char *leaf,
+    const char *path,
+    char *&hash)
 {
-    const std::string* branchesBuffer = reinterpret_cast<const std::string*>(branches);
+    const std::string *branchesBuffer = reinterpret_cast<const std::string *>(branches);
 
     std::vector<std::string> _branches(branchesBuffer, branchesBuffer + branchesLength);
 
@@ -774,59 +790,51 @@ inline void tree_hash_from_branch(const char* branches, const uint64_t branchesL
 }
 
 inline int generateRingSignatures(
-    const char* prefixHash,
-    const char* keyImage,
-    const char* publicKeys,
+    const char *prefixHash,
+    const char *keyImage,
+    const char *publicKeys,
     uint64_t publicKeysLength,
-    const char* transactionSecretKey,
+    const char *transactionSecretKey,
     const uint64_t realOutputIndex,
-    char* &signatures
-)
+    char *&signatures)
 {
-    const std::string* publicKeysBuffer = reinterpret_cast<const std::string*>(publicKeys);
+    const std::string *publicKeysBuffer = reinterpret_cast<const std::string *>(publicKeys);
 
     std::vector<std::string> _publicKeys(publicKeysBuffer, publicKeysBuffer + publicKeysLength);
 
     std::vector<std::string> _signatures;
 
     bool success = Core::Cryptography::generateRingSignatures(
-        prefixHash,
-        keyImage,
-        _publicKeys,
-        transactionSecretKey,
-        realOutputIndex,
-        _signatures
-    );
+        prefixHash, keyImage, _publicKeys, transactionSecretKey, realOutputIndex, _signatures);
 
     if (success)
     {
-        signatures = reinterpret_cast<char*>(_signatures.data());
+        signatures = reinterpret_cast<char *>(_signatures.data());
     }
 
     return success;
 }
 
 inline bool checkRingSignature(
-    const char* prefixHash,
-    const char* keyImage,
-    const char* publicKeys,
+    const char *prefixHash,
+    const char *keyImage,
+    const char *publicKeys,
     const uint64_t publicKeysLength,
-    const char* signatures,
-    const uint64_t signaturesLength
-)
+    const char *signatures,
+    const uint64_t signaturesLength)
 {
-    const std::string* publicKeysBuffer = reinterpret_cast<const std::string*>(publicKeys);
+    const std::string *publicKeysBuffer = reinterpret_cast<const std::string *>(publicKeys);
 
     std::vector<std::string> _publicKeys(publicKeysBuffer, publicKeysBuffer + publicKeysLength);
 
-    const std::string* signaturesBuffer = reinterpret_cast<const std::string*>(signatures);
+    const std::string *signaturesBuffer = reinterpret_cast<const std::string *>(signatures);
 
     std::vector<std::string> _signatures(signaturesBuffer, signaturesBuffer + signaturesLength);
 
     return Core::Cryptography::checkRingSignature(prefixHash, keyImage, _publicKeys, _signatures);
 }
 
-inline void generateViewKeysFromPrivateSpendKey(const char* privateSpendKey, char* &privateKey, char* &publicKey)
+inline void generateViewKeysFromPrivateSpendKey(const char *privateSpendKey, char *&privateKey, char *&publicKey)
 {
     std::string _privateKey;
 
@@ -839,7 +847,7 @@ inline void generateViewKeysFromPrivateSpendKey(const char* privateSpendKey, cha
     publicKey = strdup(_publicKey.c_str());
 }
 
-inline void generateKeys(char* &privateKey, char* &publicKey)
+inline void generateKeys(char *&privateKey, char *&publicKey)
 {
     std::string _privateKey;
 
@@ -852,7 +860,7 @@ inline void generateKeys(char* &privateKey, char* &publicKey)
     publicKey = strdup(_publicKey.c_str());
 }
 
-inline int secretKeyToPublicKey(const char* privateKey, char* &publicKey)
+inline int secretKeyToPublicKey(const char *privateKey, char *&publicKey)
 {
     std::string _publicKey;
 
@@ -863,7 +871,7 @@ inline int secretKeyToPublicKey(const char* privateKey, char* &publicKey)
     return success;
 }
 
-inline int generateKeyDerivation(const char* publicKey, const char* privateKey, char* &derivation)
+inline int generateKeyDerivation(const char *publicKey, const char *privateKey, char *&derivation)
 {
     std::string _derivation;
 
@@ -874,7 +882,8 @@ inline int generateKeyDerivation(const char* publicKey, const char* privateKey, 
     return success;
 }
 
-inline int derivePublicKey(const char* derivation, const uint64_t outputIndex, const char* publicKey, char* &outPublicKey)
+inline int
+    derivePublicKey(const char *derivation, const uint64_t outputIndex, const char *publicKey, char *&outPublicKey)
 {
     std::string _outPublicKey;
 
@@ -885,7 +894,8 @@ inline int derivePublicKey(const char* derivation, const uint64_t outputIndex, c
     return success;
 }
 
-inline int underivePublicKey(const char* derivation, const uint64_t outputIndex, const char* derivedKey, char* &publicKey)
+inline int
+    underivePublicKey(const char *derivation, const uint64_t outputIndex, const char *derivedKey, char *&publicKey)
 {
     std::string _publicKey;
 
@@ -900,117 +910,117 @@ extern "C"
 {
     /* Hashing Methods */
 
-    EXPORTDLL void _cn_fast_hash(const char* input, char* &output)
+    EXPORTDLL void _cn_fast_hash(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_fast_hash(input).c_str());
     }
 
-    EXPORTDLL void _cn_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_lite_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_lite_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_lite_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_lite_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_lite_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_lite_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_lite_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_lite_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_lite_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_lite_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_lite_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_lite_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_lite_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_lite_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_lite_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_dark_lite_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_dark_lite_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_dark_lite_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_lite_slow_hash_v0(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_lite_slow_hash_v0(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_lite_slow_hash_v0(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_lite_slow_hash_v1(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_lite_slow_hash_v1(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_lite_slow_hash_v1(input).c_str());
     }
 
-    EXPORTDLL void _cn_turtle_lite_slow_hash_v2(const char* input, char* &output)
+    EXPORTDLL void _cn_turtle_lite_slow_hash_v2(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::cn_turtle_lite_slow_hash_v2(input).c_str());
     }
 
-    EXPORTDLL void _cn_soft_shell_slow_hash_v0(const char* input, const uint32_t height, char* &output)
+    EXPORTDLL void _cn_soft_shell_slow_hash_v0(const char *input, const uint32_t height, char *&output)
     {
         output = strdup(Core::Cryptography::cn_soft_shell_slow_hash_v0(input, height).c_str());
     }
 
-    EXPORTDLL void _cn_soft_shell_slow_hash_v1(const char* input, const uint32_t height, char* &output)
+    EXPORTDLL void _cn_soft_shell_slow_hash_v1(const char *input, const uint32_t height, char *&output)
     {
         output = strdup(Core::Cryptography::cn_soft_shell_slow_hash_v1(input, height).c_str());
     }
 
-    EXPORTDLL void _cn_soft_shell_slow_hash_v2(const char* input, const uint32_t height, char* &output)
+    EXPORTDLL void _cn_soft_shell_slow_hash_v2(const char *input, const uint32_t height, char *&output)
     {
         output = strdup(Core::Cryptography::cn_soft_shell_slow_hash_v2(input, height).c_str());
     }
 
-    EXPORTDLL void _chukwa_slow_hash(const char* input, char* &output)
+    EXPORTDLL void _chukwa_slow_hash(const char *input, char *&output)
     {
         output = strdup(Core::Cryptography::chukwa_slow_hash(input).c_str());
     }
@@ -1020,17 +1030,23 @@ extern "C"
         return Core::Cryptography::tree_depth(count);
     }
 
-    EXPORTDLL void _tree_hash(const char* hashes, const uint64_t hashesLength, char* &hash)
+    EXPORTDLL void _tree_hash(const char *hashes, const uint64_t hashesLength, char *&hash)
     {
         tree_hash(hashes, hashesLength, hash);
     }
 
-    EXPORTDLL void _tree_branch(const char* hashes, const uint64_t hashesLength, char* &branch)
+    EXPORTDLL void _tree_branch(const char *hashes, const uint64_t hashesLength, char *&branch)
     {
         tree_branch(hashes, hashesLength, branch);
     }
 
-    EXPORTDLL void _tree_hash_from_branch(const char* branches, const uint64_t branchesLength, const uint64_t depth, const char* leaf, const char* path, char* &hash)
+    EXPORTDLL void _tree_hash_from_branch(
+        const char *branches,
+        const uint64_t branchesLength,
+        const uint64_t depth,
+        const char *leaf,
+        const char *path,
+        char *&hash)
     {
         tree_hash_from_branch(branches, branchesLength, leaf, path, hash);
     }
@@ -1038,106 +1054,110 @@ extern "C"
     /* Crypto Methods */
 
     EXPORTDLL int _generateRingSignatures(
-        const char* prefixHash,
-        const char* keyImage,
-        const char* publicKeys,
+        const char *prefixHash,
+        const char *keyImage,
+        const char *publicKeys,
         const uint64_t publicKeysLength,
-        const char* transactionSecretKey,
+        const char *transactionSecretKey,
         const uint64_t realOutputIndex,
-        char* &signatures
-    )
+        char *&signatures)
     {
-        return generateRingSignatures(prefixHash, keyImage, publicKeys, publicKeysLength, transactionSecretKey, realOutputIndex, signatures);
+        return generateRingSignatures(
+            prefixHash, keyImage, publicKeys, publicKeysLength, transactionSecretKey, realOutputIndex, signatures);
     }
 
     EXPORTDLL bool _checkRingSignature(
-        const char* prefixHash,
-        const char* keyImage,
-        const char* publicKeys,
+        const char *prefixHash,
+        const char *keyImage,
+        const char *publicKeys,
         const uint64_t publicKeysLength,
-        const char* signatures,
-        const uint64_t signaturesLength
-    )
+        const char *signatures,
+        const uint64_t signaturesLength)
     {
         return checkRingSignature(prefixHash, keyImage, publicKeys, publicKeysLength, signatures, signaturesLength);
     }
 
-    EXPORTDLL void _generatePrivateViewKeyFromPrivateSpendKey(const char* spendPrivateKey, char* &output)
+    EXPORTDLL void _generatePrivateViewKeyFromPrivateSpendKey(const char *spendPrivateKey, char *&output)
     {
         output = strdup(Core::Cryptography::generatePrivateViewKeyFromPrivateSpendKey(spendPrivateKey).c_str());
     }
 
-    EXPORTDLL void _generateViewKeysFromPrivateSpendKey(const char* spendPrivateKey, char* &privateKey, char* &publicKey)
+    EXPORTDLL void
+        _generateViewKeysFromPrivateSpendKey(const char *spendPrivateKey, char *&privateKey, char *&publicKey)
     {
         generateViewKeysFromPrivateSpendKey(spendPrivateKey, privateKey, publicKey);
     }
 
-    EXPORTDLL void _generateKeys(char* &privateKey, char* &publicKey)
+    EXPORTDLL void _generateKeys(char *&privateKey, char *&publicKey)
     {
         generateKeys(privateKey, publicKey);
     }
 
-    EXPORTDLL int _checkKey(const char* publicKey)
+    EXPORTDLL int _checkKey(const char *publicKey)
     {
         return Core::Cryptography::checkKey(publicKey);
     }
 
-    EXPORTDLL int _secretKeyToPublicKey(const char* privateKey, char* &publicKey)
+    EXPORTDLL int _secretKeyToPublicKey(const char *privateKey, char *&publicKey)
     {
         return secretKeyToPublicKey(privateKey, publicKey);
     }
 
-    EXPORTDLL int _generateKeyDerivation(const char* publicKey, const char* privateKey, char* &derivation)
+    EXPORTDLL int _generateKeyDerivation(const char *publicKey, const char *privateKey, char *&derivation)
     {
         return generateKeyDerivation(publicKey, privateKey, derivation);
     }
 
-    EXPORTDLL int _derivePublicKey(const char* derivation, uint32_t outputIndex, const char* publicKey, char* &outPublicKey)
+    EXPORTDLL int
+        _derivePublicKey(const char *derivation, uint32_t outputIndex, const char *publicKey, char *&outPublicKey)
     {
         return derivePublicKey(derivation, outputIndex, publicKey, outPublicKey);
     }
 
-    EXPORTDLL void _deriveSecretKey(const char* derivation, uint32_t outputIndex, const char* privateKey, char* &outPrivateKey)
+    EXPORTDLL void
+        _deriveSecretKey(const char *derivation, uint32_t outputIndex, const char *privateKey, char *&outPrivateKey)
     {
         outPrivateKey = strdup(Core::Cryptography::deriveSecretKey(derivation, outputIndex, privateKey).c_str());
     }
 
-    EXPORTDLL int _underivePublicKey(const char* derivation, const uint64_t outputIndex, const char* derivedKey, char* &publicKey)
+    EXPORTDLL int
+        _underivePublicKey(const char *derivation, const uint64_t outputIndex, const char *derivedKey, char *&publicKey)
     {
         return underivePublicKey(derivation, outputIndex, derivedKey, publicKey);
     }
 
-    EXPORTDLL void _generateSignature(const char* prefixHash, const char* publicKey, const char* privateKey, char* &signature)
+    EXPORTDLL void
+        _generateSignature(const char *prefixHash, const char *publicKey, const char *privateKey, char *&signature)
     {
         signature = strdup(Core::Cryptography::generateSignature(prefixHash, publicKey, privateKey).c_str());
     }
 
-    EXPORTDLL int _checkSignature(const char* prefixHash, const char* publicKey, const char* signature)
+    EXPORTDLL int _checkSignature(const char *prefixHash, const char *publicKey, const char *signature)
     {
         return Core::Cryptography::checkSignature(prefixHash, publicKey, signature);
     }
 
-    EXPORTDLL void _generateKeyImage(const char* publicKey, const char* privateKey, char* &keyImage)
+    EXPORTDLL void _generateKeyImage(const char *publicKey, const char *privateKey, char *&keyImage)
     {
         keyImage = strdup(Core::Cryptography::generateKeyImage(publicKey, privateKey).c_str());
     }
 
-    EXPORTDLL void _scalarmultKey(const char* keyImageA, const char* keyImageB, char* &keyImageC)
+    EXPORTDLL void _scalarmultKey(const char *keyImageA, const char *keyImageB, char *&keyImageC)
     {
         keyImageC = strdup(Core::Cryptography::scalarmultKey(keyImageA, keyImageB).c_str());
     }
 
-    EXPORTDLL void _hashToEllipticCurve(const char* hash, char* &ec)
+    EXPORTDLL void _hashToEllipticCurve(const char *hash, char *&ec)
     {
         ec = strdup(Core::Cryptography::hashToEllipticCurve(hash).c_str());
     }
 
-    EXPORTDLL void _scReduce32(const char* data, char* &output)
+    EXPORTDLL void _scReduce32(const char *data, char *&output)
     {
         output = strdup(Core::Cryptography::scReduce32(data).c_str());
     }
 
-    EXPORTDLL void _hashToScalar(const char* hash, char* &output)
+    EXPORTDLL void _hashToScalar(const char *hash, char *&output)
     {
         output = strdup(Core::Cryptography::hashToScalar(hash).c_str());
     }

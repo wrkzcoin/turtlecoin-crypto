@@ -15,11 +15,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "blake256.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
-#include "blake256.h"
-
-void hash_extra_blake(const void *data, size_t length, char *hash) {
-  blake256_hash((uint8_t*)hash, data, length);
+void hash_extra_blake(const void *data, size_t length, char *hash)
+{
+    blake256_hash((uint8_t *)hash, data, length);
 }

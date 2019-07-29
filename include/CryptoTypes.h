@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include <algorithm>
-
 #include <StringTools.h>
-
+#include <algorithm>
 #include <cstdint>
-
 #include <iterator>
 
 namespace Crypto
@@ -43,7 +40,7 @@ namespace Crypto
 
         PublicKey(const uint8_t input[32])
         {
-            std::copy(input, input+32, std::begin(data));
+            std::copy(input, input + 32, std::begin(data));
         }
 
         bool operator==(const PublicKey &other) const
@@ -70,7 +67,7 @@ namespace Crypto
 
         SecretKey(const uint8_t input[32])
         {
-            std::copy(input, input+32, std::begin(data));
+            std::copy(input, input + 32, std::begin(data));
         }
 
         bool operator==(const SecretKey &other) const
@@ -97,7 +94,7 @@ namespace Crypto
 
         KeyDerivation(const uint8_t input[32])
         {
-            std::copy(input, input+32, std::begin(data));
+            std::copy(input, input + 32, std::begin(data));
         }
 
         bool operator==(const KeyDerivation &other) const
@@ -124,7 +121,7 @@ namespace Crypto
 
         KeyImage(const uint8_t input[32])
         {
-            std::copy(input, input+32, std::begin(data));
+            std::copy(input, input + 32, std::begin(data));
         }
 
         bool operator==(const KeyImage &other) const
@@ -151,7 +148,7 @@ namespace Crypto
 
         Signature(const uint8_t input[64])
         {
-            std::copy(input, input+64, std::begin(data));
+            std::copy(input, input + 64, std::begin(data));
         }
 
         bool operator==(const Signature &other) const
@@ -192,7 +189,7 @@ namespace Crypto
     {
         return reinterpret_cast<const size_t &>(keyImage);
     }
-}
+} // namespace Crypto
 
 namespace std
 {
@@ -281,4 +278,4 @@ namespace std
         os << Common::podToHex(signature);
         return os;
     }
-}
+} // namespace std

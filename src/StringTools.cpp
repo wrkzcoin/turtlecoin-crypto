@@ -4,84 +4,53 @@
 // Please see the included LICENSE file for more information.
 
 #include "StringTools.h"
+
 #include <fstream>
 #include <iomanip>
 
-namespace Common {
-
-    namespace {
-
+namespace Common
+{
+    namespace
+    {
         const uint8_t characterValues[256] = {
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff
-        };
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
+            0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0xff, 0xff, 0xff, 0xff};
 
     }
 
-    std::string asString(const void *data, uint64_t size) {
-        return std::string(static_cast < const char *>(data), size);
+    std::string asString(const void *data, uint64_t size)
+    {
+        return std::string(static_cast<const char *>(data), size);
     }
 
-    std::string asString(const std::vector < uint8_t > &data) {
-        return std::string(reinterpret_cast < const char *>(data.data()),
-                           data.size());
+    std::string asString(const std::vector<uint8_t> &data)
+    {
+        return std::string(reinterpret_cast<const char *>(data.data()), data.size());
     }
 
-    std::vector < uint8_t > asBinaryArray(const std::string & data) {
-        auto dataPtr = reinterpret_cast < const uint8_t * >(data.data());
+    std::vector<uint8_t> asBinaryArray(const std::string &data)
+    {
+        auto dataPtr = reinterpret_cast<const uint8_t *>(data.data());
 
-        return std::vector < uint8_t > (dataPtr, dataPtr + data.size());
+        return std::vector<uint8_t>(dataPtr, dataPtr + data.size());
     }
 
-    uint8_t fromHex(char character) {
-        uint8_t value =
-            characterValues[static_cast < unsigned char >(character)];
+    uint8_t fromHex(char character)
+    {
+        uint8_t value = characterValues[static_cast<unsigned char>(character)];
         if (value > 0x0f)
         {
             throw std::runtime_error("fromHex: invalid character");
@@ -90,19 +59,19 @@ namespace Common {
         return value;
     }
 
-    bool fromHex(char character, uint8_t & value) {
-        if (characterValues[static_cast < unsigned char >(character)] >
-            0x0f)
+    bool fromHex(char character, uint8_t &value)
+    {
+        if (characterValues[static_cast<unsigned char>(character)] > 0x0f)
         {
             return false;
         }
 
-        value = characterValues[static_cast < unsigned char >(character)];
+        value = characterValues[static_cast<unsigned char>(character)];
         return true;
     }
 
-    uint64_t fromHex(const std::string & text, void *data,
-                     uint64_t bufferSize) {
+    uint64_t fromHex(const std::string &text, void *data, uint64_t bufferSize)
+    {
         if ((text.size() & 1) != 0)
         {
             throw std::runtime_error("fromHex: invalid string size");
@@ -113,17 +82,16 @@ namespace Common {
             throw std::runtime_error("fromHex: invalid buffer size");
         }
 
-        for (uint64_t i = 0; i < text.size() >> 1; ++i)
+        for (uint64_t i = 0; i<text.size()>> 1; ++i)
         {
-            static_cast < uint8_t * >(data)[i] =
-                fromHex(text[i << 1]) << 4 | fromHex(text[(i << 1) + 1]);
+            static_cast<uint8_t *>(data)[i] = fromHex(text[i << 1]) << 4 | fromHex(text[(i << 1) + 1]);
         }
 
         return text.size() >> 1;
     }
 
-    bool fromHex(const std::string & text, void *data, uint64_t bufferSize,
-                 uint64_t & size) {
+    bool fromHex(const std::string &text, void *data, uint64_t bufferSize, uint64_t &size)
+    {
         if ((text.size() & 1) != 0)
         {
             return false;
@@ -134,7 +102,7 @@ namespace Common {
             return false;
         }
 
-        for (uint64_t i = 0; i < text.size() >> 1; ++i)
+        for (uint64_t i = 0; i<text.size()>> 1; ++i)
         {
             uint8_t value1;
 
@@ -150,37 +118,37 @@ namespace Common {
                 return false;
             }
 
-            static_cast < uint8_t * >(data)[i] = value1 << 4 | value2;
+            static_cast<uint8_t *>(data)[i] = value1 << 4 | value2;
         }
 
         size = text.size() >> 1;
         return true;
     }
 
-    std::vector < uint8_t > fromHex(const std::string & text)
+    std::vector<uint8_t> fromHex(const std::string &text)
     {
         if ((text.size() & 1) != 0)
         {
             throw std::runtime_error("fromHex: invalid string size");
         }
 
-        std::vector < uint8_t > data(text.size() >> 1);
+        std::vector<uint8_t> data(text.size() >> 1);
         for (uint64_t i = 0; i < data.size(); ++i)
         {
-            data[i] =
-                fromHex(text[i << 1]) << 4 | fromHex(text[(i << 1) + 1]);
+            data[i] = fromHex(text[i << 1]) << 4 | fromHex(text[(i << 1) + 1]);
         }
 
         return data;
     }
 
-    bool fromHex(const std::string & text, std::vector < uint8_t > &data) {
+    bool fromHex(const std::string &text, std::vector<uint8_t> &data)
+    {
         if ((text.size() & 1) != 0)
         {
             return false;
         }
 
-        for (uint64_t i = 0; i < text.size() >> 1; ++i)
+        for (uint64_t i = 0; i<text.size()>> 1; ++i)
         {
             uint8_t value1;
 
@@ -207,30 +175,24 @@ namespace Common {
         std::string text;
         for (uint64_t i = 0; i < size; ++i)
         {
-            text +=
-                "0123456789abcdef"[static_cast <
-                                   const uint8_t * >(data)[i] >> 4];
-            text +=
-                "0123456789abcdef"[static_cast <
-                                   const uint8_t * >(data)[i] & 15];
+            text += "0123456789abcdef"[static_cast<const uint8_t *>(data)[i] >> 4];
+            text += "0123456789abcdef"[static_cast<const uint8_t *>(data)[i] & 15];
         }
 
         return text;
     }
 
-    void toHex(const void *data, uint64_t size, std::string & text) {
+    void toHex(const void *data, uint64_t size, std::string &text)
+    {
         for (uint64_t i = 0; i < size; ++i)
         {
-            text +=
-                "0123456789abcdef"[static_cast <
-                                   const uint8_t * >(data)[i] >> 4];
-            text +=
-                "0123456789abcdef"[static_cast <
-                                   const uint8_t * >(data)[i] & 15];
+            text += "0123456789abcdef"[static_cast<const uint8_t *>(data)[i] >> 4];
+            text += "0123456789abcdef"[static_cast<const uint8_t *>(data)[i] & 15];
         }
     }
 
-    std::string toHex(const std::vector < uint8_t > &data) {
+    std::string toHex(const std::vector<uint8_t> &data)
+    {
         std::string text;
         for (uint64_t i = 0; i < data.size(); ++i)
         {
@@ -241,7 +203,8 @@ namespace Common {
         return text;
     }
 
-    void toHex(const std::vector < uint8_t > &data, std::string & text) {
+    void toHex(const std::vector<uint8_t> &data, std::string &text)
+    {
         for (uint64_t i = 0; i < data.size(); ++i)
         {
             text += "0123456789abcdef"[data[i] >> 4];
@@ -249,7 +212,8 @@ namespace Common {
         }
     }
 
-    std::string extract(std::string & text, char delimiter) {
+    std::string extract(std::string &text, char delimiter)
+    {
         uint64_t delimiterPosition = text.find(delimiter);
 
         std::string subText;
@@ -257,7 +221,8 @@ namespace Common {
         {
             subText = text.substr(0, delimiterPosition);
             text = text.substr(delimiterPosition + 1);
-        } else
+        }
+        else
         {
             subText.swap(text);
         }
@@ -265,8 +230,7 @@ namespace Common {
         return subText;
     }
 
-    std::string extract(const std::string & text, char delimiter,
-                        uint64_t & offset)
+    std::string extract(const std::string &text, char delimiter, uint64_t &offset)
     {
         uint64_t delimiterPosition = text.find(delimiter, offset);
 
@@ -274,7 +238,8 @@ namespace Common {
         {
             offset = delimiterPosition + 1;
             return text.substr(offset, delimiterPosition);
-        } else
+        }
+        else
         {
             offset = text.size();
             return text.substr(offset);
@@ -292,21 +257,18 @@ namespace Common {
 
         char buf[16];
 
-        sprintf(buf, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2],
-                bytes[3]);
+        sprintf(buf, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
 
         return std::string(buf);
     }
 
-    bool parseIpAddressAndPort(uint32_t & ip, uint32_t & port,
-                               const std::string & addr) {
+    bool parseIpAddressAndPort(uint32_t &ip, uint32_t &port, const std::string &addr)
+    {
         uint32_t v[4];
 
         uint32_t localPort;
 
-        if (sscanf
-            (addr.c_str(), "%d.%d.%d.%d:%d", &v[0], &v[1], &v[2], &v[3],
-             &localPort) != 5)
+        if (sscanf(addr.c_str(), "%d.%d.%d.%d:%d", &v[0], &v[1], &v[2], &v[3], &localPort) != 5)
         {
             return false;
         }
@@ -340,13 +302,10 @@ namespace Common {
         auto seconds = tail;
 
         std::stringstream ss;
-        ss << "d" << days <<
-            std::setfill('0') <<
-            ".h" << std::setw(2) << hours <<
-            ".m" << std::
-            setw(2) << minutes << ".s" << std::setw(2) << seconds;
+        ss << "d" << days << std::setfill('0') << ".h" << std::setw(2) << hours << ".m" << std::setw(2) << minutes
+           << ".s" << std::setw(2) << seconds;
 
         return ss.str();
     }
 
-}
+} // namespace Common

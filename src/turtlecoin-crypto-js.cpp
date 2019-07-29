@@ -2,13 +2,10 @@
 //
 // Please see the included LICENSE file for more information.
 
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include <turtlecoin-crypto.h>
-
 #include <emscripten/bind.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <turtlecoin-crypto.h>
 
 using namespace emscripten;
 
@@ -41,19 +38,12 @@ std::vector<std::string> generateRingSignatures(
     const std::string keyImage,
     const std::vector<std::string> publicKeys,
     const std::string transactionSecretKey,
-    const int realOutputIndex
-)
+    const int realOutputIndex)
 {
     std::vector<std::string> signatures;
 
     bool success = Core::Cryptography::generateRingSignatures(
-        prefixHash,
-        keyImage,
-        publicKeys,
-        transactionSecretKey,
-        realOutputIndex,
-        signatures
-    );
+        prefixHash, keyImage, publicKeys, transactionSecretKey, realOutputIndex, signatures);
 
     return signatures;
 }
@@ -174,7 +164,8 @@ EMSCRIPTEN_BINDINGS(signatures)
 
     function("generateRingSignatures", &generateRingSignatures);
     function("checkRingSignature", &Core::Cryptography::checkRingSignature);
-    function("generatePrivateViewKeyFromPrivateSpendKey", &Core::Cryptography::generatePrivateViewKeyFromPrivateSpendKey);
+    function(
+        "generatePrivateViewKeyFromPrivateSpendKey", &Core::Cryptography::generatePrivateViewKeyFromPrivateSpendKey);
     function("generateViewKeysFromPrivateSpendKey", &generateViewKeysFromPrivateSpendKey);
     function("generateKeys", &generateKeys);
     function("checkKey", &Core::Cryptography::checkKey);
@@ -193,7 +184,5 @@ EMSCRIPTEN_BINDINGS(signatures)
 
     register_vector<std::string>("VectorString");
 
-    value_object<Keys>("Keys")
-        .field("SecretKey", &Keys::SecretKey)
-        .field("PublicKey", &Keys::PublicKey);
+    value_object<Keys>("Keys").field("SecretKey", &Keys::SecretKey).field("PublicKey", &Keys::PublicKey);
 }

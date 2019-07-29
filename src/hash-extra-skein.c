@@ -15,14 +15,17 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include "hash-ops.h"
 #include "skein.h"
 
-void hash_extra_skein(const void *data, size_t length, char *hash) {
-  int r = skein_hash(8 * HASH_SIZE, data, 8 * length, (uint8_t*)hash);
-  if (r) {}
-  assert(SKEIN_SUCCESS == r);
+#include <stddef.h>
+#include <stdint.h>
+
+void hash_extra_skein(const void *data, size_t length, char *hash)
+{
+    int r = skein_hash(8 * HASH_SIZE, data, 8 * length, (uint8_t *)hash);
+    if (r)
+    {
+    }
+    assert(SKEIN_SUCCESS == r);
 }
