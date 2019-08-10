@@ -899,9 +899,18 @@ void tree_branch(const Nan::FunctionCallbackInfo<v8::Value> &info)
         {
             try
             {
-                std::string branch = Core::Cryptography::tree_branch(hashes);
+                std::vector<std::string> _branches = Core::Cryptography::tree_branch(hashes);
 
-                functionReturnValue = Nan::New(branch).ToLocalChecked();
+                v8::Local<v8::Array> branches = Nan::New<v8::Array>(_branches.size());
+
+                for (size_t i = 0; i < _branches.size(); i++)
+                {
+                    v8::Local<v8::String> result = Nan::New(_branches[i]).ToLocalChecked();
+
+                    Nan::Set(branches, i, result);
+                }
+
+                functionReturnValue = branches;
 
                 functionSuccess = true;
             }

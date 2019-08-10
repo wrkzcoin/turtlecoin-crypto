@@ -249,4 +249,23 @@ console.log('[#%s]  Generate Tree Hash', ++testNumber)
 console.log('       Generated Tree Hash: ', treeHash)
 console.log('       Expected Tree Hash: ', expectedTreeHash)
 
-assert(keyImage === expectedKeyImage && !err)
+assert(treeHash === expectedTreeHash && !terr)
+
+const expectedTreeBranch = [
+  'f49291f9b352701d97dffad838def8cefcc34d1e767e450558261b161ab78cb1',
+  '1b606a3f4a07d6489a1bcd07697bd16696b61c8ae982f61a90160f4e52828a7f'
+]
+const [berr, treeBranch] = crypto.tree_branch([
+  cnfasthash,
+  cnslowhashv0,
+  cnslowhashv1,
+  cnslowhashv2
+])
+
+console.log('')
+console.log('[#%s]  Generate Tree Branch:', ++testNumber)
+console.log('       Generated Tree Branch: ', treeBranch)
+console.log('       Expected Tree Branch: ', expectedTreeBranch)
+
+assert(!berr)
+assert.deepStrictEqual(treeBranch, expectedTreeBranch)

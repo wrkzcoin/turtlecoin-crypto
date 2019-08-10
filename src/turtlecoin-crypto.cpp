@@ -322,7 +322,7 @@ namespace Core
         return Common::podToHex(treeHash);
     }
 
-    std::string Cryptography::tree_branch(const std::vector<std::string> hashes)
+    std::vector<std::string> Cryptography::tree_branch(const std::vector<std::string> hashes)
     {
         std::vector<Crypto::Hash> _hashes;
 
@@ -335,11 +335,18 @@ namespace Core
             _hashes.push_back(tempHash);
         }
 
-        std::vector<Crypto::Hash> _branches(1);
+        std::vector<Crypto::Hash> _branches(tree_depth(_hashes.size()));
 
         Crypto::tree_branch(_hashes.data(), _hashes.size(), _branches.data());
 
-        return Common::podToHex(_branches[0]);
+        std::vector<std::string> branches;
+
+        for (const auto branch : _branches)
+        {
+            branches.push_back(Common::podToHex(branch));
+        }
+
+        return branches;
     }
 
     std::string Cryptography::tree_hash_from_branch(
@@ -768,9 +775,9 @@ inline void tree_branch(const char *hashes, const uint64_t hashesLength, char *&
 
     std::vector<std::string> _hashes(hashesBuffer, hashesBuffer + hashesLength);
 
-    std::string _branch = Core::Cryptography::tree_branch(_hashes);
+    std::vector<std::string> _branch = Core::Cryptography::tree_branch(_hashes);
 
-    branch = strdup(_branch.c_str());
+    branch = reinterpret_cast<char *>(_branch.data());
 }
 
 inline void tree_hash_from_branch(
