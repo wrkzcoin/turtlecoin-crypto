@@ -420,6 +420,62 @@ void generatePrivateViewKeyFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+void generateDeterministicSubwalletKeys(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
+
+    bool functionSuccess = false;
+
+    std::string secretKey = std::string();
+
+    size_t walletIndex = 0;
+
+    if (info.Length() == 2)
+    {
+        if (info[0]->IsString())
+        {
+            secretKey = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsNumber())
+        {
+            walletIndex = (size_t)Nan::To<uint32_t>(info[1]).FromJust();
+        }
+
+        if (!secretKey.empty())
+        {
+            std::string newSecretKey = std::string();
+
+            std::string newPublicKey = std::string();
+
+            try
+            {
+                functionSuccess = Core::Cryptography::generateDeterministicSubwalletKeys(secretKey, walletIndex, newSecretKey, newPublicKey);
+
+                v8::Local<v8::String> publicKeyProp = Nan::New("publicKey").ToLocalChecked();
+
+                v8::Local<v8::String> secretKeyProp = Nan::New("secretKey").ToLocalChecked();
+
+                v8::Local<v8::Value> publicKeyValue = Nan::New(newPublicKey).ToLocalChecked();
+
+                v8::Local<v8::Value> secretKeyValue = Nan::New(newSecretKey).ToLocalChecked();
+
+                Nan::Set(jsonObject, publicKeyProp, publicKeyValue);
+
+                Nan::Set(jsonObject, secretKeyProp, secretKeyValue);
+            }
+            catch (const std::exception &e)
+            {
+                return Nan::ThrowError(e.what());
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, jsonObject));
+}
+
 void generateViewKeysFromPrivateSpendKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
     /* Setup our return object */
@@ -1852,6 +1908,11 @@ NAN_MODULE_INIT(InitModule)
         target,
         Nan::New("generatePrivateViewKeyFromPrivateSpendKey").ToLocalChecked(),
         Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generatePrivateViewKeyFromPrivateSpendKey)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("generateDeterministicSubwalletKeys").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateDeterministicSubwalletKeys)).ToLocalChecked());
 
     Nan::Set(
         target,

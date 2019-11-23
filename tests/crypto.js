@@ -269,3 +269,25 @@ console.log('       Expected Tree Branch: ', expectedTreeBranch)
 
 assert(!berr)
 assert.deepStrictEqual(treeBranch, expectedTreeBranch)
+
+const [swerr, gSubWallet] = crypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 64)
+const expectedSubWallet = '29c2afed13271e2bb3321c2483356fd8798f2709af4de3906b6627ec71727108'
+
+console.log('')
+console.log('[#%s]  Generate Deterministic SubWallet:', ++testNumber)
+console.log('       Generated Deterministic SubWallet: ', gSubWallet.secretKey)
+console.log('       Expected Deterministic SubWallet: ', expectedSubWallet)
+
+assert(!swerr)
+assert.deepStrictEqual(gSubWallet.secretKey, expectedSubWallet)
+
+const [swaerr, wSubWallet] = crypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 1)
+const expectedSubWalleta = 'c55cbe4fd1c49dca5958fa1c7b9212c2dbf3fd5bfec84de741d434056e298600'
+
+console.log('')
+console.log('[#%s]  Generate Deterministic SubWallet:', ++testNumber)
+console.log('       Generated Deterministic SubWallet: ', wSubWallet.secretKey)
+console.log('       Expected Deterministic SubWallet: ', expectedSubWalleta)
+
+assert(!swaerr)
+assert.deepStrictEqual(wSubWallet.secretKey, expectedSubWalleta)

@@ -119,6 +119,11 @@ extern "C"
             static std::string hashToEllipticCurve(const std::string hash);
             static std::string scReduce32(const std::string data);
             static std::string hashToScalar(const std::string hash);
+            static bool generateDeterministicSubwalletKeys(
+              const std::string basePrivateKey,
+              const uint64_t walletIndex,
+              std::string &privateKey,
+              std::string &publicKey);
         };
     } // namespace Core
 

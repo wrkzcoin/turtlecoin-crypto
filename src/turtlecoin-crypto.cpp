@@ -756,6 +756,33 @@ namespace Core
 
         return Common::podToHex(_scalar);
     }
+
+    bool Cryptography::generateDeterministicSubwalletKeys(
+        const std::string basePrivateKey,
+        const uint64_t walletIndex,
+        std::string &privateKey,
+        std::string &publicKey
+    )
+    {
+        Crypto::SecretKey _basePrivateKey;
+
+        Common::podFromHex(basePrivateKey, _basePrivateKey);
+
+        Crypto::SecretKey _privateKey;
+
+        Crypto::PublicKey _publicKey;
+
+        if (Crypto::generate_deterministic_subwallet_keys(_basePrivateKey, walletIndex, _privateKey, _publicKey))
+        {
+            privateKey = Common::podToHex(_privateKey);
+
+            publicKey = Common::podToHex(_publicKey);
+
+            return true;
+        }
+
+        return false;
+    }
 } // namespace Core
 
 inline void tree_hash(const char *hashes, const uint64_t hashesLength, char *&hash)
@@ -911,6 +938,24 @@ inline int
     publicKey = strdup(_publicKey.c_str());
 
     return success;
+}
+
+inline bool generateDeterministicSubwalletKeys(const char *basePrivateKey, const uint64_t walletIndex, char *&privateKey, char *&publicKey)
+{
+    std::string _privateKey;
+
+    std::string _publicKey;
+
+    if (Core::Cryptography::generateDeterministicSubwalletKeys(basePrivateKey, walletIndex, _privateKey, _publicKey))
+    {
+        privateKey = strdup(_privateKey.c_str());
+
+        publicKey = strdup(_publicKey.c_str());
+
+        return true;
+    }
+
+    return false;
 }
 
 extern "C"
@@ -1167,5 +1212,10 @@ extern "C"
     EXPORTDLL void _hashToScalar(const char *hash, char *&output)
     {
         output = strdup(Core::Cryptography::hashToScalar(hash).c_str());
+    }
+
+    EXPORTDLL int _generateDeterministicSubwalletKeys(const char *basePrivateKey, const uint64_t walletIndex, char *&privateKey, char *&publicKey)
+    {
+        return generateDeterministicSubwalletKeys(basePrivateKey, walletIndex, privateKey, publicKey);
     }
 }
