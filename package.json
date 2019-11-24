@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node-gyp build",
     "install": "node-gyp rebuild",
-    "test": "node-gyp rebuild && node tests/crypto.js"
+    "test": "mocha tests/crypto.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,7 @@
     "bindings": "^1.5.0",
     "nan": "^2.14.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "mocha": "^6.2.2"
+  }
 }
