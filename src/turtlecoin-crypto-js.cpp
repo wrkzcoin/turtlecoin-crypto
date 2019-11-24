@@ -82,6 +82,19 @@ Keys generateKeys()
     return keys;
 }
 
+Keys generateDeterministicSubwalletKeys(const std::string basePrivateKey, const size_t walletIndex)
+{
+    std::string newPrivateKey;
+
+    std::string newPublicKey;
+
+    Keys keys;
+
+    Core::Cryptography::generateDeterministicSubwalletKeys(basePrivateKey, walletIndex, keys.SecretKey, keys.PublicKey);
+
+    return keys;
+}
+
 std::string secretKeyToPublicKey(const std::string secretKey)
 {
     std::string publicKey;
@@ -100,7 +113,7 @@ std::string generateKeyDerivation(const std::string publicKey, const std::string
     return derivation;
 }
 
-std::string derivePublicKey(const std::string derivation, const int outputIndex, const std::string publicKey)
+std::string derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
 {
     std::string derivedKey;
 
@@ -109,12 +122,12 @@ std::string derivePublicKey(const std::string derivation, const int outputIndex,
     return derivedKey;
 }
 
-std::string deriveSecretKey(const std::string derivation, const int outputIndex, const std::string secretKey)
+std::string deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string secretKey)
 {
     return Core::Cryptography::deriveSecretKey(derivation, outputIndex, secretKey);
 }
 
-std::string underivePublicKey(const std::string derivation, const int outputIndex, const std::string derivedKey)
+std::string underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string derivedKey)
 {
     std::string publicKey;
 
@@ -168,6 +181,7 @@ EMSCRIPTEN_BINDINGS(signatures)
         "generatePrivateViewKeyFromPrivateSpendKey", &Core::Cryptography::generatePrivateViewKeyFromPrivateSpendKey);
     function("generateViewKeysFromPrivateSpendKey", &generateViewKeysFromPrivateSpendKey);
     function("generateKeys", &generateKeys);
+    function("generateDeterministicSubwalletKeys", &generateDeterministicSubwalletKeys);
     function("checkKey", &Core::Cryptography::checkKey);
     function("secretKeyToPublicKey", &secretKeyToPublicKey);
     function("generateKeyDerivation", &generateKeyDerivation);

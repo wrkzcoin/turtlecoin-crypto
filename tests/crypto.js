@@ -74,6 +74,24 @@ describe('Core Cryptography', () => {
     assert(!err && keyImage === '5997cf23543ce2e05c327297a47f26e710af868344859a6f8d65683d8a2498b0')
   })
 
+  it('Generate Deterministic Subwallet #0', () => {
+    const [err, spendKey] = TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 0)
+
+    assert(!err && spendKey.secretKey === 'dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c')
+  })
+
+  it('Generate Deterministic Subwallet #1', () => {
+    const [err, spendKey] = TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 1)
+
+    assert(!err && spendKey.secretKey === 'c55cbe4fd1c49dca5958fa1c7b9212c2dbf3fd5bfec84de741d434056e298600')
+  })
+
+  it('Generate Deterministic Subwallet #64', () => {
+    const [err, spendKey] = TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 64)
+
+    assert(!err && spendKey.secretKey === '29c2afed13271e2bb3321c2483356fd8798f2709af4de3906b6627ec71727108')
+  })
+
   it('Tree Hash', () => {
     const expectedTreeHash = 'dff9b4e047803822e97fb25bb9acb8320648954e15a6ddf6fa757873793c535e'
     const [err, treeHash] = TurtleCoinCrypto.tree_hash([

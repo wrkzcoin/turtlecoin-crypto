@@ -97,6 +97,15 @@ namespace Crypto
         friend KeyImage scalarmultKey(const KeyImage &P, const KeyImage &a);
         static void hash_data_to_ec(const uint8_t *, std::size_t, PublicKey &);
         friend void hash_data_to_ec(const uint8_t *, std::size_t, PublicKey &);
+        static void generate_deterministic_subwallet_key(
+            const SecretKey &basePrivateKey,
+            uint64_t walletIndex,
+            SecretKey &subWalletPrivateKey);
+
+        friend void generate_deterministic_subwallet_key(
+            const SecretKey &basePrivateKey,
+            uint64_t walletIndex,
+            SecretKey &subWalletPrivateKey);
 
       public:
         static bool generateRingSignatures(
@@ -119,6 +128,19 @@ namespace Crypto
             const Crypto::SecretKey &spend,
             Crypto::SecretKey &viewSecret,
             Crypto::PublicKey &viewPublic);
+
+        static bool generate_deterministic_subwallet_keys(
+            const SecretKey basePrivate,
+            const uint64_t subwalletIndex,
+            SecretKey &subwalletPrivate,
+            PublicKey &subwalletPublic)
+        {
+            /* Generate our new deterministic private key */
+            generate_deterministic_subwallet_key(basePrivate, subwalletIndex, subwalletPrivate);
+
+            /* Generate the related public key for the new deterministic private key */
+            return secret_key_to_public_key(subwalletPrivate, subwalletPublic);
+        }
     };
 
     /* Generate a new key pair
@@ -131,6 +153,16 @@ namespace Crypto
     inline void generate_deterministic_keys(PublicKey &pub, SecretKey &sec, SecretKey &second)
     {
         crypto_ops::generate_deterministic_keys(pub, sec, second);
+    }
+
+    inline bool generate_deterministic_subwallet_keys(
+        const SecretKey basePrivate,
+        const uint64_t subwalletIndex,
+        SecretKey &subwalletPrivate,
+        PublicKey &subwalletPublic)
+    {
+        return crypto_ops::generate_deterministic_subwallet_keys(
+            basePrivate, subwalletIndex, subwalletPrivate, subwalletPublic);
     }
 
     inline SecretKey generate_m_keys(
