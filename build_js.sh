@@ -5,7 +5,7 @@
 if [[ -z "${EMSDK}" ]]; then
   echo "Installing emscripten..."
   echo ""
-  if [[ ! -e ./emsdk ]]; then
+  if [[ ! -e ./emsdk/emsdk ]]; then
     git submodule init
     git submodule update
   fi
