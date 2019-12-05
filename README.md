@@ -1,14 +1,16 @@
 ![image](https://user-images.githubusercontent.com/34389545/35821974-62e0e25c-0a70-11e8-87dd-2cfffeb6ed47.png)
 
+# TurtleCoin: Standalone Cryptography Library
+
 [![NPM](https://nodei.co/npm/turtlecoin-crypto.png?downloads=true&stars=true)](https://nodei.co/npm/turtlecoin-crypto/)
 
+![Prerequisite](https://img.shields.io/badge/node-%3E%3D6-blue.svg) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/turtlecoin/turtlecoin-crypto/graphs/commit-activity) [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-yellow.svg)](https://github.com/turtlecoin/turtlecoin-crypto/blob/master/LICENSE) [![Twitter: TurtlePay](https://img.shields.io/twitter/follow/_TurtleCoin.svg?style=social)](https://twitter.com/_TurtleCoin)
+
 #### Master Build Status
-[![Build Status](https://travis-ci.org/turtlecoin/turtlecoin-crypto.svg?branch=master)](https://travis-ci.org/turtlecoin/turtlecoin-crypto) [![Build status](https://ci.appveyor.com/api/projects/status/github/turtlecoin/turtlecoin-crypto?branch=master&svg=true)](https://ci.appveyor.com/project/brandonlehmann/turtlecoin-crypto)
+[![Build Status](https://github.com/turtlecoin/turtlecoin-crypto/workflows/CI%20Build%20Tests/badge.svg?branch=master)](https://github.com/turtlecoin/turtlecoin-crypto/actions)
 
 #### Development Build Status
-[![Build Status](https://travis-ci.org/turtlecoin/turtlecoin-crypto.svg?branch=development)](https://travis-ci.org/turtlecoin/turtlecoin-crypto) [![Build status](https://ci.appveyor.com/api/projects/status/github/turtlecoin/turtlecoin-crypto?branch=development&svg=true)](https://ci.appveyor.com/project/brandonlehmann/turtlecoin-crypto)
-
-# TurtleCoin: Standalone Cryptography Library
+[![Build Status](https://github.com/turtlecoin/turtlecoin-crypto/workflows/CI%20Build%20Tests/badge.svg?branch=development)](https://github.com/turtlecoin/turtlecoin-crypto/actions)
 
 This repository contains the necessary files to compile the cryptography library used within [TurtleCoin](https://turtlecoin.lol) as a standalone library that can be included in various other projects in a variety of development environments, including:
 
