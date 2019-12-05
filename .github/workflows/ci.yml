@@ -19,7 +19,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt update
-        sudo apt install -y gcc-8 g++8
+        sudo apt install -y gcc-8 g++-8
     - name: Install Dependencies (OSX)
       if: matrix.os == 'macos-latest'
       run: |
@@ -55,7 +55,16 @@ jobs:
         $env:PATH = "$env:PATH;$env:MSBUILD_PATH"
         cd build
         MSBuild turtlecoin-crypto.sln /p:Configuration=Release /m
-
+    - name: Test Cryptography (Linux & OSX)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd build/src
+        ./cryptotest
+    - name: Test Cryptography (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd build/src/Release
+        ./cryptotest.exe
 
   node_build:
     runs-on: ${{ matrix.os }}
