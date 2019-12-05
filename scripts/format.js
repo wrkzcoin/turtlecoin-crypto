@@ -1,13 +1,13 @@
 /* Copied from TurtleCoin main repo at https://github.com/TurtleCoin/TurtleCoin */
 
 const { promisify } = require('util')
-const child_process = require('child_process')
+const childProcess = require('child_process')
 const fs = require('fs')
 
 const access = promisify(fs.access)
 const readdir = promisify(fs.readdir)
 const stat = promisify(fs.stat)
-const exec = promisify(child_process.exec)
+const exec = promisify(childProcess.exec)
 
 /* The directories to run our formatting on, recursively */
 const directoriesToFormat = ['include', 'src']

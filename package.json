@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node-gyp build",
     "install": "node-gyp rebuild",
-    "test": "mocha tests/crypto.js",
+    "test": "standard && mocha tests/crypto.js",
     "testJS": "mocha tests/cryptoJs.js"
   },
   "repository": {
@@ -27,7 +27,19 @@
     "bindings": "^1.5.0",
     "nan": "^2.14.0"
   },
+  "standard": {
+    "ignore": [
+      "build/*",
+      "emsdk/*",
+      "examples/*",
+      "include/*",
+      "jsbuild/*",
+      "prebuilds/*",
+      "src/*"
+    ]
+  },
   "devDependencies": {
-    "mocha": "^6.2.2"
+    "mocha": "^6.2.2",
+    "standard": "^14.3.1"
   }
 }
