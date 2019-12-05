@@ -11,8 +11,8 @@ using namespace emscripten;
 
 struct Keys
 {
-    std::string PublicKey;
-    std::string SecretKey;
+    std::string publicKey;
+    std::string secretKey;
 };
 
 /* Most of the redefintions below are the result of the methods returning a bool instead
@@ -58,9 +58,9 @@ Keys generateViewKeysFromPrivateSpendKey(const std::string secretKey)
 
     Keys keys;
 
-    keys.PublicKey = viewPublicKey;
+    keys.publicKey = viewPublicKey;
 
-    keys.SecretKey = viewSecretKey;
+    keys.secretKey = viewSecretKey;
 
     return keys;
 }
@@ -75,9 +75,9 @@ Keys generateKeys()
 
     Keys keys;
 
-    keys.PublicKey = publicKey;
+    keys.publicKey = publicKey;
 
-    keys.SecretKey = secretKey;
+    keys.secretKey = secretKey;
 
     return keys;
 }
@@ -90,7 +90,7 @@ Keys generateDeterministicSubwalletKeys(const std::string basePrivateKey, const 
 
     Keys keys;
 
-    Core::Cryptography::generateDeterministicSubwalletKeys(basePrivateKey, walletIndex, keys.SecretKey, keys.PublicKey);
+    Core::Cryptography::generateDeterministicSubwalletKeys(basePrivateKey, walletIndex, keys.secretKey, keys.publicKey);
 
     return keys;
 }
@@ -198,5 +198,5 @@ EMSCRIPTEN_BINDINGS(signatures)
 
     register_vector<std::string>("VectorString");
 
-    value_object<Keys>("Keys").field("SecretKey", &Keys::SecretKey).field("PublicKey", &Keys::PublicKey);
+    value_object<Keys>("Keys").field("secretKey", &Keys::secretKey).field("publicKey", &Keys::publicKey);
 }

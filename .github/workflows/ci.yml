@@ -1,0 +1,65 @@
+name: CI Build Tests
+
+on: [push, pull_request]
+
+jobs:
+  node_build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['8', '10', '11', '12', '13']
+    name: ${{ matrix.os }} - Node ${{ matrix.node }} Test
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      name: Set up Node
+      with:
+        node-version: ${{ matrix.node }}
+    - name: Install Dependencies
+      run: npm install
+    - name: Execute Unit Tests
+      run: npm test
+
+  emscripten_build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    name: ${{ matrix.os }} - Native Javascript / WASM
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install emscripten
+      shell: bash
+      run: |
+        git submodule init
+        git submodule update
+        cd emsdk
+        ./emsdk install latest
+        ./emsdk activate latest
+        cd ..
+    - name: Patch emscripten for React Native
+      shell: bash
+      run: patch -N --verbose emsdk/fastcomp/emscripten/src/shell.js emscripten.patch
+    - name: Build Native Javascript Module
+      shell: bash
+      run: |
+        source ./emsdk/emsdk_env.sh
+        mkdir -p jsbuild && cd jsbuild
+        emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=0 -DBUILD_JS=1
+        make
+    - name: Build WASM Module
+      shell: bash
+      run: |
+        source ./emsdk/emsdk_env.sh
+        mkdir -p jsbuild && cd jsbuild
+        emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=1 -DBUILD_JS=0
+        make
+    - uses: actions/setup-node@v1
+      name: Set up Node
+      with:
+        node-version: '8'
+    - name: Install Dependencies
+      run: npm install
+    - name: Execute Unit Tests
+      run: npm run testJS

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node-gyp build",
     "install": "node-gyp rebuild",
-    "test": "mocha tests/crypto.js"
+    "test": "mocha tests/crypto.js",
+    "testJS": "mocha tests/cryptoJs.js"
   },
   "repository": {
     "type": "git",
