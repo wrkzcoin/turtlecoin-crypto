@@ -43,7 +43,18 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         cd build
-        cmake -G "Visual Studio 15 2017 Win64" ..
+        cmake -G "Visual Studio 16 2019" -A x64 ..
+    - name: Build Project (Linux & OSX)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd build
+        make
+    - name: Build Project (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        $env:PATH = "$env:PATH;$env:MSBUILD_PATH"
+        cd build
+        MSBuild turtlecoin-crypto.sln /p:Configuration=Release /m
 
 
   node_build:
