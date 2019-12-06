@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "mocha": "^6.2.2",
-    "prebuild": "^9.1.1",
     "standard": "^14.3.1"
   }
 }
