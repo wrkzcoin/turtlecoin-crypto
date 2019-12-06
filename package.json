@@ -4,8 +4,7 @@
   "description": "Node C++ Addon for TurtleCoin Cryptographic Functions",
   "main": "index.js",
   "scripts": {
-    "build": "prebuild-install || node-gyp build",
-    "install": "node-gyp rebuild",
+    "install": "prebuild-install || node-gyp build",
     "test": "standard && mocha tests/crypto.js",
     "testJS": "mocha tests/cryptoJs.js"
   },
