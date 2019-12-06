@@ -1,6 +1,10 @@
 name: CI Build Tests
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
 
 jobs:
   cpp_build:
@@ -86,6 +90,9 @@ jobs:
       run: npm install
     - name: Execute Unit Tests
       run: npm test
+    - name: Generate Prebuilds
+      if: github.event_name == 'release' && github.repository == 'turtlecoin/turtlecoin-crypto'
+      run: prebuild --all -u ${{ secrets.GITHUB_TOKEN }}
 
   emscripten_build:
     runs-on: ${{ matrix.os }}
