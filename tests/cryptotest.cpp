@@ -2,20 +2,17 @@
 //
 // Please see the included LICENSE file for more information.
 
-#include <iostream>
-
-#include <chrono>
-
 #include <assert.h>
-
+#include <chrono>
 #include <cxxopts.hpp>
-
+#include <iostream>
 #include <turtlecoin-crypto.h>
 
-#define PERFORMANCE_ITERATIONS  1000
+#define PERFORMANCE_ITERATIONS 1000
 #define PERFORMANCE_ITERATIONS_LONG_MULTIPLIER 10
 
-const std::string INPUT_DATA = "0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946127c7a97418f9348828f0f02";
+const std::string INPUT_DATA = "0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9abce4fa912244500000000e"
+                               "e8146d49fa93ee724deb57d12cbc6c6f3b924d946127c7a97418f9348828f0f02";
 
 const std::string CN_FAST_HASH = "b542df5b6e7f5f05275c98e7345884e2ac726aeeb07e03e44e0389eb86cd05f0";
 
@@ -45,65 +42,59 @@ const std::string CN_TURTLE_LITE_SLOW_HASH_V2 = "b2172ec9466e1aee70ec8572a14c233
 
 const std::string CHUKWA = "c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e";
 
-const std::string CN_SOFT_SHELL_V0[] = {
-  "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
-  "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
-  "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
-  "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
-  "d33da3541960046e846530dcc9872b1914a62c09c7d732bff03bec481866ae48",
-  "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
-  "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
-  "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
-  "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
-  "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
-  "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
-  "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
-  "d33da3541960046e846530dcc9872b1914a62c09c7d732bff03bec481866ae48",
-  "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
-  "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
-  "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
-  "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3"
-};
+const std::string CN_SOFT_SHELL_V0[] = {"5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
+                                        "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
+                                        "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
+                                        "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
+                                        "d33da3541960046e846530dcc9872b1914a62c09c7d732bff03bec481866ae48",
+                                        "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
+                                        "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
+                                        "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
+                                        "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
+                                        "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
+                                        "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
+                                        "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
+                                        "d33da3541960046e846530dcc9872b1914a62c09c7d732bff03bec481866ae48",
+                                        "8be48f7955eb3f9ac2275e445fe553f3ef359ea5c065cde98ff83011f407a0ec",
+                                        "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
+                                        "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
+                                        "5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3"};
 
-const std::string CN_SOFT_SHELL_V1[] = {
-  "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a",
-  "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
-  "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
-  "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
-  "d37e2785ab7b3d0a222940bf675248e7b96054de5c82c5f0b141014e136eadbc",
-  "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
-  "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
-  "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
-  "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a",
-  "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
-  "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
-  "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
-  "d37e2785ab7b3d0a222940bf675248e7b96054de5c82c5f0b141014e136eadbc",
-  "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
-  "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
-  "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
-  "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a"
-};
+const std::string CN_SOFT_SHELL_V1[] = {"ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a",
+                                        "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
+                                        "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
+                                        "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
+                                        "d37e2785ab7b3d0a222940bf675248e7b96054de5c82c5f0b141014e136eadbc",
+                                        "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
+                                        "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
+                                        "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
+                                        "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a",
+                                        "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
+                                        "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
+                                        "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
+                                        "d37e2785ab7b3d0a222940bf675248e7b96054de5c82c5f0b141014e136eadbc",
+                                        "02576f9873dc9c8b1b0fc14962982734dfdd41630fc936137a3562b8841237e1",
+                                        "ddb6011d400ac8725995fb800af11646bb2fef0d8b6136b634368ad28272d7f4",
+                                        "ce8687bdd08c49bd1da3a6a74bf28858670232c1a0173ceb2466655250f9c56d",
+                                        "ae7f864a7a2f2b07dcef253581e60a014972b9655a152341cb989164761c180a"};
 
-const std::string CN_SOFT_SHELL_V2[] = {
-  "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26",
-  "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
-  "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
-  "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
-  "3fedc7ab0f8d14122fc26062de1af7a6165755fcecdf0f12fa3ccb3ff63629d0",
-  "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
-  "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
-  "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
-  "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26",
-  "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
-  "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
-  "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
-  "3fedc7ab0f8d14122fc26062de1af7a6165755fcecdf0f12fa3ccb3ff63629d0",
-  "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
-  "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
-  "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
-  "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26"
-};
+const std::string CN_SOFT_SHELL_V2[] = {"b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26",
+                                        "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
+                                        "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
+                                        "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
+                                        "3fedc7ab0f8d14122fc26062de1af7a6165755fcecdf0f12fa3ccb3ff63629d0",
+                                        "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
+                                        "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
+                                        "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
+                                        "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26",
+                                        "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
+                                        "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
+                                        "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
+                                        "3fedc7ab0f8d14122fc26062de1af7a6165755fcecdf0f12fa3ccb3ff63629d0",
+                                        "4646f9919791c28f0915bc0005ed619bee31d42359f7a8af5de5e1807e875364",
+                                        "141878a7b58b0f57d00b8fc2183cce3517d9d68becab6fee52abb3c1c7d0805b",
+                                        "b2623a2b041dc5ae3132b964b75e193558c7095e725d882a3946aae172179cf1",
+                                        "b2172ec9466e1aee70ec8572a14c233ee354582bcb93f869d429744de5726a26"};
 
 static inline bool CompareHashes(const std::string left, const std::string right)
 {
@@ -114,25 +105,24 @@ static inline bool CompareHashes(const std::string left, const std::string right
 /* Hacky as fuck lmao */
 bool need43BytesOfData(std::string hashFunctionName)
 {
-    return (hashFunctionName.find("v1") != std::string::npos
-        || hashFunctionName.find("v2") != std::string::npos);
+    return (hashFunctionName.find("v1") != std::string::npos || hashFunctionName.find("v2") != std::string::npos);
 }
 
 /* Bit of hackery so we can get the variable name of the passed in function.
    This way we can print the test we are currently performing. */
 #define TEST_HASH_FUNCTION(hashFunction, expectedOutput) \
-   testHashFunction(hashFunction, expectedOutput, #hashFunction, -1)
+    testHashFunction(hashFunction, expectedOutput, #hashFunction, -1)
 
 #define TEST_HASH_FUNCTION_WITH_HEIGHT(hashFunction, expectedOutput, height) \
     testHashFunction(hashFunction, expectedOutput, #hashFunction, height, height)
 
-template<typename T, typename ...Args>
+template<typename T, typename... Args>
 void testHashFunction(
     T hashFunction,
     std::string expectedOutput,
     std::string hashFunctionName,
     int64_t height,
-    Args && ... args)
+    Args &&... args)
 {
     if (need43BytesOfData(hashFunctionName) && INPUT_DATA.size() < 43)
     {
@@ -152,10 +142,10 @@ void testHashFunction(
     }
 
     /* Verify the hash is as expected */
-    if(!CompareHashes(hash, expectedOutput))
+    if (!CompareHashes(hash, expectedOutput))
     {
-        std::cout << "Hashes are not equal!\n" << "Expected: " << expectedOutput << "\nActual: " << hash
-                  << "\nTerminating.";
+        std::cout << "Hashes are not equal!\n"
+                  << "Expected: " << expectedOutput << "\nActual: " << hash << "\nTerminating.";
 
         exit(1);
     }
@@ -163,11 +153,9 @@ void testHashFunction(
 
 /* Bit of hackery so we can get the variable name of the passed in function.
    This way we can print the test we are currently performing. */
-#define BENCHMARK(hashFunction, iterations) \
-   benchmark(hashFunction, #hashFunction, iterations)
+#define BENCHMARK(hashFunction, iterations) benchmark(hashFunction, #hashFunction, iterations)
 
-template<typename T>
-void benchmark(T hashFunction, std::string hashFunctionName, uint64_t iterations)
+template<typename T> void benchmark(T hashFunction, std::string hashFunctionName, uint64_t iterations)
 {
     if (need43BytesOfData(hashFunctionName) && INPUT_DATA.size() < 43)
     {
@@ -184,8 +172,7 @@ void benchmark(T hashFunction, std::string hashFunctionName, uint64_t iterations
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
 
     std::cout << hashFunctionName << ": "
-              << (iterations / std::chrono::duration_cast<std::chrono::seconds>(elapsedTime).count())
-              << " H/s\n";
+              << (iterations / std::chrono::duration_cast<std::chrono::seconds>(elapsedTime).count()) << " H/s\n";
 }
 
 void benchmarkUnderivePublicKey()
@@ -215,7 +202,8 @@ void benchmarkUnderivePublicKey()
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
 
     /* Need to use microseconds here then divide by 1000 - otherwise we'll just get '0' */
-    const auto timePerDerivation = std::chrono::duration_cast<std::chrono::microseconds>(elapsedTime).count() / loopIterations;
+    const auto timePerDerivation =
+        std::chrono::duration_cast<std::chrono::microseconds>(elapsedTime).count() / loopIterations;
 
     std::cout << "Time to perform underivePublicKey: " << timePerDerivation / 1000.0 << " ms" << std::endl;
 }
@@ -239,12 +227,16 @@ void benchmarkGenerateKeyDerivation()
 
     auto elapsedTime = std::chrono::high_resolution_clock::now() - startTimer;
 
-    const auto timePerDerivation = std::chrono::duration_cast<std::chrono::microseconds>(elapsedTime).count() / loopIterations;
+    const auto timePerDerivation =
+        std::chrono::duration_cast<std::chrono::microseconds>(elapsedTime).count() / loopIterations;
 
     std::cout << "Time to perform generateKeyDerivation: " << timePerDerivation / 1000.0 << " ms" << std::endl;
 }
 
-void TestDeterministicSubwalletCreation (const std::string baseSpendKey, const uint64_t subWalletIndex, const std::string expectedSpendKey)
+void TestDeterministicSubwalletCreation(
+    const std::string baseSpendKey,
+    const uint64_t subWalletIndex,
+    const std::string expectedSpendKey)
 {
     Crypto::SecretKey f_baseSpendKey;
 
@@ -268,7 +260,8 @@ void TestDeterministicSubwalletCreation (const std::string baseSpendKey, const u
 
     Crypto::PublicKey subwalletPublicKey;
 
-    Crypto::generate_deterministic_subwallet_keys(f_baseSpendKey, subWalletIndex, subwalletPrivateKey, subwalletPublicKey);
+    Crypto::generate_deterministic_subwallet_keys(
+        f_baseSpendKey, subWalletIndex, subwalletPrivateKey, subwalletPublicKey);
 
     if (subwalletPrivateKey != f_expectedSpendKey)
     {
@@ -279,26 +272,30 @@ void TestDeterministicSubwalletCreation (const std::string baseSpendKey, const u
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     bool o_help, o_benchmark;
     int o_iterations;
 
     cxxopts::Options options(argv[0], "");
 
-    options.add_options("Core")
-        ("h,help", "Display this help message", cxxopts::value<bool>(o_help)->implicit_value("true"));
+    options.add_options("Core")(
+        "h,help", "Display this help message", cxxopts::value<bool>(o_help)->implicit_value("true"));
 
-    options.add_options("Performance Testing")
-        ("b,benchmark", "Run quick performance benchmark", cxxopts::value<bool>(o_benchmark)->default_value("false")->implicit_value("true"))
-        ("i,iterations", "The number of iterations for the benchmark test. Minimum of 1,000 iterations required.",
-            cxxopts::value<int>(o_iterations)->default_value(std::to_string(PERFORMANCE_ITERATIONS)), "#");
+    options.add_options("Performance Testing")(
+        "b,benchmark",
+        "Run quick performance benchmark",
+        cxxopts::value<bool>(o_benchmark)->default_value("false")->implicit_value("true"))(
+        "i,iterations",
+        "The number of iterations for the benchmark test. Minimum of 1,000 iterations required.",
+        cxxopts::value<int>(o_iterations)->default_value(std::to_string(PERFORMANCE_ITERATIONS)),
+        "#");
 
     try
     {
         auto result = options.parse(argc, argv);
     }
-    catch (const cxxopts::OptionException& e)
+    catch (const cxxopts::OptionException &e)
     {
         std::cout << "Error: Unable to parse command line argument options: " << e.what() << std::endl << std::endl;
         std::cout << options.help({}) << std::endl;
@@ -313,7 +310,8 @@ int main(int argc, char** argv)
 
     if (o_iterations < 1000 && o_benchmark)
     {
-        std::cout << std::endl << "Error: The number of --iterations should be at least 1,000 for reasonable accuracy" << std::endl;
+        std::cout << std::endl
+                  << "Error: The number of --iterations should be at least 1,000 for reasonable accuracy" << std::endl;
         exit(1);
     }
 
@@ -365,26 +363,29 @@ int main(int argc, char** argv)
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v0, CN_SOFT_SHELL_V0[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(
+                Core::Cryptography::cn_soft_shell_slow_hash_v0, CN_SOFT_SHELL_V0[height / 512], height);
         }
 
         std::cout << std::endl;
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v1, CN_SOFT_SHELL_V1[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(
+                Core::Cryptography::cn_soft_shell_slow_hash_v1, CN_SOFT_SHELL_V1[height / 512], height);
         }
 
         std::cout << std::endl;
 
         for (uint64_t height = 0; height <= 8192; height += 512)
         {
-            TEST_HASH_FUNCTION_WITH_HEIGHT(Core::Cryptography::cn_soft_shell_slow_hash_v2, CN_SOFT_SHELL_V2[height / 512], height);
+            TEST_HASH_FUNCTION_WITH_HEIGHT(
+                Core::Cryptography::cn_soft_shell_slow_hash_v2, CN_SOFT_SHELL_V2[height / 512], height);
         }
 
         if (o_benchmark)
         {
-            std::cout <<  "\nPerformance Tests: Please wait, this may take a while depending on your system...\n\n";
+            std::cout << "\nPerformance Tests: Please wait, this may take a while depending on your system...\n\n";
 
             benchmarkUnderivePublicKey();
             benchmarkGenerateKeyDerivation();
@@ -416,17 +417,161 @@ int main(int argc, char** argv)
             BENCHMARK(Core::Cryptography::chukwa_slow_hash, o_iterations_long);
         }
 
-        std::cout <<std::endl << "Deterministic Subwallet Creation Tests: ";
+        std::cout << std::endl << "Deterministic Subwallet Creation Tests: ";
 
-        TestDeterministicSubwalletCreation("dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c", 0, "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c");
-        TestDeterministicSubwalletCreation("dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c", 1, "c55cbe4fd1c49dca5958fa1c7b9212c2dbf3fd5bfec84de741d434056e298600");
-        TestDeterministicSubwalletCreation("dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c", 2, "9813c40428ed9b380a2f72bac1374a9d3852a974b0527e003cbc93afab764d01");
-        TestDeterministicSubwalletCreation("dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c", 64, "29c2afed13271e2bb3321c2483356fd8798f2709af4de3906b6627ec71727108");
-        TestDeterministicSubwalletCreation("dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c", 65, "0c6b5fff72260832558e35c38e690072503211af065056862288dc7fd992350a");
+        TestDeterministicSubwalletCreation(
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c",
+            0,
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c");
+        TestDeterministicSubwalletCreation(
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c",
+            1,
+            "c55cbe4fd1c49dca5958fa1c7b9212c2dbf3fd5bfec84de741d434056e298600");
+        TestDeterministicSubwalletCreation(
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c",
+            2,
+            "9813c40428ed9b380a2f72bac1374a9d3852a974b0527e003cbc93afab764d01");
+        TestDeterministicSubwalletCreation(
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c",
+            64,
+            "29c2afed13271e2bb3321c2483356fd8798f2709af4de3906b6627ec71727108");
+        TestDeterministicSubwalletCreation(
+            "dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c",
+            65,
+            "0c6b5fff72260832558e35c38e690072503211af065056862288dc7fd992350a");
 
         std::cout << "Passed." << std::endl;
+
+        std::cout << std::endl << "Test Multisig Primitives" << std::endl << std::endl;
+
+        std::cout << "Core::Cryptography::calculateMultisigPrivateKeys: ";
+
+        std::vector<std::string> multisigKeys = Core::Cryptography::calculateMultisigPrivateKeys(
+            "a0ba0cae34ce1133b9cb658e5d0a56440608622a64562ac360907a2c68ea130d",
+            std::vector<std::string> {"ba719ff6486ae5ab5ea0c7e05f6b42468f898bd366f83a4d165e396c1f7c5eec",
+                                      "fd524a5384bf5044feeb61f19866e11f74b8dbf5e7d050238046b04289a31849"});
+
+        if (!CompareHashes(multisigKeys[0], "ca67bdeba4cc489c86b0e6be24ed86ee75fd7e4caaf6566ea3b241946f40f901")
+            || !CompareHashes(multisigKeys[1], "98c2625a77504c46fb4d83bdf2c5dee505d4e3d0d30005bac636b0d49f90420f"))
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
+
+        std::cout << "Core::Cryptography::calculateSharedPublicKey: ";
+
+        std::string sharedPublicKey = Core::Cryptography::calculateSharedPublicKey(
+            std::vector<std::string> {"6bce43e0d797b9ee674db41c173f9b147fab6841fed36e97d434bd7c6f5b81d5",
+                                      "ba719ff6486ae5ab5ea0c7e05f6b42468f898bd366f83a4d165e396c1f7c5eec"});
+
+        if (!CompareHashes(sharedPublicKey, "caa8f9aaf673ff2c055025942eeefde720a71281420ec8c42f0a817225db032b"))
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
+
+        std::cout << "Core::Cryptography::calculateSharedPrivateKey: ";
+
+        std::string sharedPrivateKey = Core::Cryptography::calculateSharedPrivateKey(
+            std::vector<std::string> {"01d85bf9ce5583c7a1039f2c2695cb562bf1ea97636bbaf9051af01dddc89e0b",
+                                      "650110a79f0353624f0fa14aaaf8c5af405ddb009c3127366e5b8591ecec9704"});
+
+        if (!CompareHashes(sharedPrivateKey, "7905764354f6c3d11a7648d4f193b2f16b4ec698ff9ce12f747575afc9b53600"))
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
+
+        std::cout << "Core::Cryptography::restoreKeyImage: ";
+
+        std::string keyImage = Core::Cryptography::restoreKeyImage(
+            "e1cd9ccdfdf2b3a45ac2cfd1e29185d22c185742849f52368c3cdd1c0ce499c0",
+            "9475ebaa9f869b06d967aa0ca09d1632f4b8a383211c8a66e39021bc04d80fc4",
+            2,
+            std::vector<std::string> {"f67f9a1a525d9f34386c8d8f2bfebe15e653b7fbbf561da8531eedbf5dd06317",
+                                      "b04a322530870398ce1f1bd4df2e40155425a8ed45fb8f4637f22c648cbac2f2"});
+
+        if (!CompareHashes(keyImage, "6865866ed8a25824e042e21dd36e946836b58b03366e489aecf979f444f599b0"))
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
+
+        std::cout << "Core::Cryptography::generatePartialSigningKey: ";
+
+        std::string partialKey = Core::Cryptography::generatePartialSigningKey(
+            "d3b4f642eb7049e00b17130ec95d47e878c756a205766418687667fe48779205000000000000000000000000000000000000000000"
+            "0000000000000000000000",
+            "a0ba0cae34ce1133b9cb658e5d0a56440608622a64562ac360907a2c68ea130d");
+
+        if (!CompareHashes(partialKey, "bea03f1dcdc3a6375d883afa86f88e4a43606bcc2b0c9b00e313813f7436ef03"))
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
+
+        std::cout << "Core::Cryptography::restoreRingSignatures: ";
+
+        std::vector<std::string> signatures {
+            "719afc6be33058758d3aea7c382c6bf9340b62b2297fb93b42d0c984af8c0f0b08d7973924dc379e"
+            "9b75ae5135ed6f40efc7418d597eaabdb69ebbb2b7630b05",
+            "128bfd98170ea31dfdcc2214e14e66a08e4f66d581d2317ab0c583e4573c9103ec11bc5dd9e7f734"
+            "b3f0fbd3c29eddea102275b9f871cb96b658ca0787261607",
+            "ef602f4a07c2b643b456d5587f682a7d44cb360cd83bdb2d176f3ad687027c0bf388ab6dbf91dcec"
+            "2fdfab865dd065c02905f1fa6c7b778cb9773cfd839bd300",
+            "d3b4f642eb7049e00b17130ec95d47e878c756a205766418687667fe487792050000000000000000"
+            "000000000000000000000000000000000000000000000000"};
+
+        bool ringSignatures = Core::Cryptography::restoreRingSignatures(
+            "9475ebaa9f869b06d967aa0ca09d1632f4b8a383211c8a66e39021bc04d80fc4",
+            2,
+            std::vector<std::string> {"bea03f1dcdc3a6375d883afa86f88e4a43606bcc2b0c9b00e313813f7436ef03",
+                                      "14c09b9e8186a405f66fcd695c7ca675018f355eb3e28c240e3e647913f3c506"},
+            3,
+            "80bd5c68a280c2071c0a11be82e83c0fd2539660b21f7d9ff54a654f2a73c40d",
+            signatures);
+
+        if (!ringSignatures)
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        bool check = Core::Cryptography::checkRingSignature(
+            "b542df5b6e7f5f05275c98e7345884e2ac726aeeb07e03e44e0389eb86cd05f0",
+            "6865866ed8a25824e042e21dd36e946836b58b03366e489aecf979f444f599b0",
+            std::vector<std::string> {"492390897da1cabd3886e3eff43ad1d04aa510a905bec0acd31a0a2f260e7862",
+                                      "7644ccb5410cca2be18b033e5f7497aeeeafd1d8f317f29cba4803e4306aa402",
+                                      "bb9a956ffdf8159ad69474e6b0811316c44a17a540d5e39a44642d4d933a6460",
+                                      "e1cd9ccdfdf2b3a45ac2cfd1e29185d22c185742849f52368c3cdd1c0ce499c0"},
+            signatures);
+
+        if (!check)
+        {
+            std::cout << "failed" << std::endl;
+
+            exit(1);
+        }
+
+        std::cout << "passed" << std::endl;
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         std::cout << "Something went terribly wrong...\n" << e.what() << "\n\n";
     }

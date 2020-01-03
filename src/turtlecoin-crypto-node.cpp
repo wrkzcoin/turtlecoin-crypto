@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2018-2020, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -33,6 +33,497 @@ inline v8::Local<v8::Array> prepareResult(const bool success, const v8::Local<v8
  * Core Cryptographic Operations
  *
  */
+void calculateMultisigPrivateKeys(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string privateSpendKey;
+
+    std::vector<std::string> keys;
+
+    if (info.Length() == 2)
+    {
+        if (info[0]->IsString())
+        {
+            privateSpendKey = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[1]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                keys.push_back(hash);
+            }
+        }
+
+        if (!privateSpendKey.empty() && keys.size() != 0)
+        {
+            std::vector<std::string> multiSigKeys =
+                Core::Cryptography::calculateMultisigPrivateKeys(privateSpendKey, keys);
+
+            v8::Local<v8::Array> _multiSigKeys = Nan::New<v8::Array>(multiSigKeys.size());
+
+            for (size_t i = 0; i < multiSigKeys.size(); i++)
+            {
+                v8::Local<v8::String> result = Nan::New(multiSigKeys[i]).ToLocalChecked();
+
+                Nan::Set(_multiSigKeys, i, result);
+            }
+
+            functionReturnValue = _multiSigKeys;
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void calculateSharedPrivateKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::vector<std::string> keys;
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                keys.push_back(hash);
+            }
+        }
+
+        if (keys.size() != 0)
+        {
+            std::string result = Core::Cryptography::calculateSharedPrivateKey(keys);
+
+            functionReturnValue = Nan::New(result).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void calculateSharedPublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::vector<std::string> keys;
+
+    if (info.Length() == 1)
+    {
+        if (info[0]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                keys.push_back(hash);
+            }
+        }
+
+        if (keys.size() != 0)
+        {
+            std::string result = Core::Cryptography::calculateSharedPublicKey(keys);
+
+            functionReturnValue = Nan::New(result).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void prepareRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Object> jsonObject = Nan::New<v8::Object>();
+
+    bool functionSuccess = false;
+
+    std::string prefixHash = std::string();
+
+    std::string keyImage = std::string();
+
+    std::vector<std::string> publicKeys;
+
+    uint64_t realOutput = 0;
+
+    std::string k = std::string();
+
+    const size_t args = info.Length();
+
+    if (args == 4 || args == 5)
+    {
+        if (info[0]->IsString())
+        {
+            prefixHash = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsString())
+        {
+            keyImage = std::string(
+                *Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[2]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[2]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                publicKeys.push_back(hash);
+            }
+        }
+
+        if (info[3]->IsNumber())
+        {
+            realOutput = (uint64_t)Nan::To<uint32_t>(info[3]).FromJust();
+        }
+
+        if (info[4]->IsString())
+        {
+            k = std::string(
+                *Nan::Utf8String(info[4]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (!prefixHash.empty() && !keyImage.empty() && publicKeys.size() != 0)
+        {
+            std::vector<std::string> signatures;
+
+            bool success = false;
+
+            if (k.empty())
+            {
+                success = Core::Cryptography::prepareRingSignatures(
+                    prefixHash, keyImage, publicKeys, realOutput, signatures, k);
+            }
+            else
+            {
+                success = Core::Cryptography::prepareRingSignatures(
+                    prefixHash, keyImage, publicKeys, realOutput, k, signatures);
+            }
+
+            if (success)
+            {
+                v8::Local<v8::Array> sigs = Nan::New<v8::Array>(signatures.size());
+
+                for (size_t i = 0; i < signatures.size(); i++)
+                {
+                    v8::Local<v8::String> result = Nan::New(signatures[i]).ToLocalChecked();
+
+                    Nan::Set(sigs, i, result);
+                }
+
+                v8::Local<v8::String> signaturesProp = Nan::New("signatures").ToLocalChecked();
+
+                v8::Local<v8::String> randomScalarProp = Nan::New("key").ToLocalChecked();
+
+                v8::Local<v8::Value> signaturesValue = sigs;
+
+                v8::Local<v8::Value> randomScalarValue = Nan::New(k).ToLocalChecked();
+
+                Nan::Set(jsonObject, signaturesProp, signaturesValue);
+
+                Nan::Set(jsonObject, randomScalarProp, randomScalarValue);
+
+                functionSuccess = true;
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, jsonObject));
+}
+
+void completeRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string transactionSecretKey = std::string();
+
+    uint64_t realOutput = 0;
+
+    std::string k = std::string();
+
+    std::vector<std::string> signatures;
+
+    if (info.Length() == 4)
+    {
+        if (info[0]->IsString())
+        {
+            transactionSecretKey = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsNumber())
+        {
+            realOutput = (size_t)Nan::To<uint32_t>(info[1]).FromJust();
+        }
+
+        if (info[2]->IsString())
+        {
+            k = std::string(
+                *Nan::Utf8String(info[2]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[3]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[3]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string key = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                signatures.push_back(key);
+            }
+        }
+
+        if (!transactionSecretKey.empty() && !k.empty() && signatures.size() != 0)
+        {
+            bool success = Core::Cryptography::completeRingSignatures(transactionSecretKey, realOutput, k, signatures);
+
+            if (success)
+            {
+                v8::Local<v8::Array> sigs = Nan::New<v8::Array>(signatures.size());
+
+                for (size_t i = 0; i < signatures.size(); i++)
+                {
+                    v8::Local<v8::String> result = Nan::New(signatures[i]).ToLocalChecked();
+
+                    Nan::Set(sigs, i, result);
+                }
+
+                functionReturnValue = sigs;
+
+                functionSuccess = true;
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void restoreRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string derivation = std::string();
+
+    size_t output_index = 0;
+
+    std::vector<std::string> partialSigningKeys;
+
+    uint64_t realOutput = 0;
+
+    std::string k = std::string();
+
+    std::vector<std::string> signatures;
+
+    if (info.Length() == 6)
+    {
+        if (info[0]->IsString())
+        {
+            derivation = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsNumber())
+        {
+            output_index = (size_t)Nan::To<uint32_t>(info[1]).FromJust();
+        }
+
+        if (info[2]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[2]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string key = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                partialSigningKeys.push_back(key);
+            }
+        }
+
+        if (info[3]->IsNumber())
+        {
+            realOutput = (uint64_t)Nan::To<uint32_t>(info[3]).FromJust();
+        }
+
+        if (info[4]->IsString())
+        {
+            k = std::string(
+                *Nan::Utf8String(info[4]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[5]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[5]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string key = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                signatures.push_back(key);
+            }
+        }
+
+        if (!derivation.empty() && partialSigningKeys.size() != 0 && !k.empty() && signatures.size() != 0)
+        {
+            bool success = Core::Cryptography::restoreRingSignatures(
+                derivation, output_index, partialSigningKeys, realOutput, k, signatures);
+
+            if (success)
+            {
+                v8::Local<v8::Array> sigs = Nan::New<v8::Array>(signatures.size());
+
+                for (size_t i = 0; i < signatures.size(); i++)
+                {
+                    v8::Local<v8::String> result = Nan::New(signatures[i]).ToLocalChecked();
+
+                    Nan::Set(sigs, i, result);
+                }
+
+                functionReturnValue = sigs;
+
+                functionSuccess = true;
+            }
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void generatePartialSigningKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New(false);
+
+    bool functionSuccess = false;
+
+    std::string signature = std::string();
+
+    std::string privateSpendKey = std::string();
+
+    if (info.Length() == 2)
+    {
+        if (info[0]->IsString())
+        {
+            signature = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsString())
+        {
+            privateSpendKey = std::string(
+                *Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (!signature.empty() && !privateSpendKey.empty())
+        {
+            std::string result = Core::Cryptography::generatePartialSigningKey(signature, privateSpendKey);
+
+            functionReturnValue = Nan::New(result).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void restoreKeyImage(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New(false);
+
+    bool functionSuccess = false;
+
+    std::string publicEphemeral = std::string();
+
+    std::string derivation = std::string();
+
+    size_t outputIndex = 0;
+
+    std::vector<std::string> partialKeyImages;
+
+    if (info.Length() == 4)
+    {
+        if (info[0]->IsString())
+        {
+            publicEphemeral = std::string(
+                *Nan::Utf8String(info[0]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[1]->IsString())
+        {
+            derivation = std::string(
+                *Nan::Utf8String(info[1]->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));
+        }
+
+        if (info[2]->IsNumber())
+        {
+            outputIndex = (size_t)Nan::To<uint32_t>(info[2]).FromJust();
+        }
+
+        if (info[3]->IsArray())
+        {
+            v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[3]);
+
+            for (size_t i = 0; i < array->Length(); i++)
+            {
+                std::string hash = std::string(*Nan::Utf8String(Nan::Get(array, i).ToLocalChecked()));
+
+                partialKeyImages.push_back(hash);
+            }
+        }
+
+        if (!publicEphemeral.empty() && !derivation.empty() && partialKeyImages.size() != 0)
+        {
+            std::string result =
+                Core::Cryptography::restoreKeyImage(publicEphemeral, derivation, outputIndex, partialKeyImages);
+
+            functionReturnValue = Nan::New(result).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
 
 void checkKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 {
@@ -452,7 +943,8 @@ void generateDeterministicSubwalletKeys(const Nan::FunctionCallbackInfo<v8::Valu
 
             try
             {
-                functionSuccess = Core::Cryptography::generateDeterministicSubwalletKeys(secretKey, walletIndex, newSecretKey, newPublicKey);
+                functionSuccess = Core::Cryptography::generateDeterministicSubwalletKeys(
+                    secretKey, walletIndex, newSecretKey, newPublicKey);
 
                 v8::Local<v8::String> publicKeyProp = Nan::New("publicKey").ToLocalChecked();
 
@@ -1864,6 +2356,46 @@ void chukwa_slow_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
 NAN_MODULE_INIT(InitModule)
 {
     /* Core Cryptographic Operations */
+    Nan::Set(
+        target,
+        Nan::New("calculateMultisigPrivateKeys").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(calculateMultisigPrivateKeys)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("calculateSharedPrivateKey").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(calculateSharedPrivateKey)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("calculateSharedPublicKey").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(calculateSharedPublicKey)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("generatePartialSigningKey").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generatePartialSigningKey)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("prepareRingSignatures").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(prepareRingSignatures)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("completeRingSignatures").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(completeRingSignatures)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("restoreRingSignatures").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(restoreRingSignatures)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("restoreKeyImage").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(restoreKeyImage)).ToLocalChecked());
+
     Nan::Set(
         target,
         Nan::New("checkKey").ToLocalChecked(),

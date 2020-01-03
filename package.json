@@ -33,6 +33,7 @@
       "build/*",
       "emsdk/*",
       "examples/*",
+      "external/*",
       "include/*",
       "jsbuild/*",
       "prebuilds/*",
