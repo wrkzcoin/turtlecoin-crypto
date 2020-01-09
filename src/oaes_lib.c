@@ -283,21 +283,7 @@ static OAES_RET oaes_inv_sub_byte(uint8_t *byte)
 
     return OAES_RET_SUCCESS;
 }
-/*
-static OAES_RET oaes_word_rot_right( uint8_t word[OAES_COL_LEN] )
-{
-    uint8_t _temp[OAES_COL_LEN];
-    
-    if( NULL == word )
-        return OAES_RET_ARG1;
 
-    memcpy( _temp + 1, word, OAES_COL_LEN - 1 );
-    _temp[0] = word[OAES_COL_LEN - 1];
-    memcpy( word, _temp, OAES_COL_LEN );
-    
-    return OAES_RET_SUCCESS;
-}
-*/
 static OAES_RET oaes_word_rot_left(uint8_t word[OAES_COL_LEN])
 {
     uint8_t _temp[OAES_COL_LEN];

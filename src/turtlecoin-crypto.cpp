@@ -38,6 +38,37 @@ EXPORTDLL bool DllMain(
 
 namespace Core
 {
+    template<typename T> void toTypedVector(const std::vector<std::string> &stringVector, std::vector<T> &result)
+    {
+        result.clear();
+
+        for (const auto element : stringVector)
+        {
+            T value = T();
+
+            Common::podFromHex(element, value);
+
+            result.push_back(value);
+        }
+    }
+
+    template<typename T> void toStringVector(const std::vector<T> &typedVector, std::vector<std::string> &result)
+    {
+        result.clear();
+
+        for (const auto element : typedVector)
+        {
+            if (sizeof(element) == sizeof(Crypto::Signature))
+            {
+                result.push_back(Common::toHex(&element, sizeof(element)));
+            }
+            else
+            {
+                result.push_back(Common::podToHex(element));
+            }
+        }
+    }
+
     inline Crypto::BinaryArray toBinaryArray(const std::string input)
     {
         return Common::fromHex(input);
@@ -306,14 +337,7 @@ namespace Core
     {
         std::vector<Crypto::Hash> treeHashes;
 
-        for (const auto hash : hashes)
-        {
-            Crypto::Hash tempHash = Crypto::Hash();
-
-            Common::podFromHex(hash, tempHash);
-
-            treeHashes.push_back(tempHash);
-        }
+        toTypedVector(hashes, treeHashes);
 
         Crypto::Hash treeHash = Crypto::Hash();
 
@@ -326,14 +350,7 @@ namespace Core
     {
         std::vector<Crypto::Hash> _hashes;
 
-        for (const auto hash : hashes)
-        {
-            Crypto::Hash tempHash = Crypto::Hash();
-
-            Common::podFromHex(hash, tempHash);
-
-            _hashes.push_back(tempHash);
-        }
+        toTypedVector(hashes, _hashes);
 
         std::vector<Crypto::Hash> _branches(tree_depth(_hashes.size()));
 
@@ -341,10 +358,7 @@ namespace Core
 
         std::vector<std::string> branches;
 
-        for (const auto branch : _branches)
-        {
-            branches.push_back(Common::podToHex(branch));
-        }
+        toStringVector(_branches, branches);
 
         return branches;
     }
@@ -356,14 +370,7 @@ namespace Core
     {
         std::vector<Crypto::Hash> _branches;
 
-        for (const auto branch : branches)
-        {
-            Crypto::Hash _branch = Crypto::Hash();
-
-            Common::podFromHex(branch, _branch);
-
-            _branches.push_back(_branch);
-        }
+        toTypedVector(branches, _branches);
 
         Crypto::Hash _leaf = Crypto::Hash();
 
@@ -406,14 +413,7 @@ namespace Core
 
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto publicKey : publicKeys)
-        {
-            Crypto::PublicKey _publicKey = Crypto::PublicKey();
-
-            Common::podFromHex(publicKey, _publicKey);
-
-            _publicKeys.push_back(_publicKey);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         Crypto::SecretKey _transactionSecretKey;
 
@@ -424,14 +424,9 @@ namespace Core
         bool success = Crypto::crypto_ops::generateRingSignatures(
             _prefixHash, _keyImage, _publicKeys, _transactionSecretKey, realOutput, _signatures);
 
-        signatures.clear();
-
         if (success)
         {
-            for (const auto signature : _signatures)
-            {
-                signatures.push_back(Common::toHex(&signature, sizeof(signature)));
-            }
+            toStringVector(_signatures, signatures);
         }
 
         return success;
@@ -453,25 +448,11 @@ namespace Core
 
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto publicKey : publicKeys)
-        {
-            Crypto::PublicKey _publicKey = Crypto::PublicKey();
-
-            Common::podFromHex(publicKey, _publicKey);
-
-            _publicKeys.push_back(_publicKey);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         std::vector<Crypto::Signature> _signatures;
 
-        for (const auto signature : signatures)
-        {
-            Crypto::Signature _signature = Crypto::Signature();
-
-            Common::podFromHex(signature, _signature);
-
-            _signatures.push_back(_signature);
-        }
+        toTypedVector(signatures, _signatures);
 
         return Crypto::crypto_ops::checkRingSignature(_prefixHash, _keyImage, _publicKeys, _signatures);
     }
@@ -799,14 +780,7 @@ namespace Core
 
         std::vector<Crypto::KeyImage> _partialKeyImages;
 
-        for (auto key : partialKeyImages)
-        {
-            Crypto::KeyImage _key;
-
-            Common::podFromHex(key, _key);
-
-            _partialKeyImages.push_back(_key);
-        }
+        toTypedVector(partialKeyImages, _partialKeyImages);
 
         Crypto::KeyImage _keyImage =
             Crypto::Multisig::restore_key_image(_publicEphemeral, _derivation, output_index, _partialKeyImages);
@@ -828,14 +802,7 @@ namespace Core
 
         std::vector<Crypto::SecretKey> _partialSigningKeys;
 
-        for (const auto key : partialSigningKeys)
-        {
-            Crypto::SecretKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _partialSigningKeys.push_back(_key);
-        }
+        toTypedVector(partialSigningKeys, _partialSigningKeys);
 
         Crypto::EllipticCurveScalar _k;
 
@@ -843,26 +810,14 @@ namespace Core
 
         std::vector<Crypto::Signature> _signatures;
 
-        for (const auto sig : signatures)
-        {
-            Crypto::Signature _sig;
-
-            Common::podFromHex(sig, _sig);
-
-            _signatures.push_back(_sig);
-        }
+        toTypedVector(signatures, _signatures);
 
         const auto success = Crypto::Multisig::restore_ring_signatures(
             _derivation, output_index, _partialSigningKeys, realOutput, _k, _signatures);
 
         if (success)
         {
-            signatures.clear();
-
-            for (const auto sig : _signatures)
-            {
-                signatures.push_back(Common::toHex(&sig, sizeof(sig)));
-            }
+            toStringVector(_signatures, signatures);
         }
 
         return success;
@@ -902,14 +857,7 @@ namespace Core
 
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto key : publicKeys)
-        {
-            Crypto::PublicKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _publicKeys.push_back(_key);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         std::vector<Crypto::Signature> _signatures;
 
@@ -920,12 +868,7 @@ namespace Core
 
         if (success)
         {
-            signatures.clear();
-
-            for (const auto _sig : _signatures)
-            {
-                signatures.push_back(Common::toHex(&_sig, sizeof(_sig)));
-            }
+            toStringVector(_signatures, signatures);
 
             k = Common::podToHex(_k);
         }
@@ -951,14 +894,7 @@ namespace Core
 
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto key : publicKeys)
-        {
-            Crypto::PublicKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _publicKeys.push_back(_key);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         std::vector<Crypto::Signature> _signatures;
 
@@ -971,12 +907,7 @@ namespace Core
 
         if (success)
         {
-            signatures.clear();
-
-            for (const auto _sig : _signatures)
-            {
-                signatures.push_back(Common::toHex(&_sig, sizeof(_sig)));
-            }
+            toStringVector(_signatures, signatures);
         }
 
         return success;
@@ -998,26 +929,14 @@ namespace Core
 
         std::vector<Crypto::Signature> _signatures;
 
-        for (const auto sig : signatures)
-        {
-            Crypto::Signature _sig;
-
-            Common::podFromHex(sig, _sig);
-
-            _signatures.push_back(_sig);
-        }
+        toTypedVector(signatures, _signatures);
 
         const auto success =
             Crypto::crypto_ops::completeRingSignatures(_transactionSecretKey, realOutput, _k, _signatures);
 
         if (success)
         {
-            signatures.clear();
-
-            for (const auto sig : _signatures)
-            {
-                signatures.push_back(Common::toHex(&sig, sizeof(sig)));
-            }
+            toStringVector(_signatures, signatures);
         }
 
         return success;
@@ -1033,24 +952,14 @@ namespace Core
 
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto key : publicKeys)
-        {
-            Crypto::PublicKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _publicKeys.push_back(_key);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         std::vector<Crypto::SecretKey> _multisigKeys =
             Crypto::Multisig::calculate_multisig_private_keys(_ourPrivateSpendKey, _publicKeys);
 
         std::vector<std::string> multisigKeys;
 
-        for (const auto key : _multisigKeys)
-        {
-            multisigKeys.push_back(Common::podToHex(key));
-        }
+        toStringVector(_multisigKeys, multisigKeys);
 
         return multisigKeys;
     }
@@ -1059,14 +968,7 @@ namespace Core
     {
         std::vector<Crypto::SecretKey> _secretKeys;
 
-        for (const auto key : secretKeys)
-        {
-            Crypto::SecretKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _secretKeys.push_back(_key);
-        }
+        toTypedVector(secretKeys, _secretKeys);
 
         Crypto::SecretKey sharedPrivateKey = Crypto::Multisig::calculate_shared_private_key(_secretKeys);
 
@@ -1077,14 +979,7 @@ namespace Core
     {
         std::vector<Crypto::PublicKey> _publicKeys;
 
-        for (const auto key : publicKeys)
-        {
-            Crypto::PublicKey _key;
-
-            Common::podFromHex(key, _key);
-
-            _publicKeys.push_back(_key);
-        }
+        toTypedVector(publicKeys, _publicKeys);
 
         Crypto::PublicKey sharedPublicKey = Crypto::Multisig::calculate_shared_public_key(_publicKeys);
 
