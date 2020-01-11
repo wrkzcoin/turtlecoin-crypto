@@ -1,7 +1,7 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2016-2018, The Karbowanec developers
-// Copyright (c) 2018, The TurtleCoin Developers
+// Copyright (c) 2018-2020, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -18,16 +18,6 @@
 
 namespace Crypto
 {
-    struct EllipticCurvePoint
-    {
-        uint8_t data[32];
-    };
-
-    struct EllipticCurveScalar
-    {
-        uint8_t data[32];
-    };
-
     class crypto_ops
     {
         crypto_ops();
@@ -55,6 +45,10 @@ namespace Crypto
         friend bool secret_key_to_public_key(const SecretKey &, PublicKey &);
         static bool generate_key_derivation(const PublicKey &, const SecretKey &, KeyDerivation &);
         friend bool generate_key_derivation(const PublicKey &, const SecretKey &, KeyDerivation &);
+        static void derivation_to_scalar(const KeyDerivation &, size_t, EllipticCurveScalar &);
+        friend void derivation_to_scalar(const KeyDerivation &, size_t, EllipticCurveScalar &);
+        static void derivation_to_scalar(const KeyDerivation &, size_t, const uint8_t *, size_t, EllipticCurveScalar &);
+        friend void derivation_to_scalar(const KeyDerivation &, size_t, const uint8_t *, size_t, EllipticCurveScalar &);
         static bool derive_public_key(const KeyDerivation &, size_t, const PublicKey &, PublicKey &);
         friend bool derive_public_key(const KeyDerivation &, size_t, const PublicKey &, PublicKey &);
         friend bool
@@ -108,6 +102,28 @@ namespace Crypto
             SecretKey &subWalletPrivateKey);
 
       public:
+        static bool prepareRingSignatures(
+            const Hash prefixHash,
+            const KeyImage keyImage,
+            const std::vector<PublicKey> publicKeys,
+            uint64_t realOutput,
+            const EllipticCurveScalar k,
+            std::vector<Signature> &signatures);
+
+        static bool prepareRingSignatures(
+            const Hash prefixHash,
+            const KeyImage keyImage,
+            const std::vector<PublicKey> publicKeys,
+            uint64_t realOutput,
+            std::vector<Signature> &signatures,
+            EllipticCurveScalar &k);
+
+        static bool completeRingSignatures(
+            const SecretKey transactionSecretKey,
+            uint64_t realOutput,
+            const EllipticCurveScalar &k,
+            std::vector<Signature> &signatures);
+
         static bool generateRingSignatures(
             const Hash prefixHash,
             const KeyImage keyImage,
@@ -201,6 +217,11 @@ namespace Crypto
     inline bool generate_key_derivation(const PublicKey &key1, const SecretKey &key2, KeyDerivation &derivation)
     {
         return crypto_ops::generate_key_derivation(key1, key2, derivation);
+    }
+
+    inline void derivation_to_scalar(const KeyDerivation &derivation, size_t output_index, EllipticCurveScalar &res)
+    {
+        crypto_ops::derivation_to_scalar(derivation, output_index, res);
     }
 
     inline bool derive_public_key(

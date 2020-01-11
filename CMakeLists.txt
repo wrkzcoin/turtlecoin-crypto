@@ -205,6 +205,7 @@ set(BASE_CRYPTO
   src/hash-extra-skein.c
   src/jh.c
   src/keccak.c
+  src/multisig.cpp
   src/oaes_lib.c
   src/random.cpp
   src/skein.c
