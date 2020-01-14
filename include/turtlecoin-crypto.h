@@ -108,14 +108,30 @@ extern "C"
                 const std::string secretKey,
                 std::string &derivation);
 
-            static bool derivePublicKey(
-                const std::string derivation,
-                const uint64_t outputIndex,
+            static std::string generateKeyDerivationScalar(
                 const std::string publicKey,
+                const std::string secretKey,
+                const uint64_t outputIndex);
+
+            static std::string derivationToScalar(const std::string derivation, const uint64_t outputIndex);
+
+            static bool derivePublicKey(
+                const std::string &derivation,
+                const uint64_t outputIndex,
+                const std::string &publicKey,
                 std::string &derivedPublicKey);
 
-            static std::string
-                deriveSecretKey(const std::string derivation, const uint64_t outputIndex, const std::string secretKey);
+            static bool derivePublicKey(
+                const std::string &derivationScalar,
+                const std::string &publicKey,
+                std::string &derivedPublicKey);
+
+            static std::string deriveSecretKey(
+                const std::string &derivation,
+                const uint64_t outputIndex,
+                const std::string &secretKey);
+
+            static std::string deriveSecretKey(const std::string &derivationScalar, const std::string &secretKey);
 
             static bool underivePublicKey(
                 const std::string derivation,

@@ -171,9 +171,23 @@ std::string derivePublicKey(const std::string derivation, const size_t outputInd
     return derivedKey;
 }
 
+std::string scalarDerivePublicKey(const std::string derivationScalar, const std::string publicKey)
+{
+    std::string derivedKey;
+
+    bool success = Core::Cryptography::derivePublicKey(derivationScalar, publicKey, derivedKey);
+
+    return derivedKey;
+}
+
 std::string deriveSecretKey(const std::string derivation, const size_t outputIndex, const std::string secretKey)
 {
     return Core::Cryptography::deriveSecretKey(derivation, outputIndex, secretKey);
+}
+
+std::string scalarDeriveSecretKey(const std::string derivationScalar, const std::string secretKey)
+{
+    return Core::Cryptography::deriveSecretKey(derivationScalar, secretKey);
 }
 
 std::string underivePublicKey(const std::string derivation, const size_t outputIndex, const std::string derivedKey)
@@ -277,8 +291,11 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("checkKey", &Core::Cryptography::checkKey);
     function("secretKeyToPublicKey", &secretKeyToPublicKey);
     function("generateKeyDerivation", &generateKeyDerivation);
+    function("generateKeyDerivationScalar", &Core::Cryptography::generateKeyDerivationScalar);
     function("derivePublicKey", &derivePublicKey);
     function("deriveSecretKey", &deriveSecretKey);
+    function("scalarDerivePublicKey", &scalarDerivePublicKey);
+    function("scalarDeriveSecretKey", &scalarDeriveSecretKey);
     function("underivePublicKey", &underivePublicKey);
     function("generateSignature", &Core::Cryptography::generateSignature);
     function("checkSignature", &Core::Cryptography::checkSignature);

@@ -171,7 +171,16 @@ namespace Crypto
         const PublicKey &base,
         PublicKey &derived_key)
     {
-        EllipticCurveScalar scalar;
+        EllipticCurveScalar derivationScalar;
+        derivation_to_scalar(derivation, output_index, derivationScalar);
+        return derive_public_key(derivationScalar, base, derived_key);
+    }
+
+    bool crypto_ops::derive_public_key(
+        const EllipticCurveScalar &derivationScalar,
+        const PublicKey &base,
+        PublicKey &derived_key)
+    {
         ge_p3 point1;
         ge_p3 point2;
         ge_cached point3;
@@ -181,8 +190,7 @@ namespace Crypto
         {
             return false;
         }
-        derivation_to_scalar(derivation, output_index, scalar);
-        ge_scalarmult_base(&point2, reinterpret_cast<unsigned char *>(&scalar));
+        ge_scalarmult_base(&point2, reinterpret_cast<const unsigned char *>(&derivationScalar));
         ge_p3_to_cached(&point3, &point2);
         ge_add(&point4, &point1, &point3);
         ge_p1p1_to_p2(&point5, &point4);
@@ -248,13 +256,21 @@ namespace Crypto
         const SecretKey &base,
         SecretKey &derived_key)
     {
-        EllipticCurveScalar scalar;
+        EllipticCurveScalar derivationScalar;
+        derivation_to_scalar(derivation, output_index, derivationScalar);
+        derive_secret_key(derivationScalar, base, derived_key);
+    }
+
+    void crypto_ops::derive_secret_key(
+        const EllipticCurveScalar &derivationScalar,
+        const SecretKey &base,
+        SecretKey &derived_key)
+    {
         assert(sc_check(reinterpret_cast<const unsigned char *>(&base)) == 0);
-        derivation_to_scalar(derivation, output_index, scalar);
         sc_add(
             reinterpret_cast<unsigned char *>(&derived_key),
             reinterpret_cast<const unsigned char *>(&base),
-            reinterpret_cast<unsigned char *>(&scalar));
+            reinterpret_cast<const unsigned char *>(&derivationScalar));
     }
 
     void crypto_ops::derive_secret_key(

@@ -496,17 +496,37 @@ void derivePublicKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string derivation = getString(info, 0);
 
-    size_t outputIndex = (size_t)getUInt32(info, 1);
+    size_t outputIndex = 0;
 
-    std::string publicKey = getString(info, 2);
+    std::string publicKey = std::string();
+
+    if (info.Length() == 2)
+    {
+        publicKey = getString(info, 1);
+    }
+    else if (info.Length() == 3)
+    {
+        outputIndex = (size_t)getUInt32(info, 1);
+
+        publicKey = getString(info, 2);
+    }
 
     if (!derivation.empty() && !publicKey.empty())
     {
         try
         {
-            std::string outPublicKey;
+            std::string outPublicKey = std::string();
 
-            bool success = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey, outPublicKey);
+            bool success = false;
+
+            if (info.Length() == 2)
+            {
+                success = Core::Cryptography::derivePublicKey(derivation, publicKey, outPublicKey);
+            }
+            else if (info.Length() == 3)
+            {
+                success = Core::Cryptography::derivePublicKey(derivation, outputIndex, publicKey, outPublicKey);
+            }
 
             if (success)
             {
@@ -533,21 +553,42 @@ void deriveSecretKey(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string derivation = getString(info, 0);
 
-    size_t outputIndex = (size_t)getUInt32(info, 1);
+    size_t outputIndex = 0;
 
-    std::string secretKey = getString(info, 2);
+    std::string secretKey = std::string();
+
+    if (info.Length() == 2)
+    {
+        secretKey = getString(info, 1);
+    }
+    else if (info.Length() == 3)
+    {
+        outputIndex = (size_t)getUInt32(info, 1);
+
+        secretKey = getString(info, 2);
+    }
 
     if (!derivation.empty() && !secretKey.empty())
     {
-        std::string _secretKey;
+        std::string _secretKey = std::string();
 
         try
         {
-            _secretKey = Core::Cryptography::deriveSecretKey(derivation, outputIndex, secretKey);
+            if (info.Length() == 2)
+            {
+                _secretKey = Core::Cryptography::deriveSecretKey(derivation, secretKey);
+            }
+            else if (info.Length() == 3)
+            {
+                _secretKey = Core::Cryptography::deriveSecretKey(derivation, outputIndex, secretKey);
+            }
 
             functionReturnValue = Nan::New(_secretKey).ToLocalChecked();
 
-            functionSuccess = true;
+            if (!_secretKey.empty())
+            {
+                functionSuccess = true;
+            }
         }
         catch (const std::exception &)
         {
@@ -619,6 +660,68 @@ void generateKeyDerivation(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
                 functionSuccess = true;
             }
+        }
+        catch (const std::exception &)
+        {
+            functionSuccess = false;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void generateKeyDerivationScalar(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string publicKey = getString(info, 0);
+
+    std::string secretKey = getString(info, 1);
+
+    uint64_t outputIndex = getUInt64(info, 2);
+
+    if (!secretKey.empty() && !publicKey.empty())
+    {
+        try
+        {
+            std::string derivationScalar = Core::Cryptography::generateKeyDerivationScalar(publicKey, secretKey, outputIndex);
+
+            functionReturnValue = Nan::New(derivationScalar).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+        catch (const std::exception &)
+        {
+            functionSuccess = false;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
+void derivationToScalar(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string derivation = getString(info, 0);
+
+    uint64_t outputIndex = getUInt64(info, 1);
+
+    if (!derivation.empty())
+    {
+        try
+        {
+            std::string derivationScalar = Core::Cryptography::derivationToScalar(derivation, outputIndex);
+
+            functionReturnValue = Nan::New(derivationScalar).ToLocalChecked();
+
+            functionSuccess = true;
         }
         catch (const std::exception &)
         {
@@ -1810,6 +1913,16 @@ NAN_MODULE_INIT(InitModule)
 
     Nan::Set(
         target,
+        Nan::New("checkSignature").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(checkSignature)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("derivationToScalar").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(derivationToScalar)).ToLocalChecked());
+
+    Nan::Set(
+        target,
         Nan::New("derivePublicKey").ToLocalChecked(),
         Nan::GetFunction(Nan::New<v8::FunctionTemplate>(derivePublicKey)).ToLocalChecked());
 
@@ -1827,6 +1940,11 @@ NAN_MODULE_INIT(InitModule)
         target,
         Nan::New("generateKeyDerivation").ToLocalChecked(),
         Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateKeyDerivation)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("generateKeyDerivationScalar").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateKeyDerivationScalar)).ToLocalChecked());
 
     Nan::Set(
         target,

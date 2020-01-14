@@ -51,6 +51,8 @@ namespace Crypto
         friend void derivation_to_scalar(const KeyDerivation &, size_t, const uint8_t *, size_t, EllipticCurveScalar &);
         static bool derive_public_key(const KeyDerivation &, size_t, const PublicKey &, PublicKey &);
         friend bool derive_public_key(const KeyDerivation &, size_t, const PublicKey &, PublicKey &);
+        static bool derive_public_key(const EllipticCurveScalar &, const PublicKey &, PublicKey &);
+        friend bool derive_public_key(const EllipticCurveScalar &, const PublicKey &, PublicKey &);
         friend bool
             derive_public_key(const KeyDerivation &, size_t, const PublicKey &, const uint8_t *, size_t, PublicKey &);
         static bool
@@ -71,6 +73,8 @@ namespace Crypto
         //
         static void derive_secret_key(const KeyDerivation &, size_t, const SecretKey &, SecretKey &);
         friend void derive_secret_key(const KeyDerivation &, size_t, const SecretKey &, SecretKey &);
+        static void derive_secret_key(const EllipticCurveScalar &, const SecretKey &, SecretKey &);
+        friend void derive_secret_key(const EllipticCurveScalar &, const SecretKey &, SecretKey &);
         static void
             derive_secret_key(const KeyDerivation &, size_t, const SecretKey &, const uint8_t *, size_t, SecretKey &);
         friend void
@@ -244,6 +248,11 @@ namespace Crypto
         return crypto_ops::derive_public_key(derivation, output_index, base, derived_key);
     }
 
+    inline bool
+        derive_public_key(const EllipticCurveScalar &derivationScalar, const PublicKey &base, PublicKey &derived_key)
+    {
+        return crypto_ops::derive_public_key(derivationScalar, base, derived_key);
+    }
 
     inline bool underive_public_key_and_get_scalar(
         const KeyDerivation &derivation,
@@ -276,6 +285,11 @@ namespace Crypto
         crypto_ops::derive_secret_key(derivation, output_index, base, derived_key);
     }
 
+    inline void
+        derive_secret_key(const EllipticCurveScalar &derivationScalar, const SecretKey &base, SecretKey &derived_key)
+    {
+        crypto_ops::derive_secret_key(derivationScalar, base, derived_key);
+    }
 
     /* Inverse function of derive_public_key. It can be used by the receiver to find which "spend" key was used to
      * generate a transaction. This may be useful if the receiver used multiple addresses which only differ in "spend"
