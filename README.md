@@ -20,23 +20,24 @@ This repository contains the necessary files to compile the cryptography library
 * Native Javascript
 * WASM
 
-## Node.js Module
+## Javascript Library
+
+**Note:** We build prebuilds of the Node.js native addon module as well as the WASM/JS binaries that are included for distribution with the NPM installed version of this package to speed up your development efforts.
 
 ### Dependencies
 
 * [Node.js](https://nodejs.org) >= +6.x LTS (or Node v11)
 
-#### Windows
+#### Windows (if not using prebuilds)
 
 ##### Prerequisites
 
 Read very careful if you want this to work right the first time.
 
 1) Open a *Windows Powershell* console as **Administrator**
+
 2) Run the command: `npm install -g windows-build-tools --vs2015`
    ***This will take a while. Sit tight.***
-   
-#### Linux
 
 ### Installation
 
@@ -46,9 +47,23 @@ npm install turtlecoin-crypto
 
 ### Intialization
 
+#### TypeScript
+
 ```javascript
-const TurtleCoinCrypto = require('turtlecoin-crypto')
+import { Crypto } from 'turtlecoin-crypto';
+const TurtleCoinCrypto = new Crypto();
 ```
+
+#### CommonJS
+
+```javascript
+const Crypto = require('turtlecoin-crypto').Crypto
+const TurtleCoinCrypto = new Crypto()
+```
+
+#### Documentation
+
+You can find the full TypeScript/JS documentation for this library [here](https://crypto.turtlecoin.dev).
 
 ## C++ Library
 
@@ -193,7 +208,9 @@ The following library files will be created in the `build/Release` folder:
 
 ### Prerequisites
 
-You will need the following packages: CMake (2.8 or higher), make, and git.
+You will need the following packages:
+
+* CMake (2.8 or higher), make, and git.
 
 ### Compiling
 

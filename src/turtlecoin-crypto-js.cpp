@@ -162,6 +162,16 @@ std::string generateKeyDerivation(const std::string publicKey, const std::string
     return derivation;
 }
 
+std::string generateKeyDerivationScalar(const std::string publicKey, const std::string secretKey, size_t outputIndex)
+{
+    return Core::Cryptography::generateKeyDerivationScalar(publicKey, secretKey, outputIndex);
+}
+
+std::string derivationToScalar(const std::string derivation, size_t outputIndex)
+{
+    return Core::Cryptography::derivationToScalar(derivation, outputIndex);
+}
+
 std::string derivePublicKey(const std::string derivation, const size_t outputIndex, const std::string publicKey)
 {
     std::string derivedKey;
@@ -291,7 +301,8 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("checkKey", &Core::Cryptography::checkKey);
     function("secretKeyToPublicKey", &secretKeyToPublicKey);
     function("generateKeyDerivation", &generateKeyDerivation);
-    function("generateKeyDerivationScalar", &Core::Cryptography::generateKeyDerivationScalar);
+    function("generateKeyDerivationScalar", &generateKeyDerivationScalar);
+    function("derivationToScalar", &derivationToScalar);
     function("derivePublicKey", &derivePublicKey);
     function("deriveSecretKey", &deriveSecretKey);
     function("scalarDerivePublicKey", &scalarDerivePublicKey);
@@ -304,7 +315,6 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("hashToEllipticCurve", &Core::Cryptography::hashToEllipticCurve);
     function("scReduce32", &Core::Cryptography::scReduce32);
     function("hashToScalar", &Core::Cryptography::hashToScalar);
-    function("restoreKeyImage", &Core::Cryptography::restoreKeyImage);
 
     /* Multisig Methods */
     function("calculateMultisigPrivateKeys", &Core::Cryptography::calculateMultisigPrivateKeys);
