@@ -519,9 +519,6 @@ export class Crypto {
         if (!this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private ephemeral found');
         }
-        if (this.secretKeyToPublicKey(privateEphemeral) !== publicEphemeral) {
-            throw new Error('private ephemeral does not match the given public ephemeral');
-        }
 
         return tryRunFunc('generateKeyImage', publicEphemeral, privateEphemeral);
     }

@@ -68,7 +68,17 @@ Array.prototype.toVectorString = function () {
     this.forEach((key) => arr.push_back(key));
     return arr;
 };
+/**
+ * A class containing the TurtleCoin cryptographic primitive methods that wraps
+ * the Node.js native module, the WASM binary, or native JS implementations
+ * into a common interface
+ */
 class Crypto {
+    /**
+     * Creates a new wrapper object
+     * @param [config] may contain user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     */
     constructor(config) {
         if (!initialize()) {
             throw new Error('Could not initialize underlying cryptographic library');
@@ -81,6 +91,9 @@ class Crypto {
             });
         }
     }
+    /**
+     * Returns the type of the cryptographic primitives used by the wrapper
+     */
     get type() {
         switch (moduleVars.type) {
             case Types.NODEADDON:
@@ -95,6 +108,9 @@ class Crypto {
                 return 'unknown';
         }
     }
+    /**
+     * Returns if the Node.js native library is being used
+     */
     get isNative() {
         switch (moduleVars.type) {
             case Types.NODEADDON:
@@ -103,9 +119,17 @@ class Crypto {
                 return true;
         }
     }
+    /**
+     * Returns if the wrapper is loaded and ready
+     */
     get isReady() {
         return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
     }
+    /**
+     * Allows for updating the user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     * @param config
+     */
     set userCryptoFunctions(config) {
         if (config && typeof config === 'object') {
             Object.keys(config).forEach((key) => {
@@ -115,6 +139,13 @@ class Crypto {
             });
         }
     }
+    /**
+     * Calculates the multisignature (m) private keys using our private spend key
+     * and the public spend keys of other participants in a M:N scheme
+     * @param privateSpendKey our private spend key
+     * @param publicKeys an array of the other participants public spend keys
+     * @returns the array of new multisig private keys
+     */
     calculateMultisigPrivateKeys(privateSpendKey, publicKeys) {
         if (!this.checkScalar(privateSpendKey)) {
             throw new Error('privateSpendKey is not a scalar');
@@ -129,6 +160,11 @@ class Crypto {
         });
         return tryRunFunc('calculateMultisigPrivateKeys', privateSpendKey, publicKeys);
     }
+    /**
+     * Calculates a shared private key from the private keys supplied
+     * @param privateKeys the array of private keys
+     * @returns the resulting composite private key
+     */
     calculateSharedPrivateKey(privateKeys) {
         if (!Array.isArray(privateKeys)) {
             throw new Error('privateKeys must be an array');
@@ -140,6 +176,11 @@ class Crypto {
         });
         return tryRunFunc('calculateSharedPrivateKey', privateKeys);
     }
+    /**
+     * Calculates a shared public key from the public keys supplied
+     * @param privateKeys the array of public keys
+     * @returns the resulting composite public key
+     */
     calculateSharedPublicKey(publicKeys) {
         if (!Array.isArray(publicKeys)) {
             throw new Error('publicKeys must be an array');
@@ -151,15 +192,33 @@ class Crypto {
         });
         return tryRunFunc('calculateSharedPublicKey', publicKeys);
     }
+    /**
+     * Checks whether a given key is a public key
+     * @param key the public key to check
+     */
     checkKey(key) {
         if (!isHex64(key)) {
             return false;
         }
         return tryRunFunc('checkKey', key);
     }
+    /**
+     * Checks a set of ring signatures to verify that they are valid
+     * @param hash the hash (often the transaction prefix hash)
+     * @param keyImage real keyImage used to generate the signatures
+     * @param inputKeys the output keys used during signing (mixins + real)
+     * @param signatures the signatures
+     */
     checkRingSignature(hash, keyImage, inputKeys, signatures) {
         return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
     }
+    /**
+     * Checks a set of ring signatures to verify that they are valid
+     * @param hash the hash (often the transaction prefix hash)
+     * @param keyImage real keyImage used to generate the signatures
+     * @param inputKeys the output keys used during signing (mixins + real)
+     * @param signatures the signatures
+     */
     checkRingSignatures(hash, keyImage, inputKeys, signatures) {
         if (!isHex64(hash)) {
             return false;
@@ -189,12 +248,22 @@ class Crypto {
         }
         return tryRunFunc('checkRingSignature', hash, keyImage, inputKeys, signatures);
     }
-    checkScalar(secretKey) {
-        if (!isHex64(secretKey)) {
+    /**
+     * Checks whether the given key is a private key
+     * @param privateKey
+     */
+    checkScalar(privateKey) {
+        if (!isHex64(privateKey)) {
             return false;
         }
-        return (secretKey === this.scReduce32(secretKey));
+        return (privateKey === this.scReduce32(privateKey));
     }
+    /**
+     * Checks that the given signature is valid for the hash and public key supplied
+     * @param hash the hash (message digest) used
+     * @param publicKey the public key of the private key used to sign
+     * @param signature the signature
+     */
     checkSignature(hash, publicKey, signature) {
         if (!isHex64(hash)) {
             return false;
@@ -207,6 +276,11 @@ class Crypto {
         }
         return tryRunFunc('checkSignature', hash, publicKey, signature);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_fast_hash method
+     * @param data
+     * @returns the hash
+     */
     cn_fast_hash(data) {
         if (!isHex(data)) {
             throw new Error('Supplied data must be in hexadecimal form');
@@ -222,8 +296,18 @@ class Crypto {
             throw e;
         }
     }
-    completeRingSignatures(privateKey, realIndex, k, signatures) {
-        if (!this.checkScalar(privateKey)) {
+    /**
+     * Completes a given set of prepared ring signatures using the single
+     * privateEphemeral
+     * @param privateEphemeral private ephemeral of the output being spent
+     * @param realIndex the position of the signature in the array that belongs
+     * to the real output being spent
+     * @param k the random scalar provided with the prepared ring signatures
+     * @param signatures the prepared ring signatures
+     * @returns the completed ring signatures
+     */
+    completeRingSignatures(privateEphemeral, realIndex, k, signatures) {
+        if (!this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private key found');
         }
         if (!Array.isArray(signatures)) {
@@ -240,8 +324,14 @@ class Crypto {
                 throw new Error('Invalid signature found');
             }
         });
-        return tryRunFunc('completeRingSignatures', privateKey, realIndex, k, signatures);
+        return tryRunFunc('completeRingSignatures', privateEphemeral, realIndex, k, signatures);
     }
+    /**
+     * Converts a key derivation to its resulting scalar
+     * @param derivation the key derivation
+     * @param outputIndex the index of the output in the transaction
+     * @returns the derivation scalar
+     */
     derivationToScalar(derivation, outputIndex) {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
@@ -251,6 +341,13 @@ class Crypto {
         }
         return tryRunFunc('derivationToScalar', derivation, outputIndex);
     }
+    /**
+     * Derives the public ephemeral from the key derivation, output index, and
+     * our public spend key
+     * @param derivation the key derivation
+     * @param outputIndex the index of the output in the transaction
+     * @param publicKey our public spend key
+     */
     derivePublicKey(derivation, outputIndex, publicKey) {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
@@ -263,6 +360,13 @@ class Crypto {
         }
         return tryRunFunc('derivePublicKey', derivation, outputIndex, publicKey);
     }
+    /**
+     * Derives the private ephemeral from the key derivation, output index, and
+     * our private spend key
+     * @param derivation the key derivation
+     * @param outputIndex the index of the output in the transaction
+     * @param privateKey our private spend key
+     */
     deriveSecretKey(derivation, outputIndex, privateKey) {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
@@ -275,9 +379,20 @@ class Crypto {
         }
         return tryRunFunc('deriveSecretKey', derivation, outputIndex, privateKey);
     }
+    /**
+     * Forces the wrapper to use the JS (slow) cryptographic primitives
+     * @returns true if success, false if failed
+     */
     forceJSCrypto() {
         return loadNativeJS();
     }
+    /**
+     * Generates a set of deterministic spend keys for a sub wallet given
+     * our root private spend key and the index of the subwallet
+     * @param privateKey our root private spend key (seed)
+     * @param walletIndex the index of the subwallet
+     * @returns the spend keys for the subwallet
+     */
     generateDeterministicSubwalletKeys(privateKey, walletIndex) {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
@@ -293,6 +408,12 @@ class Crypto {
             throw new Error('Could not generate deterministic subwallet keys');
         }
     }
+    /**
+     * Generates a key derivation (aB) given the public key and private key
+     * @param publicKey
+     * @param privateKey
+     * @returns the key derivation
+     */
     generateKeyDerivation(publicKey, privateKey) {
         if (!this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
@@ -302,6 +423,12 @@ class Crypto {
         }
         return tryRunFunc('generateKeyDerivation', publicKey, privateKey);
     }
+    /**
+     * Generates a key derivation scalar H_s(aB) given the public key and private key
+     * @param publicKey
+     * @param privateKey
+     * @returns the key derivation scalar
+     */
     generateKeyDerivationScalar(publicKey, privateKey, outputIndex) {
         if (!this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
@@ -314,15 +441,25 @@ class Crypto {
         }
         return tryRunFunc('generateKeyDerivationScalar', publicKey, privateKey, outputIndex);
     }
-    generateKeyImage(publicKey, privateKey) {
-        if (!this.checkKey(publicKey)) {
-            throw new Error('Invalid public key found');
+    /**
+     * Generates a key image given the public ephemeral and the private ephemeral
+     * @param publicEphemeral the public ephemeral of the output
+     * @param privateEphemeral the private ephemeral of the output
+     * @returns the key image
+     */
+    generateKeyImage(publicEphemeral, privateEphemeral) {
+        if (!this.checkKey(publicEphemeral)) {
+            throw new Error('Invalid public ephemeral found');
         }
-        if (!this.checkScalar(privateKey)) {
-            throw new Error('Invalid private key found');
+        if (!this.checkScalar(privateEphemeral)) {
+            throw new Error('Invalid private ephemeral found');
         }
-        return tryRunFunc('generateKeyImage', publicKey, privateKey);
+        return tryRunFunc('generateKeyImage', publicEphemeral, privateEphemeral);
     }
+    /**
+     * Generates a new random key pair
+     * @returns a new key pair
+     */
     generateKeys() {
         const keys = tryRunFunc('generateKeys');
         if (keys) {
@@ -332,6 +469,11 @@ class Crypto {
             throw new Error('Could not generate keys');
         }
     }
+    /**
+     * Generates a partial signing key for a multisig ring signature set
+     * @param signature the prepared real input signature
+     * @param privateKey our private spend key (or multisig private key)
+     */
     generatePartialSigningKey(signature, privateKey) {
         if (!isHex128(signature)) {
             throw new Error('Invalid signature found');
@@ -341,20 +483,33 @@ class Crypto {
         }
         return tryRunFunc('generatePartialSigningKey', signature, privateKey);
     }
+    /**
+     * Generates a private view key from the private spend key
+     * @param privateKey the private spend key
+     * @returns the private view key
+     */
     generatePrivateViewKeyFromPrivateSpendKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
         return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey);
     }
-    generateRingSignatures(hash, keyImage, publicKeys, privateKey, realIndex) {
+    /**
+     * Generates ring signatures for the supplied values
+     * @param hash the message digest hash (often the transaction prefix hash)
+     * @param keyImage the key image of the output being spent
+     * @param publicKeys an array of the output keys used for signing (mixins + our output)
+     * @param privateEphemeral the private ephemeral of the output being spent
+     * @param realIndex the array index of the real output being spent in the publicKeys array
+     */
+    generateRingSignatures(hash, keyImage, publicKeys, privateEphemeral, realIndex) {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
         if (!isHex64(keyImage)) {
             throw new Error('Invalid key image found');
         }
-        if (!this.checkScalar(privateKey)) {
+        if (!this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private key found');
         }
         if (!Array.isArray(publicKeys)) {
@@ -368,8 +523,14 @@ class Crypto {
                 throw new Error('Invalid public key found');
             }
         });
-        return tryRunFunc('generateRingSignatures', hash, keyImage, publicKeys, privateKey, realIndex);
+        return tryRunFunc('generateRingSignatures', hash, keyImage, publicKeys, privateEphemeral, realIndex);
     }
+    /**
+     * Generates a signature for the given message digest (hash)
+     * @param hash the hash
+     * @param publicKey the public key used in signing
+     * @param privateKey the private key used to sign
+     */
     generateSignature(hash, publicKey, privateKey) {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
@@ -382,6 +543,11 @@ class Crypto {
         }
         return tryRunFunc('generateSignature', hash, publicKey, privateKey);
     }
+    /**
+     * Generates a vew key pair from the private spend key
+     * @param privateKey the private spend key
+     * @returns the view key pair
+     */
     generateViewKeysFromPrivateSpendKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
@@ -394,18 +560,37 @@ class Crypto {
             throw new Error('Could not generate view keys from private spend key');
         }
     }
+    /**
+     * Converts a hash to an elliptic curve point
+     * @param hash the hash
+     * @returns the elliptic curve point
+     */
     hashToEllipticCurve(hash) {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
         return tryRunFunc('hashToEllipticCurve', hash);
     }
+    /**
+     * Converts a hash to a scalar
+     * @param hash the hash
+     * @returns the scalar
+     */
     hashToScalar(hash) {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
         return tryRunFunc('hashToScalar', hash);
     }
+    /**
+     * Prepares ring signatures for completion or restoration later
+     * @param hash the message digest hash (often the transaction prefix hash)
+     * @param keyImage the key image of the output being spent
+     * @param publicKeys an array of the output keys used for signing (mixins + our output)
+     * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @returns a PreparedRingSignatures object containing the signatures and the random
+     * scalar (k) used in the preparation
+     */
     prepareRingSignatures(hash, keyImage, publicKeys, realIndex) {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
@@ -432,9 +617,22 @@ class Crypto {
             throw new Error('Could not prepare ring signatures');
         }
     }
+    /**
+     * Re-initializes the underlying cryptographic primitives
+     */
     reloadCrypto() {
         return initialize();
     }
+    /**
+     * Restores a key image from a set of partial key images generated by the other
+     * participants in a multisig wallet
+     * @param publicEphemeral the transaction public ephemeral
+     * @param derivation the key derivation of the our output
+     * @param outputIndex the index of our output in the transaction
+     * @param partialKeyImages the array of partial key images from the needed
+     * number of participants in the multisig scheme
+     * @returns the full key image
+     */
     restoreKeyImage(publicEphemeral, derivation, outputIndex, partialKeyImages) {
         if (!this.checkKey(publicEphemeral)) {
             throw new Error('Invalid public ephemeral found');
@@ -455,6 +653,18 @@ class Crypto {
         });
         return tryRunFunc('restoreKeyImage', publicEphemeral, derivation, outputIndex, partialKeyImages);
     }
+    /**
+     * Restores the ring signatures using the previously prepared ring signatures
+     * and the necessary number of partial signing keys generated by other
+     * participants in the multisig wallet
+     * @param derivation the key derivation for the output being spent
+     * @param outputIndex the index of the output being spent in the transaction
+     * @param partialSigningKeys the array of partial signing keys from the necessary number
+     * of participants
+     * @param realIndex the index of the real input in the ring signatures
+     * @param k the random scalar generated py preparing the ring signatures
+     * @param signatures the prepared ring signatures
+     */
     restoreRingSignatures(derivation, outputIndex, partialSigningKeys, realIndex, k, signatures) {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
@@ -486,6 +696,12 @@ class Crypto {
         });
         return tryRunFunc('restoreRingSignatures', derivation, outputIndex, partialSigningKeys, realIndex, k, signatures);
     }
+    /**
+     * Derives the public key using the derivation scalar
+     * @param derivationScalar the derivation scalar
+     * @param publicKey the public key
+     * @returns the public ephemeral
+     */
     scalarDerivePublicKey(derivationScalar, publicKey) {
         if (!this.checkScalar(derivationScalar)) {
             throw new Error('Invalid derivation scalar found');
@@ -495,6 +711,12 @@ class Crypto {
         }
         return tryRunFunc('scalarDerivePublicKey', derivationScalar, publicKey);
     }
+    /**
+     * Derives the private key using the derivation scalar
+     * @param derivationScalar the derivation scalar
+     * @param publicKey the public key
+     * @returns the private ephemeral
+     */
     scalarDeriveSecretKey(derivationScalar, privateKey) {
         if (!this.checkScalar(derivationScalar)) {
             throw new Error('Invalid derivation scalar found');
@@ -504,6 +726,12 @@ class Crypto {
         }
         return tryRunFunc('scalarDeriveSecretKey', derivationScalar, privateKey);
     }
+    /**
+     * Multiplies two key images together
+     * @param keyImageA
+     * @param keyImageB
+     * @returns the resulting key image
+     */
     scalarmultKey(keyImageA, keyImageB) {
         if (!isHex64(keyImageA)) {
             throw new Error('Invalid key image A found');
@@ -513,18 +741,33 @@ class Crypto {
         }
         return tryRunFunc('scalarmultKey', keyImageA, keyImageB);
     }
+    /**
+     * Reduces a value to a scalar (mod q)
+     * @param data
+     * @returns the scalar
+     */
     scReduce32(data) {
         if (!isHex64(data)) {
             throw new Error('Invalid data format');
         }
         return tryRunFunc('scReduce32', data);
     }
+    /**
+     * Calculates the public key of a private key
+     * @param privateKey
+     * @returns the public key
+     */
     secretKeyToPublicKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
         return tryRunFunc('secretKeyToPublicKey', privateKey);
     }
+    /**
+     * Calculates the merkle tree branch of the given hashes
+     * @param hashes the array of hashes
+     * @returns the merkle tree branch
+     */
     tree_branch(hashes) {
         if (!Array.isArray(hashes)) {
             throw new Error('hashes must be an array');
@@ -536,12 +779,22 @@ class Crypto {
         });
         return tryRunFunc('tree_branch', hashes);
     }
+    /**
+     * Calculates the depth of the merkle tree
+     * @param count the number of hashes in the tree
+     * @returns the depth
+     */
     tree_depth(count) {
         if (!isUInt(count)) {
             throw new Error('Invalid count found');
         }
         return tryRunFunc('tree_depth', count);
     }
+    /**
+     * Calculates the merkle tree hash of the given hashes
+     * @param hashes the array of hashes
+     * @returns the merkle tree hash
+     */
     tree_hash(hashes) {
         if (!Array.isArray(hashes)) {
             throw new Error('hashes must be an array');
@@ -553,6 +806,13 @@ class Crypto {
         });
         return tryRunFunc('tree_hash', hashes);
     }
+    /**
+     * Calculates the merkle tree hash from the given branch information
+     * @param branches the merkle tree branches
+     * @param leaf the leaf on the merkle tree
+     * @param path the path on the merkle tree
+     * @returns the merkle tree hash
+     */
     tree_hash_from_branch(branches, leaf, path) {
         if (!Array.isArray(branches)) {
             throw new Error('branches must be an array');
@@ -575,6 +835,12 @@ class Crypto {
             return tryRunFunc('tree_hash_from_branch', branches, leaf, path.toString());
         }
     }
+    /**
+     * Underives a public key instead of deriving it
+     * @param derivation the key derivation
+     * @param outputIndex the index of the output in the transaction
+     * @param outputKey the output key in the transaction
+     */
     underivePublicKey(derivation, outputIndex, outputKey) {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
@@ -587,114 +853,209 @@ class Crypto {
         }
         return tryRunFunc('underivePublicKey', derivation, outputIndex, outputKey);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_lite_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_lite_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_lite_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_lite_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_lite_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_lite_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_lite_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_lite_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_dark_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_dark_lite_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_lite_slow_hash_v0', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_lite_slow_hash_v1', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_turtle_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('cn_turtle_lite_slow_hash_v2', data);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
+     * @param data
+     * @returns the hash
+     */
     cn_soft_shell_slow_hash_v0(data, height) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
@@ -704,6 +1065,11 @@ class Crypto {
         }
         return tryRunFunc('cn_soft_shell_slow_hash_v0', data, height);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v1 method
+     * @param data
+     * @returns the hash
+     */
     cn_soft_shell_slow_hash_v1(data, height) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
@@ -713,6 +1079,11 @@ class Crypto {
         }
         return tryRunFunc('cn_soft_shell_slow_hash_v1', data, height);
     }
+    /**
+     * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v2 method
+     * @param data
+     * @returns the hash
+     */
     cn_soft_shell_slow_hash_v2(data, height) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
@@ -722,6 +1093,11 @@ class Crypto {
         }
         return tryRunFunc('cn_soft_shell_slow_hash_v2', data, height);
     }
+    /**
+     * Calculates the hash of the data supplied using the chukwa_slow_hash method
+     * @param data
+     * @returns the hash
+     */
     chukwa_slow_hash(data) {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
