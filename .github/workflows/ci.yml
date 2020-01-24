@@ -89,8 +89,16 @@ jobs:
       run: npm install -g windows-build-tools --vs2015
     - name: Install Dependencies
       run: npm install
-    - name: Execute Unit Tests
-      run: npm test
+    - name: Check Typescript Style
+      run: npm run style
+    - name: Compile Typescript
+      run: npm run build-typescript
+    - name: Build JS/WASM Module
+      run: npm run build-native
+    - name: Execute C++ Unit Tests
+      run: npm run test-node
+    - name: Execute JS/WASM Unit Tests
+      run: npm run test-js
     - name: Generate Prebuilds
       if: matrix.node == '12' && github.event_name == 'release' && matrix.os != 'windows-latest' && github.repository == 'turtlecoin/turtlecoin-crypto'
       run: |
@@ -101,51 +109,3 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: npm publish
-
-  emscripten_build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    name: ${{ matrix.os }} - Native Javascript / WASM
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install emscripten
-      shell: bash
-      run: |
-        git submodule init
-        git submodule update
-        cd emsdk
-        ./emsdk install latest
-        ./emsdk activate latest
-        cd ..
-    - name: Patch emscripten for React Native
-      shell: bash
-      run: patch -N --verbose emsdk/fastcomp/emscripten/src/shell.js emscripten.patch
-    - name: Create Build Directory
-      run: mkdir jsbuild
-    - name: Build Native Javascript Module
-      shell: bash
-      run: |
-        source ./emsdk/emsdk_env.sh
-        cd jsbuild
-        emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=0 -DBUILD_JS=1
-        make
-    - name: Build WASM Module
-      shell: bash
-      run: |
-        source ./emsdk/emsdk_env.sh
-        cd jsbuild
-        emconfigure cmake .. -DNO_AES=1 -DARCH=default -DBUILD_WASM=1 -DBUILD_JS=0
-        make
-    - uses: actions/setup-node@v1
-      name: Set up Node
-      with:
-        node-version: '8'
-    - name: Install Windows Node.js Build Tools
-      if: matrix.os == 'windows-latest'
-      run: npm install -g windows-build-tools --vs2015
-    - name: Install Dependencies
-      run: npm install
-    - name: Execute Unit Tests
-      run: npm run testJS

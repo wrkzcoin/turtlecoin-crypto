@@ -1,13 +1,22 @@
 {
   "name": "turtlecoin-crypto",
-  "version": "3.1.4",
+  "version": "4.0.5",
   "description": "Node C++ Addon for TurtleCoin Cryptographic Functions",
-  "main": "index.js",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "node-gyp rebuild",
+    "build-native": "run-script-os",
+    "build-native:win32": "build_js.sh",
+    "build-native:default": "./build_js.sh",
+    "build-typescript": "./node_modules/.bin/tsc",
+    "docs": "./node_modules/.bin/typedoc && touch docs/.nojekyll",
     "install": "prebuild-install --download --verbose || node-gyp rebuild",
-    "test": "standard && mocha tests/crypto.js",
-    "testJS": "mocha tests/cryptoJs.js"
+    "prepublishOnly": "npm run build-typescript && npm run build-native",
+    "style": "./node_modules/.bin/tslint -c tslint.json index.ts",
+    "test": "npm run test-node && npm run test-js",
+    "test-all": "npm run prepublishOnly && npm test",
+    "test-js": "env FORCE_JS=1 mocha tests/crypto.js",
+    "test-node": "mocha tests/crypto.js"
   },
   "repository": {
     "type": "git",
@@ -25,23 +34,16 @@
   "license": "GPL-3.0",
   "dependencies": {
     "bindings": "^1.5.0",
+    "js-sha3": "^0.8.0",
     "nan": "^2.14.0",
-    "prebuild-install": "^5.3.3"
-  },
-  "standard": {
-    "ignore": [
-      "build/*",
-      "emsdk/*",
-      "examples/*",
-      "external/*",
-      "include/*",
-      "jsbuild/*",
-      "prebuilds/*",
-      "src/*"
-    ]
+    "prebuild-install": "^5.3.3",
+    "typescript": "^3.7.5"
   },
   "devDependencies": {
+    "@types/node": "^13.5.0",
     "mocha": "^6.2.2",
-    "standard": "^14.3.1"
+    "run-script-os": "^1.0.7",
+    "tslint": "^5.20.1",
+    "typedoc": "^0.16.8"
   }
 }
