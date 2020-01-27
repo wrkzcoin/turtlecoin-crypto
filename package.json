@@ -1,6 +1,6 @@
 {
   "name": "turtlecoin-crypto",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Node C++ Addon for TurtleCoin Cryptographic Functions",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
@@ -44,6 +44,6 @@
     "mocha": "^6.2.2",
     "run-script-os": "^1.0.7",
     "tslint": "^5.20.1",
-    "typedoc": "^0.16.8"
+    "typedoc": "^0.16.9"
   }
 }

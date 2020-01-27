@@ -900,7 +900,7 @@ export class Crypto {
      * @param hashes the array of hashes
      * @returns the merkle tree branch
      */
-    public tree_branch(hashes: string[]): string {
+    public tree_branch(hashes: string[]): string[] {
         if (!Array.isArray(hashes)) {
             throw new Error('hashes must be an array');
         }
