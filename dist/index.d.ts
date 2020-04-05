@@ -308,7 +308,7 @@ export declare class Crypto {
      * @param hashes the array of hashes
      * @returns the merkle tree branch
      */
-    tree_branch(hashes: string[]): string;
+    tree_branch(hashes: string[]): string[];
     /**
      * Calculates the depth of the merkle tree
      * @param count the number of hashes in the tree
