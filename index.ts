@@ -100,7 +100,7 @@ export class Crypto {
     /**
      * Returns the type of the cryptographic primitives used by the wrapper
      */
-    public get type(): string {
+    public static get type(): string {
         switch (moduleVars.type) {
             case Types.NODEADDON:
                 return 'c++';
