@@ -2,8 +2,6 @@
 //
 // Please see the included LICENSE file for more information.
 
-'use strict';
-
 import {keccak256} from 'js-sha3';
 
 /**
@@ -20,39 +18,52 @@ enum Types {
     WASM,
     WASMJS,
     JS,
+    MIXED,
 }
 
 /**
  * @ignore
  */
-const moduleVars: any = {
+interface IModuleSettings {
+    crypto: any;
+    type: Types;
+}
+
+/**
+ * @ignore
+ */
+const moduleVars: IModuleSettings = {
     crypto: null,
     type: Types.UNKNOWN,
 };
 
-/**
- * KeyPair object for holding privateKey and publicKey pairs
- */
-export class KeyPair {
+export namespace Interfaces {
     /**
-     * Creates a new KeyPair object
-     * @param privateKey the private key
-     * @param publicKey the public key
+     * KeyPair object for holding privateKey and publicKey pairs
      */
-    constructor(public privateKey: string, public publicKey: string) {
+    export interface IKeyPair {
+        /**
+         * The private key
+         */
+        privateKey: string;
+        /**
+         * The public key
+         */
+        publicKey: string;
     }
-}
 
-/**
- * A PreparedRingSignatures object for holding prepared signatures and the random scalar (k)
- */
-export class PreparedRingSignatures {
     /**
-     * Creates a new PreparedRingSignatures object
-     * @param signatures the array of signatures
-     * @param key the random scalar key for the signatures
+     * A PreparedRingSignatures object for holding prepared signatures and the random scalar (k)
      */
-    constructor(public signatures: string[], public key: string) {
+    export interface IPreparedRingSignatures {
+        /**
+         * The ring signatures
+         */
+        signatures: string[];
+        /**
+         * The random scalar key (k) for the signatures
+         */
+        key: string;
     }
 }
 
@@ -92,6 +103,7 @@ export class Crypto {
             Object.keys(config).forEach((key) => {
                 if (typeof config[key] === 'function') {
                     userCryptoFunctions[key] = config[key];
+                    moduleVars.type = Types.MIXED;
                 }
             });
         }
@@ -118,7 +130,7 @@ export class Crypto {
     /**
      * Returns if the Node.js native library is being used
      */
-    public get isNative(): boolean {
+    public static get isNative(): boolean {
         switch (moduleVars.type) {
             case Types.NODEADDON:
                 return false;
@@ -130,7 +142,7 @@ export class Crypto {
     /**
      * Returns if the wrapper is loaded and ready
      */
-    public get isReady(): boolean {
+    public static get isReady(): boolean {
         return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
     }
 
@@ -154,7 +166,6 @@ export class Crypto {
      * and the public spend keys of other participants in a M:N scheme
      * @param privateSpendKey our private spend key
      * @param publicKeys an array of the other participants public spend keys
-     * @returns the array of new multisig private keys
      */
     public calculateMultisigPrivateKeys(privateSpendKey: string, publicKeys: string[]): string[] {
         if (!this.checkScalar(privateSpendKey)) {
@@ -176,7 +187,6 @@ export class Crypto {
     /**
      * Calculates a shared private key from the private keys supplied
      * @param privateKeys the array of private keys
-     * @returns the resulting composite private key
      */
     public calculateSharedPrivateKey(privateKeys: string[]): string {
         if (!Array.isArray(privateKeys)) {
@@ -194,8 +204,7 @@ export class Crypto {
 
     /**
      * Calculates a shared public key from the public keys supplied
-     * @param privateKeys the array of public keys
-     * @returns the resulting composite public key
+     * @param publicKeys the array of public keys
      */
     public calculateSharedPublicKey(publicKeys: string[]): string {
         if (!Array.isArray(publicKeys)) {
@@ -318,7 +327,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_fast_hash method
      * @param data
-     * @returns the hash
      */
     public cn_fast_hash(data: string): string {
         if (!isHex(data)) {
@@ -346,7 +354,6 @@ export class Crypto {
      * to the real output being spent
      * @param k the random scalar provided with the prepared ring signatures
      * @param signatures the prepared ring signatures
-     * @returns the completed ring signatures
      */
     public completeRingSignatures(
         privateEphemeral: string,
@@ -379,7 +386,6 @@ export class Crypto {
      * Converts a key derivation to its resulting scalar
      * @param derivation the key derivation
      * @param outputIndex the index of the output in the transaction
-     * @returns the derivation scalar
      */
     public derivationToScalar(derivation: string, outputIndex: number): string {
         if (!isHex64(derivation)) {
@@ -437,7 +443,6 @@ export class Crypto {
 
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
-     * @returns true if success, false if failed
      */
     public forceJSCrypto(): boolean {
         return loadNativeJS();
@@ -448,9 +453,11 @@ export class Crypto {
      * our root private spend key and the index of the subwallet
      * @param privateKey our root private spend key (seed)
      * @param walletIndex the index of the subwallet
-     * @returns the spend keys for the subwallet
      */
-    public generateDeterministicSubwalletKeys(privateKey: string, walletIndex: number): KeyPair {
+    public generateDeterministicSubwalletKeys(
+        privateKey: string,
+        walletIndex: number,
+    ): Interfaces.IKeyPair {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
@@ -461,7 +468,10 @@ export class Crypto {
         const keys = tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
 
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         } else {
             throw new Error('Could not generate deterministic subwallet keys');
         }
@@ -471,7 +481,6 @@ export class Crypto {
      * Generates a key derivation (aB) given the public key and private key
      * @param publicKey
      * @param privateKey
-     * @returns the key derivation
      */
     public generateKeyDerivation(publicKey: string, privateKey: string): string {
         if (!this.checkKey(publicKey)) {
@@ -486,9 +495,9 @@ export class Crypto {
 
     /**
      * Generates a key derivation scalar H_s(aB) given the public key and private key
-     * @param publicKey
-     * @param privateKey
-     * @returns the key derivation scalar
+     * @param publicKey the public key
+     * @param privateKey the private key
+     * @param outputIndex the output index
      */
     public generateKeyDerivationScalar(publicKey: string, privateKey: string, outputIndex: number): string {
         if (!this.checkKey(publicKey)) {
@@ -510,7 +519,6 @@ export class Crypto {
      * Generates a key image given the public ephemeral and the private ephemeral
      * @param publicEphemeral the public ephemeral of the output
      * @param privateEphemeral the private ephemeral of the output
-     * @returns the key image
      */
     public generateKeyImage(publicEphemeral: string, privateEphemeral: string): string {
         if (!this.checkKey(publicEphemeral)) {
@@ -525,13 +533,15 @@ export class Crypto {
 
     /**
      * Generates a new random key pair
-     * @returns a new key pair
      */
-    public generateKeys(): KeyPair {
+    public generateKeys(): Interfaces.IKeyPair {
         const keys = tryRunFunc('generateKeys');
 
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         } else {
             throw new Error('Could not generate keys');
         }
@@ -556,7 +566,6 @@ export class Crypto {
     /**
      * Generates a private view key from the private spend key
      * @param privateKey the private spend key
-     * @returns the private view key
      */
     public generatePrivateViewKeyFromPrivateSpendKey(privateKey: string): string {
         if (!this.checkScalar(privateKey)) {
@@ -628,9 +637,8 @@ export class Crypto {
     /**
      * Generates a vew key pair from the private spend key
      * @param privateKey the private spend key
-     * @returns the view key pair
      */
-    public generateViewKeysFromPrivateSpendKey(privateKey: string): KeyPair {
+    public generateViewKeysFromPrivateSpendKey(privateKey: string): Interfaces.IKeyPair {
         if (!this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
@@ -638,7 +646,10 @@ export class Crypto {
         const keys = tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
 
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         } else {
             throw new Error('Could not generate view keys from private spend key');
         }
@@ -647,7 +658,6 @@ export class Crypto {
     /**
      * Converts a hash to an elliptic curve point
      * @param hash the hash
-     * @returns the elliptic curve point
      */
     public hashToEllipticCurve(hash: string): string {
         if (!isHex64(hash)) {
@@ -660,7 +670,6 @@ export class Crypto {
     /**
      * Converts a hash to a scalar
      * @param hash the hash
-     * @returns the scalar
      */
     public hashToScalar(hash: string): string {
         if (!isHex64(hash)) {
@@ -676,14 +685,12 @@ export class Crypto {
      * @param keyImage the key image of the output being spent
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
-     * @returns a PreparedRingSignatures object containing the signatures and the random
-     * scalar (k) used in the preparation
      */
     public prepareRingSignatures(
         hash: string,
         keyImage: string,
         publicKeys: string[],
-        realIndex: number): PreparedRingSignatures {
+        realIndex: number): Interfaces.IPreparedRingSignatures {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
@@ -706,7 +713,10 @@ export class Crypto {
         const result = tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
 
         if (result) {
-            return new PreparedRingSignatures(result.signatures, result.key);
+            return {
+                signatures: result.signatures,
+                key: result.key,
+            };
         } else {
             throw new Error('Could not prepare ring signatures');
         }
@@ -727,7 +737,6 @@ export class Crypto {
      * @param outputIndex the index of our output in the transaction
      * @param partialKeyImages the array of partial key images from the needed
      * number of participants in the multisig scheme
-     * @returns the full key image
      */
     public restoreKeyImage(
         publicEphemeral: string,
@@ -820,7 +829,6 @@ export class Crypto {
      * Derives the public key using the derivation scalar
      * @param derivationScalar the derivation scalar
      * @param publicKey the public key
-     * @returns the public ephemeral
      */
     public scalarDerivePublicKey(derivationScalar: string, publicKey: string): string {
         if (!this.checkScalar(derivationScalar)) {
@@ -837,8 +845,7 @@ export class Crypto {
     /**
      * Derives the private key using the derivation scalar
      * @param derivationScalar the derivation scalar
-     * @param publicKey the public key
-     * @returns the private ephemeral
+     * @param privateKey the private key
      */
     public scalarDeriveSecretKey(derivationScalar: string, privateKey: string): string {
         if (!this.checkScalar(derivationScalar)) {
@@ -856,7 +863,6 @@ export class Crypto {
      * Multiplies two key images together
      * @param keyImageA
      * @param keyImageB
-     * @returns the resulting key image
      */
     public scalarmultKey(keyImageA: string, keyImageB: string): string {
         if (!isHex64(keyImageA)) {
@@ -872,7 +878,6 @@ export class Crypto {
     /**
      * Reduces a value to a scalar (mod q)
      * @param data
-     * @returns the scalar
      */
     public scReduce32(data: string): string {
         if (!isHex64(data)) {
@@ -885,7 +890,6 @@ export class Crypto {
     /**
      * Calculates the public key of a private key
      * @param privateKey
-     * @returns the public key
      */
     public secretKeyToPublicKey(privateKey: string): string {
         if (!this.checkScalar(privateKey)) {
@@ -898,7 +902,6 @@ export class Crypto {
     /**
      * Calculates the merkle tree branch of the given hashes
      * @param hashes the array of hashes
-     * @returns the merkle tree branch
      */
     public tree_branch(hashes: string[]): string[] {
         if (!Array.isArray(hashes)) {
@@ -917,7 +920,6 @@ export class Crypto {
     /**
      * Calculates the depth of the merkle tree
      * @param count the number of hashes in the tree
-     * @returns the depth
      */
     public tree_depth(count: number): number {
         if (!isUInt(count)) {
@@ -930,7 +932,6 @@ export class Crypto {
     /**
      * Calculates the merkle tree hash of the given hashes
      * @param hashes the array of hashes
-     * @returns the merkle tree hash
      */
     public tree_hash(hashes: string[]): string {
         if (!Array.isArray(hashes)) {
@@ -951,7 +952,6 @@ export class Crypto {
      * @param branches the merkle tree branches
      * @param leaf the leaf on the merkle tree
      * @param path the path on the merkle tree
-     * @returns the merkle tree hash
      */
     public tree_hash_from_branch(branches: string[], leaf: string, path: number): string {
         if (!Array.isArray(branches)) {
@@ -1000,7 +1000,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1013,7 +1012,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1026,7 +1024,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1039,7 +1036,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_lite_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1052,7 +1048,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_lite_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1065,7 +1060,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_lite_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1078,7 +1072,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1091,7 +1084,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1104,7 +1096,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1117,7 +1108,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_lite_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1130,7 +1120,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_lite_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1143,7 +1132,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_dark_lite_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1156,7 +1144,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1169,7 +1156,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1182,7 +1168,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1195,7 +1180,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_lite_slow_hash_v0(data: string): string {
         if (!isHex(data)) {
@@ -1208,7 +1192,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_lite_slow_hash_v1(data: string): string {
         if (!isHex(data)) {
@@ -1221,7 +1204,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     public cn_turtle_lite_slow_hash_v2(data: string): string {
         if (!isHex(data)) {
@@ -1234,7 +1216,7 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     public cn_soft_shell_slow_hash_v0(data: string, height: number): string {
         if (!isHex(data)) {
@@ -1250,7 +1232,7 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v1 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     public cn_soft_shell_slow_hash_v1(data: string, height: number): string {
         if (!isHex(data)) {
@@ -1266,7 +1248,7 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v2 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     public cn_soft_shell_slow_hash_v2(data: string, height: number): string {
         if (!isHex(data)) {
@@ -1282,7 +1264,6 @@ export class Crypto {
     /**
      * Calculates the hash of the data supplied using the chukwa_slow_hash method
      * @param data
-     * @returns the hash
      */
     public chukwa_slow_hash(data: string): string {
         if (!isHex(data)) {
@@ -1307,11 +1288,7 @@ function initialize(): boolean {
         if (loadWASMJS()) {
             return true;
         }
-        if (loadNativeJS()) {
-            return true;
-        }
-
-        return false;
+        return loadNativeJS();
     } else {
         return true;
     }
@@ -1485,9 +1462,6 @@ function loadWASMJS(): boolean {
  * @ignore
  */
 function isHex(value: string): boolean {
-    if (typeof value !== 'string') {
-        return false;
-    }
     if (value.length % 2 !== 0) {
         return false;
     }
@@ -1501,9 +1475,6 @@ function isHex(value: string): boolean {
  * @ignore
  */
 function isHex64(value: string): boolean {
-    if (typeof value !== 'string') {
-        return false;
-    }
     return (isHex(value) && value.length === 64);
 }
 
@@ -1511,9 +1482,6 @@ function isHex64(value: string): boolean {
  * @ignore
  */
 function isHex128(value: string): boolean {
-    if (typeof value !== 'string') {
-        return false;
-    }
     return (isHex(value) && value.length === 128);
 }
 
@@ -1530,7 +1498,7 @@ function isUInt(value: number) {
 function toInt(value: number | string): number | boolean {
     if (typeof value === 'number') {
         return value;
-    } else if (typeof value === 'string') {
+    } else {
         const tmp = parseInt(value, 10);
         if (tmp.toString().length === value.toString().length) {
             return tmp;
