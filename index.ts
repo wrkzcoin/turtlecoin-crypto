@@ -90,26 +90,6 @@ Array.prototype.toVectorString = function() {
  */
 export class Crypto {
     /**
-     * Creates a new wrapper object
-     * @param [config] may contain user-defined cryptographic primitive functions
-     * that will replace our primitives at runtime.
-     */
-    public constructor(config?: any) {
-        if (!initialize()) {
-            throw new Error('Could not initialize underlying cryptographic library');
-        }
-
-        if (config && typeof config === 'object') {
-            Object.keys(config).forEach((key) => {
-                if (typeof config[key] === 'function') {
-                    userCryptoFunctions[key] = config[key];
-                    moduleVars.type = Types.MIXED;
-                }
-            });
-        }
-    }
-
-    /**
      * Returns the type of the cryptographic primitives used by the wrapper
      */
     public static get type(): string {
@@ -151,7 +131,7 @@ export class Crypto {
      * that will replace our primitives at runtime.
      * @param config
      */
-    public set userCryptoFunctions(config: any) {
+    public static set userCryptoFunctions(config: any) {
         if (config && typeof config === 'object') {
             Object.keys(config).forEach((key) => {
                 if (typeof config[key] === 'function') {
@@ -159,6 +139,70 @@ export class Crypto {
                 }
             });
         }
+    }
+
+    /**
+     * Forces the wrapper to use the JS (slow) cryptographic primitives
+     */
+    public static forceJSCrypto(): boolean {
+        return loadNativeJS();
+    }
+
+    /**
+     * Creates a new wrapper object
+     * @param [config] may contain user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     */
+    public constructor(config?: any) {
+        if (!initialize()) {
+            throw new Error('Could not initialize underlying cryptographic library');
+        }
+
+        if (config && typeof config === 'object') {
+            Object.keys(config).forEach((key) => {
+                if (typeof config[key] === 'function') {
+                    userCryptoFunctions[key] = config[key];
+                    moduleVars.type = Types.MIXED;
+                }
+            });
+        }
+    }
+
+    /**
+     * Returns the type of the cryptographic primitives used by the wrapper
+     */
+    public get type(): string {
+        return Crypto.type;
+    }
+
+    /**
+     * Returns if the Node.js native library is being used
+     */
+    public get isNative(): boolean {
+        return Crypto.isNative;
+    }
+
+    /**
+     * Returns if the wrapper is loaded and ready
+     */
+    public get isReady(): boolean {
+        return Crypto.isReady;
+    }
+
+    /**
+     * Allows for updating the user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     * @param config
+     */
+    public set userCryptoFunctions(config: any) {
+        Crypto.userCryptoFunctions(config);
+    }
+
+    /**
+     * Forces the wrapper to use the JS (slow) cryptographic primitives
+     */
+    public forceJSCrypto(): boolean {
+        return Crypto.forceJSCrypto();
     }
 
     /**
@@ -439,13 +483,6 @@ export class Crypto {
         }
 
         return tryRunFunc('deriveSecretKey', derivation, outputIndex, privateKey);
-    }
-
-    /**
-     * Forces the wrapper to use the JS (slow) cryptographic primitives
-     */
-    public forceJSCrypto(): boolean {
-        return loadNativeJS();
     }
 
     /**
@@ -1314,46 +1351,42 @@ function tryRunFunc(...args: any[]): any {
 
     const func = args.shift();
 
-    try {
-        if (userCryptoFunctions[func]) {
-            return userCryptoFunctions[func](...args);
-        } else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
-            /* If the function name starts with 'check' then it
-               will return a boolean which we can just send back
-               up the stack */
-            if (func.indexOf('check') === 0) {
-                return moduleVars.crypto[func](...args);
-            } else {
-                const [err, res] = moduleVars.crypto[func](...args);
-                if (err) {
-                    throw err;
-                }
-
-                return res;
-            }
-        } else if (moduleVars.crypto[func]) {
-            for (let i = 0; i < args.length; i++) {
-                if (Array.isArray(args[i])) {
-                    args[i] = args[i].toVectorString();
-                }
-            }
-
-            const res = moduleVars.crypto[func](...args);
-
-            if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
-                return tryVectorStringToArray(res);
-            } else {
-                Object.keys(res).forEach((key) => {
-                    res[key] = tryVectorStringToArray(res[key]);
-                });
-
-                return res;
-            }
+    if (userCryptoFunctions[func]) {
+        return userCryptoFunctions[func](...args);
+    } else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
+        /* If the function name starts with 'check' then it
+           will return a boolean which we can just send back
+           up the stack */
+        if (func.indexOf('check') === 0) {
+            return moduleVars.crypto[func](...args);
         } else {
-            throw new Error('Could not location method in underlying Cryptographic library');
+            const [err, res] = moduleVars.crypto[func](...args);
+            if (err) {
+                throw err;
+            }
+
+            return res;
         }
-    } catch (e) {
-        throw e;
+    } else if (moduleVars.crypto[func]) {
+        for (let i = 0; i < args.length; i++) {
+            if (Array.isArray(args[i])) {
+                args[i] = args[i].toVectorString();
+            }
+        }
+
+        const res = moduleVars.crypto[func](...args);
+
+        if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
+            return tryVectorStringToArray(res);
+        } else {
+            Object.keys(res).forEach((key) => {
+                res[key] = tryVectorStringToArray(res[key]);
+            });
+
+            return res;
+        }
+    } else {
+        throw new Error('Could not location method in underlying Cryptographic library');
     }
 }
 
@@ -1369,12 +1402,9 @@ function loadBrowserWASM(): boolean {
         // @ts-ignore
         const Self = window.TurtleCoinCrypto();
 
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
 
         moduleVars.crypto = Self;
@@ -1393,12 +1423,9 @@ function loadNativeAddon(): boolean {
     try {
         const Self = require('bindings')('turtlecoin-crypto.node');
 
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
 
         moduleVars.crypto = Self;
@@ -1417,12 +1444,9 @@ function loadNativeJS(): boolean {
     try {
         const Self = require('./turtlecoin-crypto.js')();
 
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
 
         moduleVars.crypto = Self;
@@ -1446,7 +1470,7 @@ function loadWASMJS(): boolean {
         const Self = require('./turtlecoin-crypto-wasm.js')();
 
         if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
+            return false;
         }
 
         moduleVars.crypto = Self;

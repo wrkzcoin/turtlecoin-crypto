@@ -1,7 +1,7 @@
+"use strict";
 // Copyright (c) 2020, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
-'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const js_sha3_1 = require("js-sha3");
 /**
@@ -18,6 +18,7 @@ var Types;
     Types[Types["WASM"] = 2] = "WASM";
     Types[Types["WASMJS"] = 3] = "WASMJS";
     Types[Types["JS"] = 4] = "JS";
+    Types[Types["MIXED"] = 5] = "MIXED";
 })(Types || (Types = {}));
 /**
  * @ignore
@@ -26,36 +27,6 @@ const moduleVars = {
     crypto: null,
     type: Types.UNKNOWN,
 };
-/**
- * KeyPair object for holding privateKey and publicKey pairs
- */
-class KeyPair {
-    /**
-     * Creates a new KeyPair object
-     * @param privateKey the private key
-     * @param publicKey the public key
-     */
-    constructor(privateKey, publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
-    }
-}
-exports.KeyPair = KeyPair;
-/**
- * A PreparedRingSignatures object for holding prepared signatures and the random scalar (k)
- */
-class PreparedRingSignatures {
-    /**
-     * Creates a new PreparedRingSignatures object
-     * @param signatures the array of signatures
-     * @param key the random scalar key for the signatures
-     */
-    constructor(signatures, key) {
-        this.signatures = signatures;
-        this.key = key;
-    }
-}
-exports.PreparedRingSignatures = PreparedRingSignatures;
 /**
  * @ignore
  */
@@ -75,26 +46,9 @@ Array.prototype.toVectorString = function () {
  */
 class Crypto {
     /**
-     * Creates a new wrapper object
-     * @param [config] may contain user-defined cryptographic primitive functions
-     * that will replace our primitives at runtime.
-     */
-    constructor(config) {
-        if (!initialize()) {
-            throw new Error('Could not initialize underlying cryptographic library');
-        }
-        if (config && typeof config === 'object') {
-            Object.keys(config).forEach((key) => {
-                if (typeof config[key] === 'function') {
-                    userCryptoFunctions[key] = config[key];
-                }
-            });
-        }
-    }
-    /**
      * Returns the type of the cryptographic primitives used by the wrapper
      */
-    get type() {
+    static get type() {
         switch (moduleVars.type) {
             case Types.NODEADDON:
                 return 'c++';
@@ -111,7 +65,7 @@ class Crypto {
     /**
      * Returns if the Node.js native library is being used
      */
-    get isNative() {
+    static get isNative() {
         switch (moduleVars.type) {
             case Types.NODEADDON:
                 return false;
@@ -122,7 +76,7 @@ class Crypto {
     /**
      * Returns if the wrapper is loaded and ready
      */
-    get isReady() {
+    static get isReady() {
         return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
     }
     /**
@@ -130,7 +84,7 @@ class Crypto {
      * that will replace our primitives at runtime.
      * @param config
      */
-    set userCryptoFunctions(config) {
+    static set userCryptoFunctions(config) {
         if (config && typeof config === 'object') {
             Object.keys(config).forEach((key) => {
                 if (typeof config[key] === 'function') {
@@ -140,11 +94,66 @@ class Crypto {
         }
     }
     /**
+     * Forces the wrapper to use the JS (slow) cryptographic primitives
+     */
+    static forceJSCrypto() {
+        return loadNativeJS();
+    }
+    /**
+     * Creates a new wrapper object
+     * @param [config] may contain user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     */
+    constructor(config) {
+        if (!initialize()) {
+            throw new Error('Could not initialize underlying cryptographic library');
+        }
+        if (config && typeof config === 'object') {
+            Object.keys(config).forEach((key) => {
+                if (typeof config[key] === 'function') {
+                    userCryptoFunctions[key] = config[key];
+                    moduleVars.type = Types.MIXED;
+                }
+            });
+        }
+    }
+    /**
+     * Returns the type of the cryptographic primitives used by the wrapper
+     */
+    get type() {
+        return Crypto.type;
+    }
+    /**
+     * Returns if the Node.js native library is being used
+     */
+    get isNative() {
+        return Crypto.isNative;
+    }
+    /**
+     * Returns if the wrapper is loaded and ready
+     */
+    get isReady() {
+        return Crypto.isReady;
+    }
+    /**
+     * Allows for updating the user-defined cryptographic primitive functions
+     * that will replace our primitives at runtime.
+     * @param config
+     */
+    set userCryptoFunctions(config) {
+        Crypto.userCryptoFunctions(config);
+    }
+    /**
+     * Forces the wrapper to use the JS (slow) cryptographic primitives
+     */
+    forceJSCrypto() {
+        return Crypto.forceJSCrypto();
+    }
+    /**
      * Calculates the multisignature (m) private keys using our private spend key
      * and the public spend keys of other participants in a M:N scheme
      * @param privateSpendKey our private spend key
      * @param publicKeys an array of the other participants public spend keys
-     * @returns the array of new multisig private keys
      */
     calculateMultisigPrivateKeys(privateSpendKey, publicKeys) {
         if (!this.checkScalar(privateSpendKey)) {
@@ -163,7 +172,6 @@ class Crypto {
     /**
      * Calculates a shared private key from the private keys supplied
      * @param privateKeys the array of private keys
-     * @returns the resulting composite private key
      */
     calculateSharedPrivateKey(privateKeys) {
         if (!Array.isArray(privateKeys)) {
@@ -178,8 +186,7 @@ class Crypto {
     }
     /**
      * Calculates a shared public key from the public keys supplied
-     * @param privateKeys the array of public keys
-     * @returns the resulting composite public key
+     * @param publicKeys the array of public keys
      */
     calculateSharedPublicKey(publicKeys) {
         if (!Array.isArray(publicKeys)) {
@@ -279,7 +286,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_fast_hash method
      * @param data
-     * @returns the hash
      */
     cn_fast_hash(data) {
         if (!isHex(data)) {
@@ -304,7 +310,6 @@ class Crypto {
      * to the real output being spent
      * @param k the random scalar provided with the prepared ring signatures
      * @param signatures the prepared ring signatures
-     * @returns the completed ring signatures
      */
     completeRingSignatures(privateEphemeral, realIndex, k, signatures) {
         if (!this.checkScalar(privateEphemeral)) {
@@ -330,7 +335,6 @@ class Crypto {
      * Converts a key derivation to its resulting scalar
      * @param derivation the key derivation
      * @param outputIndex the index of the output in the transaction
-     * @returns the derivation scalar
      */
     derivationToScalar(derivation, outputIndex) {
         if (!isHex64(derivation)) {
@@ -380,18 +384,10 @@ class Crypto {
         return tryRunFunc('deriveSecretKey', derivation, outputIndex, privateKey);
     }
     /**
-     * Forces the wrapper to use the JS (slow) cryptographic primitives
-     * @returns true if success, false if failed
-     */
-    forceJSCrypto() {
-        return loadNativeJS();
-    }
-    /**
      * Generates a set of deterministic spend keys for a sub wallet given
      * our root private spend key and the index of the subwallet
      * @param privateKey our root private spend key (seed)
      * @param walletIndex the index of the subwallet
-     * @returns the spend keys for the subwallet
      */
     generateDeterministicSubwalletKeys(privateKey, walletIndex) {
         if (!this.checkScalar(privateKey)) {
@@ -402,7 +398,10 @@ class Crypto {
         }
         const keys = tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         }
         else {
             throw new Error('Could not generate deterministic subwallet keys');
@@ -412,7 +411,6 @@ class Crypto {
      * Generates a key derivation (aB) given the public key and private key
      * @param publicKey
      * @param privateKey
-     * @returns the key derivation
      */
     generateKeyDerivation(publicKey, privateKey) {
         if (!this.checkKey(publicKey)) {
@@ -425,9 +423,9 @@ class Crypto {
     }
     /**
      * Generates a key derivation scalar H_s(aB) given the public key and private key
-     * @param publicKey
-     * @param privateKey
-     * @returns the key derivation scalar
+     * @param publicKey the public key
+     * @param privateKey the private key
+     * @param outputIndex the output index
      */
     generateKeyDerivationScalar(publicKey, privateKey, outputIndex) {
         if (!this.checkKey(publicKey)) {
@@ -445,7 +443,6 @@ class Crypto {
      * Generates a key image given the public ephemeral and the private ephemeral
      * @param publicEphemeral the public ephemeral of the output
      * @param privateEphemeral the private ephemeral of the output
-     * @returns the key image
      */
     generateKeyImage(publicEphemeral, privateEphemeral) {
         if (!this.checkKey(publicEphemeral)) {
@@ -458,12 +455,14 @@ class Crypto {
     }
     /**
      * Generates a new random key pair
-     * @returns a new key pair
      */
     generateKeys() {
         const keys = tryRunFunc('generateKeys');
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         }
         else {
             throw new Error('Could not generate keys');
@@ -486,7 +485,6 @@ class Crypto {
     /**
      * Generates a private view key from the private spend key
      * @param privateKey the private spend key
-     * @returns the private view key
      */
     generatePrivateViewKeyFromPrivateSpendKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
@@ -546,7 +544,6 @@ class Crypto {
     /**
      * Generates a vew key pair from the private spend key
      * @param privateKey the private spend key
-     * @returns the view key pair
      */
     generateViewKeysFromPrivateSpendKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
@@ -554,7 +551,10 @@ class Crypto {
         }
         const keys = tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
         if (keys) {
-            return new KeyPair(keys.privateKey || keys.secretKey || keys.SecretKey, keys.publicKey || keys.PublicKey);
+            return {
+                privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
+                publicKey: keys.publicKey || keys.PublicKey,
+            };
         }
         else {
             throw new Error('Could not generate view keys from private spend key');
@@ -563,7 +563,6 @@ class Crypto {
     /**
      * Converts a hash to an elliptic curve point
      * @param hash the hash
-     * @returns the elliptic curve point
      */
     hashToEllipticCurve(hash) {
         if (!isHex64(hash)) {
@@ -574,7 +573,6 @@ class Crypto {
     /**
      * Converts a hash to a scalar
      * @param hash the hash
-     * @returns the scalar
      */
     hashToScalar(hash) {
         if (!isHex64(hash)) {
@@ -588,8 +586,6 @@ class Crypto {
      * @param keyImage the key image of the output being spent
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
-     * @returns a PreparedRingSignatures object containing the signatures and the random
-     * scalar (k) used in the preparation
      */
     prepareRingSignatures(hash, keyImage, publicKeys, realIndex) {
         if (!isHex64(hash)) {
@@ -611,7 +607,10 @@ class Crypto {
         });
         const result = tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
         if (result) {
-            return new PreparedRingSignatures(result.signatures, result.key);
+            return {
+                signatures: result.signatures,
+                key: result.key,
+            };
         }
         else {
             throw new Error('Could not prepare ring signatures');
@@ -631,7 +630,6 @@ class Crypto {
      * @param outputIndex the index of our output in the transaction
      * @param partialKeyImages the array of partial key images from the needed
      * number of participants in the multisig scheme
-     * @returns the full key image
      */
     restoreKeyImage(publicEphemeral, derivation, outputIndex, partialKeyImages) {
         if (!this.checkKey(publicEphemeral)) {
@@ -700,7 +698,6 @@ class Crypto {
      * Derives the public key using the derivation scalar
      * @param derivationScalar the derivation scalar
      * @param publicKey the public key
-     * @returns the public ephemeral
      */
     scalarDerivePublicKey(derivationScalar, publicKey) {
         if (!this.checkScalar(derivationScalar)) {
@@ -714,8 +711,7 @@ class Crypto {
     /**
      * Derives the private key using the derivation scalar
      * @param derivationScalar the derivation scalar
-     * @param publicKey the public key
-     * @returns the private ephemeral
+     * @param privateKey the private key
      */
     scalarDeriveSecretKey(derivationScalar, privateKey) {
         if (!this.checkScalar(derivationScalar)) {
@@ -730,7 +726,6 @@ class Crypto {
      * Multiplies two key images together
      * @param keyImageA
      * @param keyImageB
-     * @returns the resulting key image
      */
     scalarmultKey(keyImageA, keyImageB) {
         if (!isHex64(keyImageA)) {
@@ -744,7 +739,6 @@ class Crypto {
     /**
      * Reduces a value to a scalar (mod q)
      * @param data
-     * @returns the scalar
      */
     scReduce32(data) {
         if (!isHex64(data)) {
@@ -755,7 +749,6 @@ class Crypto {
     /**
      * Calculates the public key of a private key
      * @param privateKey
-     * @returns the public key
      */
     secretKeyToPublicKey(privateKey) {
         if (!this.checkScalar(privateKey)) {
@@ -766,7 +759,6 @@ class Crypto {
     /**
      * Calculates the merkle tree branch of the given hashes
      * @param hashes the array of hashes
-     * @returns the merkle tree branch
      */
     tree_branch(hashes) {
         if (!Array.isArray(hashes)) {
@@ -782,7 +774,6 @@ class Crypto {
     /**
      * Calculates the depth of the merkle tree
      * @param count the number of hashes in the tree
-     * @returns the depth
      */
     tree_depth(count) {
         if (!isUInt(count)) {
@@ -793,7 +784,6 @@ class Crypto {
     /**
      * Calculates the merkle tree hash of the given hashes
      * @param hashes the array of hashes
-     * @returns the merkle tree hash
      */
     tree_hash(hashes) {
         if (!Array.isArray(hashes)) {
@@ -811,7 +801,6 @@ class Crypto {
      * @param branches the merkle tree branches
      * @param leaf the leaf on the merkle tree
      * @param path the path on the merkle tree
-     * @returns the merkle tree hash
      */
     tree_hash_from_branch(branches, leaf, path) {
         if (!Array.isArray(branches)) {
@@ -856,7 +845,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -867,7 +855,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -878,7 +865,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -889,7 +875,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -900,7 +885,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -911,7 +895,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -922,7 +905,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_dark_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -933,7 +915,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_dark_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -944,7 +925,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_dark_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -955,7 +935,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_dark_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -966,7 +945,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_dark_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -977,7 +955,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_dark_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -988,7 +965,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -999,7 +975,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -1010,7 +985,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -1021,7 +995,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v0 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_lite_slow_hash_v0(data) {
         if (!isHex(data)) {
@@ -1032,7 +1005,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v1 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_lite_slow_hash_v1(data) {
         if (!isHex(data)) {
@@ -1043,7 +1015,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v2 method
      * @param data
-     * @returns the hash
      */
     cn_turtle_lite_slow_hash_v2(data) {
         if (!isHex(data)) {
@@ -1054,7 +1025,7 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     cn_soft_shell_slow_hash_v0(data, height) {
         if (!isHex(data)) {
@@ -1068,7 +1039,7 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v1 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     cn_soft_shell_slow_hash_v1(data, height) {
         if (!isHex(data)) {
@@ -1082,7 +1053,7 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v2 method
      * @param data
-     * @returns the hash
+     * @param height the height of the blockchain
      */
     cn_soft_shell_slow_hash_v2(data, height) {
         if (!isHex(data)) {
@@ -1096,7 +1067,6 @@ class Crypto {
     /**
      * Calculates the hash of the data supplied using the chukwa_slow_hash method
      * @param data
-     * @returns the hash
      */
     chukwa_slow_hash(data) {
         if (!isHex(data)) {
@@ -1120,10 +1090,7 @@ function initialize() {
         if (loadWASMJS()) {
             return true;
         }
-        if (loadNativeJS()) {
-            return true;
-        }
-        return false;
+        return loadNativeJS();
     }
     else {
         return true;
@@ -1146,48 +1113,43 @@ function tryRunFunc(...args) {
         }
     }
     const func = args.shift();
-    try {
-        if (userCryptoFunctions[func]) {
-            return userCryptoFunctions[func](...args);
-        }
-        else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
-            /* If the function name starts with 'check' then it
-               will return a boolean which we can just send back
-               up the stack */
-            if (func.indexOf('check') === 0) {
-                return moduleVars.crypto[func](...args);
-            }
-            else {
-                const [err, res] = moduleVars.crypto[func](...args);
-                if (err) {
-                    throw err;
-                }
-                return res;
-            }
-        }
-        else if (moduleVars.crypto[func]) {
-            for (let i = 0; i < args.length; i++) {
-                if (Array.isArray(args[i])) {
-                    args[i] = args[i].toVectorString();
-                }
-            }
-            const res = moduleVars.crypto[func](...args);
-            if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
-                return tryVectorStringToArray(res);
-            }
-            else {
-                Object.keys(res).forEach((key) => {
-                    res[key] = tryVectorStringToArray(res[key]);
-                });
-                return res;
-            }
+    if (userCryptoFunctions[func]) {
+        return userCryptoFunctions[func](...args);
+    }
+    else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
+        /* If the function name starts with 'check' then it
+           will return a boolean which we can just send back
+           up the stack */
+        if (func.indexOf('check') === 0) {
+            return moduleVars.crypto[func](...args);
         }
         else {
-            throw new Error('Could not location method in underlying Cryptographic library');
+            const [err, res] = moduleVars.crypto[func](...args);
+            if (err) {
+                throw err;
+            }
+            return res;
         }
     }
-    catch (e) {
-        throw e;
+    else if (moduleVars.crypto[func]) {
+        for (let i = 0; i < args.length; i++) {
+            if (Array.isArray(args[i])) {
+                args[i] = args[i].toVectorString();
+            }
+        }
+        const res = moduleVars.crypto[func](...args);
+        if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
+            return tryVectorStringToArray(res);
+        }
+        else {
+            Object.keys(res).forEach((key) => {
+                res[key] = tryVectorStringToArray(res[key]);
+            });
+            return res;
+        }
+    }
+    else {
+        throw new Error('Could not location method in underlying Cryptographic library');
     }
 }
 /**
@@ -1200,11 +1162,9 @@ function loadBrowserWASM() {
     try {
         // @ts-ignore
         const Self = window.TurtleCoinCrypto();
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
         moduleVars.crypto = Self;
         moduleVars.type = Types.WASM;
@@ -1220,11 +1180,9 @@ function loadBrowserWASM() {
 function loadNativeAddon() {
     try {
         const Self = require('bindings')('turtlecoin-crypto.node');
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
         moduleVars.crypto = Self;
         moduleVars.type = Types.NODEADDON;
@@ -1240,11 +1198,9 @@ function loadNativeAddon() {
 function loadNativeJS() {
     try {
         const Self = require('./turtlecoin-crypto.js')();
-        if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
-        }
-        if (typeof Self.cn_fast_hash === 'undefined') {
-            throw new Error('Could not find required method');
+        if (Object.getOwnPropertyNames(Self).length === 0
+            || typeof Self.cn_fast_hash === 'undefined') {
+            return false;
         }
         moduleVars.crypto = Self;
         moduleVars.type = Types.JS;
@@ -1264,7 +1220,7 @@ function loadWASMJS() {
     try {
         const Self = require('./turtlecoin-crypto-wasm.js')();
         if (Object.getOwnPropertyNames(Self).length === 0) {
-            throw new Error('Could not load');
+            return false;
         }
         moduleVars.crypto = Self;
         moduleVars.type = Types.WASMJS;
@@ -1278,9 +1234,6 @@ function loadWASMJS() {
  * @ignore
  */
 function isHex(value) {
-    if (typeof value !== 'string') {
-        return false;
-    }
     if (value.length % 2 !== 0) {
         return false;
     }
@@ -1291,18 +1244,12 @@ function isHex(value) {
  * @ignore
  */
 function isHex64(value) {
-    if (typeof value !== 'string') {
-        return false;
-    }
     return (isHex(value) && value.length === 64);
 }
 /**
  * @ignore
  */
 function isHex128(value) {
-    if (typeof value !== 'string') {
-        return false;
-    }
     return (isHex(value) && value.length === 128);
 }
 /**
@@ -1318,7 +1265,7 @@ function toInt(value) {
     if (typeof value === 'number') {
         return value;
     }
-    else if (typeof value === 'string') {
+    else {
         const tmp = parseInt(value, 10);
         if (tmp.toString().length === value.toString().length) {
             return tmp;
