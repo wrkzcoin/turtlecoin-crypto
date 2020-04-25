@@ -195,7 +195,7 @@ export class Crypto {
      * @param config
      */
     public set userCryptoFunctions(config: any) {
-        Crypto.userCryptoFunctions(config);
+        Crypto.userCryptoFunctions = config;
     }
 
     /**
