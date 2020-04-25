@@ -1,6 +1,8 @@
 {
-  # See https://github.com/mafintosh/prebuildify/issues/10 for context on `build_v8_with_gn`
-  "build_v8_with_gn": "false",
+  "variables": {
+    "v8_enable_pointer_compression": "false",
+    "v8_enable_31bit_smis_on_64bit_arch": "false"
+  },
   "targets": [
     {
       "target_name": "turtlecoin-crypto",
