@@ -103,7 +103,7 @@ jobs:
       if: matrix.node == '12' && github.event_name == 'release' && matrix.os != 'windows-latest' && github.repository == 'turtlecoin/turtlecoin-crypto'
       run: |
         npm install -g prebuild
-        prebuild --all -u ${{ secrets.GITHUB_TOKEN }}
+        prebuild --all --strip -u ${{ secrets.GITHUB_TOKEN }}
     - name: Publish to NPM
       if: matrix.node == '12' && matrix.os == 'ubuntu-latest' && github.event_name == 'release' && github.repository == 'turtlecoin/turtlecoin-crypto'
       env:
