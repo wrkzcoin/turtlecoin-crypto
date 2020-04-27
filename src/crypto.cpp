@@ -27,7 +27,7 @@ namespace Crypto
 {
     extern "C"
     {
-#include "crypto-ops.h"
+#include "ed25519.h"
 #include "keccak.h"
     }
 

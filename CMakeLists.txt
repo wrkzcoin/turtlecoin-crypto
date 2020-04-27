@@ -195,8 +195,6 @@ set(BASE_CRYPTO
   src/blake256.c
   src/chacha8.cpp
   src/crypto.cpp
-  src/crypto-ops.c
-  src/crypto-ops-data.c
   src/groestl.c
   src/hash.c
   src/hash-extra-blake.c
@@ -219,6 +217,7 @@ set(BASE_CRYPTO
 add_subdirectory(external)
 include_directories(external/argon2/include)
 include_directories(external/cxxopts)
+include_directories(external/ed25519)
 
 add_library(crypto STATIC ${BASE_CRYPTO})
 
@@ -227,12 +226,12 @@ set(SOURCES
 )
 
 add_library(turtlecoin-crypto-static STATIC ${SOURCES})
-target_link_libraries(turtlecoin-crypto-static crypto argon2)
+target_link_libraries(turtlecoin-crypto-static crypto argon2 ed25519)
 
 if(NOT BUILD_JS AND NOT BUILD_WASM)
   if(WIN32)
     add_library(turtlecoin-crypto-shared SHARED ${SOURCES})
-    target_link_libraries(turtlecoin-crypto-shared crypto argon2)
+    target_link_libraries(turtlecoin-crypto-shared crypto argon2 ed25519)
     target_link_libraries(turtlecoin-crypto-static ws2_32)
     target_link_libraries(turtlecoin-crypto-shared ws2_32)
   endif()

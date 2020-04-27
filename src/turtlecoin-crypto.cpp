@@ -1581,11 +1581,8 @@ extern "C"
         outPrivateKey = strdup(Core::Cryptography::deriveSecretKey(derivation, outputIndex, privateKey).c_str());
     }
 
-    EXPORTDLL int _underivePublicKey(
-        const char *derivation,
-        const uint64_t outputIndex,
-        const char *derivedKey,
-        char *&publicKey)
+    EXPORTDLL int
+        _underivePublicKey(const char *derivation, const uint64_t outputIndex, const char *derivedKey, char *&publicKey)
     {
         return underivePublicKey(derivation, outputIndex, derivedKey, publicKey);
     }
@@ -1704,8 +1701,7 @@ extern "C"
         calculateMultisigPrivateKeys(ourPrivateSpendKey, publicKeys, publicKeysLength, multisigKeys);
     }
 
-    EXPORTDLL void
-        _calculateSharedPrivateKey(const char *secretKeys, const uint64_t secretKeysLength, char *&secretKey)
+    EXPORTDLL void _calculateSharedPrivateKey(const char *secretKeys, const uint64_t secretKeysLength, char *&secretKey)
     {
         calculateSharedPrivateKey(secretKeys, secretKeysLength, secretKey);
     }

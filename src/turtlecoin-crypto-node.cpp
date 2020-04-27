@@ -645,7 +645,8 @@ void generateKeyDerivationScalar(const Nan::FunctionCallbackInfo<v8::Value> &inf
     {
         try
         {
-            std::string derivationScalar = Core::Cryptography::generateKeyDerivationScalar(publicKey, secretKey, outputIndex);
+            std::string derivationScalar =
+                Core::Cryptography::generateKeyDerivationScalar(publicKey, secretKey, outputIndex);
 
             functionReturnValue = Nan::New(derivationScalar).ToLocalChecked();
 

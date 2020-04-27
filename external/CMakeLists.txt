@@ -1,7 +1,5 @@
 add_subdirectory(argon2)
+add_subdirectory(ed25519)
 
-if(MSVC)
-    set_property(TARGET argon2 PROPERTY FOLDER "external")
-elseif(NOT MSVC)
-    set_property(TARGET argon2 PROPERTY FOLDER "external")
-endif()
+set_property(TARGET argon2 PROPERTY FOLDER "external")
+set_property(TARGET ed25519 PROPERTY FOLDER "external")

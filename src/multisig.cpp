@@ -19,7 +19,7 @@ namespace Crypto
     {
         extern "C"
         {
-#include "crypto-ops.h"
+#include "ed25519.h"
         }
 
         /* Checks if an arbitrary pod is a scalar */
