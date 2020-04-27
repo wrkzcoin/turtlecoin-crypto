@@ -17,7 +17,8 @@
     "test": "npm run test-node && npm run test-js",
     "test-all": "npm run prepublishOnly && npm test",
     "test-js": "env FORCE_JS=1 mocha tests/crypto.js",
-    "test-node": "mocha tests/crypto.js"
+    "test-node": "mocha tests/crypto.js",
+    "benchmark": "node tests/benchmark.js"
   },
   "repository": {
     "type": "git",
