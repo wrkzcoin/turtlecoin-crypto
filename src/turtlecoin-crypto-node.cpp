@@ -205,8 +205,6 @@ void prepareRingSignatures(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     bool functionSuccess = false;
 
-    const size_t args = info.Length();
-
     std::string prefixHash = getString(info, 0);
 
     std::string keyImage = getString(info, 1);
