@@ -33,7 +33,9 @@ endif()
 set(STATIC ON CACHE BOOL FORCE "Link libraries statically? Forced to ON")
 add_definitions(-DSTATICLIB)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wno-c99-compat")
+if(NOT MSVC)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wno-c99-compat")
+endif()
 
 set(ED25119_SRC
   equal.c
