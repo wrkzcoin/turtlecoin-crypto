@@ -56,6 +56,7 @@
         "external/ed25519/fe_cmov.c",
         "external/ed25519/fe_copy.c",
         "external/ed25519/fe_divpowm1.c",
+        "external/ed25519/fe_frombytes.c",
         "external/ed25519/fe_invert.c",
         "external/ed25519/fe_isnegative.c",
         "external/ed25519/fe_isnonzero.c",

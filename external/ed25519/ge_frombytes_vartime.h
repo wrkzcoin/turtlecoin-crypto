@@ -9,6 +9,7 @@
 #include "fe_1.h"
 #include "fe_add.h"
 #include "fe_divpowm1.h"
+#include "fe_frombytes.h"
 #include "fe_isnegative.h"
 #include "fe_isnonzero.h"
 #include "fe_mul.h"

@@ -45,6 +45,7 @@ set(ED25119_SRC
   fe_cmov.c
   fe_copy.c
   fe_divpowm1.c
+  fe_frombytes.c
   fe_invert.c
   fe_isnegative.c
   fe_isnonzero.c
