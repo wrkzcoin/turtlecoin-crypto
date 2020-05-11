@@ -5,6 +5,8 @@
 #include <StringTools.h>
 #include <string.h>
 #include <turtlecoin-crypto.h>
+#include <atomic>
+#include <thread>
 
 #ifndef NO_CRYPTO_EXPORTS
 #ifdef _WIN32
@@ -36,13 +38,15 @@ EXPORTDLL bool DllMain(
 #endif
 #endif
 
+static const uint64_t TRANSACTION_POW_DIFFICULTY = 10000;
+
 namespace Core
 {
     template<typename T> void toTypedVector(const std::vector<std::string> &stringVector, std::vector<T> &result)
     {
         result.clear();
 
-        for (const auto element : stringVector)
+        for (const auto &element : stringVector)
         {
             T value = T();
 
@@ -72,6 +76,119 @@ namespace Core
     inline Crypto::BinaryArray toBinaryArray(const std::string input)
     {
         return Common::fromHex(input);
+    }
+
+    inline uint64_t hi_dword(uint64_t val)
+    {
+        return val >> 32;
+    }
+
+    inline uint64_t lo_dword(uint64_t val)
+    {
+        return val & 0xFFFFFFFF;
+    }
+
+    inline uint64_t mul128(uint64_t multiplier, uint64_t multiplicand, uint64_t *product_hi)
+    {
+        // multiplier   = ab = a * 2^32 + b
+        // multiplicand = cd = c * 2^32 + d
+        // ab * cd = a * c * 2^64 + (a * d + b * c) * 2^32 + b * d
+        uint64_t a = hi_dword(multiplier);
+        uint64_t b = lo_dword(multiplier);
+        uint64_t c = hi_dword(multiplicand);
+        uint64_t d = lo_dword(multiplicand);
+
+        uint64_t ac = a * c;
+        uint64_t ad = a * d;
+        uint64_t bc = b * c;
+        uint64_t bd = b * d;
+
+        uint64_t adbc = ad + bc;
+        uint64_t adbc_carry = adbc < ad ? 1 : 0;
+
+        // multiplier * multiplicand = product_hi * 2^64 + product_lo
+        uint64_t product_lo = bd + (adbc << 32);
+        uint64_t product_lo_carry = product_lo < bd ? 1 : 0;
+        *product_hi = ac + (adbc >> 32) + (adbc_carry << 32) + product_lo_carry;
+
+        return product_lo;
+    }
+
+    inline void mul(uint64_t a, uint64_t b, uint64_t &low, uint64_t &high)
+    {
+        low = mul128(a, b, &high);
+    }
+
+    inline bool cadd(uint64_t a, uint64_t b)
+    {
+        return a + b < a;
+    }
+
+    inline bool cadc(uint64_t a, uint64_t b, bool c)
+    {
+        return a + b < a || (c && a + b == (uint64_t)-1);
+    }
+
+    bool check_hash(const Crypto::Hash &hash, uint64_t difficulty)
+    {
+        uint64_t low, high, top, cur;
+        // First check the highest word, this will most likely fail for a random hash.
+        mul(((const uint64_t *)&hash)[3], difficulty, top, high);
+
+        if (high != 0)
+        {
+            return false;
+        }
+
+        mul(((const uint64_t *)&hash)[0], difficulty, low, cur);
+        mul(((const uint64_t *)&hash)[1], difficulty, low, high);
+
+        bool carry = cadd(cur, low);
+
+        cur = high;
+
+        mul(((const uint64_t *)&hash)[2], difficulty, low, high);
+
+        carry = cadc(cur, low, carry);
+        carry = cadc(high, top, carry);
+
+        return !carry;
+    }
+
+    void generateTransactionPowWorker(
+        std::vector<uint8_t> serializedTransaction,
+        const size_t nonceOffset,
+        const int threadCount,
+        uint32_t nonce,
+        std::atomic<bool> &shouldStop,
+        uint32_t &resultNonce)
+    {
+        /* Get a pointer to the start of where we want to insert our nonce */
+        const auto noncePosition = &serializedTransaction[nonceOffset];
+
+        while (true)
+        {
+            if (shouldStop)
+            {
+                return;
+            }
+
+            /* Copy in the nonce */
+            std::memcpy(noncePosition, &nonce, sizeof(nonce));
+
+            Crypto::Hash hash;
+
+            Crypto::cn_turtle_lite_slow_hash_v2(serializedTransaction.data(), serializedTransaction.size(), hash);
+
+            if (check_hash(hash, TRANSACTION_POW_DIFFICULTY))
+            {
+                resultNonce = nonce;
+                shouldStop = true;
+                return;
+            }
+
+            nonce += threadCount;
+        }
     }
 
     /* Hashing Methods */
@@ -1055,6 +1172,42 @@ namespace Core
 
         return Common::podToHex(sharedPublicKey);
     }
+
+    uint32_t Cryptography::generateTransactionPow(
+        const std::string serializedTransactionStr,
+        const size_t nonceOffset)
+    {
+        std::vector<uint8_t> serializedTransaction = Common::fromHex(serializedTransactionStr);
+
+        const int threadCount = std::max(1u, std::thread::hardware_concurrency());
+
+        std::atomic<bool> shouldStop(false);
+
+        uint32_t nonce;
+
+        std::vector<std::thread> threads;
+
+        for (int i = 0; i < threadCount; i++)
+        {
+            threads.push_back(std::thread(
+                generateTransactionPowWorker,
+                serializedTransaction,
+                nonceOffset,
+                threadCount,
+                i,
+                std::ref(shouldStop),
+                std::ref(nonce)
+            ));
+        }
+
+        for (auto &thread : threads)
+        {
+            thread.join();
+        }
+
+        return nonce;
+    }
+
 } // namespace Core
 
 inline void tree_hash(const char *hashes, const uint64_t hashesLength, char *&hash)
@@ -1713,5 +1866,12 @@ extern "C"
     EXPORTDLL void _calculateSharedPublicKey(const char *publicKeys, const uint64_t publicKeysLength, char *&publicKey)
     {
         calculateSharedPublicKey(publicKeys, publicKeysLength, publicKey);
+    }
+
+    EXPORTDLL uint32_t _generateTransactionPow(const uint8_t *serializedTransaction, const size_t txLength, const size_t nonceOffset)
+    {
+        std::vector<uint8_t> serialized(serializedTransaction, serializedTransaction + txLength);
+        const std::string serializedStr = Common::toHex(serialized);
+        return Core::Cryptography::generateTransactionPow(serializedStr, nonceOffset);
     }
 }

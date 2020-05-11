@@ -141,7 +141,7 @@ class Crypto {
      * @param config
      */
     set userCryptoFunctions(config) {
-        Crypto.userCryptoFunctions(config);
+        Crypto.userCryptoFunctions = config;
     }
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
@@ -1073,6 +1073,12 @@ class Crypto {
             throw new Error('Invalid data found');
         }
         return tryRunFunc('chukwa_slow_hash', data);
+    }
+    generateTransactionPow(serializedTransaction, nonceOffset) {
+        if (!isHex(serializedTransaction)) {
+            throw new Error('Invalid data found');
+        }
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset);
     }
 }
 exports.Crypto = Crypto;
