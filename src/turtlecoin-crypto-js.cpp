@@ -315,6 +315,7 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("hashToEllipticCurve", &Core::Cryptography::hashToEllipticCurve);
     function("scReduce32", &Core::Cryptography::scReduce32);
     function("hashToScalar", &Core::Cryptography::hashToScalar);
+    function("generateTransactionPow", &Core::Cryptography::generateTransactionPow);
 
     /* Multisig Methods */
     function("calculateMultisigPrivateKeys", &Core::Cryptography::calculateMultisigPrivateKeys);

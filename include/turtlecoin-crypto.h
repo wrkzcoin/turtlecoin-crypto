@@ -210,6 +210,10 @@ extern "C"
                 const uint64_t realOutput,
                 const std::string &k,
                 std::vector<std::string> &signatures);
+
+            static uint32_t generateTransactionPow(
+                const std::string serializedTransaction,
+                const size_t nonceOffset);
         };
     } // namespace Core
 

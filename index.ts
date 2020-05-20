@@ -1309,6 +1309,14 @@ export class Crypto {
 
         return tryRunFunc('chukwa_slow_hash', data);
     }
+
+    public generateTransactionPow(serializedTransaction: string, nonceOffset: number): number {
+        if (!isHex(serializedTransaction)) {
+            throw new Error('Invalid data found');
+        }
+
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset);
+    }
 }
 
 /**
