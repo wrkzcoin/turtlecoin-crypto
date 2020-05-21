@@ -35,6 +35,8 @@ console.log('')
 console.log('Starting core crypto benchmarks...')
 console.log('')
 
+runTest('cn_fast_hash', () => TurtleCoinCrypto.cn_fast_hash('00000000'))
+
 runTest('secretKeyToPublicKey',
     () => TurtleCoinCrypto.secretKeyToPublicKey(
         '9e401f727e5327080b2db6266e782356738e1eb828f39191f97771a4e401e101'
