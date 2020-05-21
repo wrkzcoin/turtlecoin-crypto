@@ -377,16 +377,10 @@ export class Crypto {
             throw new Error('Supplied data must be in hexadecimal form');
         }
 
-        const hash = tryRunFunc('cn_fast_hash', data);
-
-        if (hash) {
-            return hash;
-        }
-
         try {
-            return keccak256(Buffer.from(data, 'hex'));
+            return tryRunFunc('cn_fast_hash', data);
         } catch (e) {
-            throw e;
+            return keccak256(Buffer.from(data, 'hex'));
         }
     }
 
@@ -1386,7 +1380,7 @@ function tryRunFunc(...args: any[]): any {
             return res;
         }
     } else {
-        throw new Error('Could not location method in underlying Cryptographic library');
+        throw new Error('Could not locate method in underlying Cryptographic library');
     }
 }
 
