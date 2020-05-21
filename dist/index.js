@@ -141,7 +141,7 @@ class Crypto {
      * @param config
      */
     set userCryptoFunctions(config) {
-        Crypto.userCryptoFunctions(config);
+        Crypto.userCryptoFunctions = config;
     }
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
@@ -291,15 +291,11 @@ class Crypto {
         if (!isHex(data)) {
             throw new Error('Supplied data must be in hexadecimal form');
         }
-        const hash = tryRunFunc('cn_fast_hash', data);
-        if (hash) {
-            return hash;
-        }
         try {
-            return js_sha3_1.keccak256(Buffer.from(data, 'hex'));
+            return tryRunFunc('cn_fast_hash', data);
         }
         catch (e) {
-            throw e;
+            return js_sha3_1.keccak256(Buffer.from(data, 'hex'));
         }
     }
     /**
@@ -1149,7 +1145,7 @@ function tryRunFunc(...args) {
         }
     }
     else {
-        throw new Error('Could not location method in underlying Cryptographic library');
+        throw new Error('Could not locate method in underlying Cryptographic library');
     }
 }
 /**
