@@ -2,7 +2,7 @@
 //
 // Please see the included LICENSE file for more information.
 
-import {keccak256} from 'js-sha3';
+import { keccak256 } from 'js-sha3';
 
 /**
  * @ignore
@@ -34,7 +34,7 @@ interface IModuleSettings {
  */
 const moduleVars: IModuleSettings = {
     crypto: null,
-    type: Types.UNKNOWN,
+    type: Types.UNKNOWN
 };
 
 export namespace Interfaces {
@@ -70,8 +70,10 @@ export namespace Interfaces {
 /**
  * @ignore
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-Array.prototype.toVectorString = function() {
+// eslint-disable-next-line no-extend-native
+Array.prototype.toVectorString = function () {
     if (!moduleVars.crypto.VectorString) {
         throw new Error('VectorString unavailable');
     }
@@ -92,38 +94,46 @@ export class Crypto {
     /**
      * Returns the type of the cryptographic primitives used by the wrapper
      */
-    public static get type(): string {
+    public static get type (): string {
         switch (moduleVars.type) {
-            case Types.NODEADDON:
-                return 'c++';
-            case Types.WASM:
-                return 'wasm';
-            case Types.WASMJS:
-                return 'wasmjs';
-            case Types.JS:
-                return 'js';
-            default:
-                return 'unknown';
+        case Types.NODEADDON:
+            return 'c++';
+        case Types.WASM:
+            return 'wasm';
+        case Types.WASMJS:
+            return 'wasmjs';
+        case Types.JS:
+            return 'js';
+        default:
+            return 'unknown';
         }
     }
 
     /**
      * Returns if the Node.js native library is being used
      */
-    public static get isNative(): boolean {
+    public static get isNative (): boolean {
         switch (moduleVars.type) {
-            case Types.NODEADDON:
-                return false;
-            default:
-                return true;
+        case Types.NODEADDON:
+            return false;
+        default:
+            return true;
         }
     }
 
     /**
      * Returns if the wrapper is loaded and ready
      */
-    public static get isReady(): boolean {
+    public static get isReady (): boolean {
         return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
+    }
+
+    /**
+     * Retrieves the array of user-defined cryptographic primitive functions
+     * that replace our primitives at runtime
+     */
+    public static get userCryptoFunctions (): any {
+        return userCryptoFunctions;
     }
 
     /**
@@ -131,7 +141,7 @@ export class Crypto {
      * that will replace our primitives at runtime.
      * @param config
      */
-    public static set userCryptoFunctions(config: any) {
+    public static set userCryptoFunctions (config: any) {
         if (config && typeof config === 'object') {
             Object.keys(config).forEach((key) => {
                 if (typeof config[key] === 'function') {
@@ -144,7 +154,7 @@ export class Crypto {
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
      */
-    public static forceJSCrypto(): boolean {
+    public static forceJSCrypto (): boolean {
         return loadNativeJS();
     }
 
@@ -153,7 +163,7 @@ export class Crypto {
      * @param [config] may contain user-defined cryptographic primitive functions
      * that will replace our primitives at runtime.
      */
-    public constructor(config?: any) {
+    public constructor (config?: any) {
         if (!initialize()) {
             throw new Error('Could not initialize underlying cryptographic library');
         }
@@ -171,22 +181,30 @@ export class Crypto {
     /**
      * Returns the type of the cryptographic primitives used by the wrapper
      */
-    public get type(): string {
+    public get type (): string {
         return Crypto.type;
     }
 
     /**
      * Returns if the Node.js native library is being used
      */
-    public get isNative(): boolean {
+    public get isNative (): boolean {
         return Crypto.isNative;
     }
 
     /**
      * Returns if the wrapper is loaded and ready
      */
-    public get isReady(): boolean {
+    public get isReady (): boolean {
         return Crypto.isReady;
+    }
+
+    /**
+     * Retrieves the array of user-defined cryptographic primitive functions
+     * that replace our primitives at runtime
+     */
+    public get userCryptoFunctions () {
+        return Crypto.userCryptoFunctions;
     }
 
     /**
@@ -194,14 +212,14 @@ export class Crypto {
      * that will replace our primitives at runtime.
      * @param config
      */
-    public set userCryptoFunctions(config: any) {
+    public set userCryptoFunctions (config: any) {
         Crypto.userCryptoFunctions = config;
     }
 
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
      */
-    public forceJSCrypto(): boolean {
+    public forceJSCrypto (): boolean {
         return Crypto.forceJSCrypto();
     }
 
@@ -211,8 +229,11 @@ export class Crypto {
      * @param privateSpendKey our private spend key
      * @param publicKeys an array of the other participants public spend keys
      */
-    public calculateMultisigPrivateKeys(privateSpendKey: string, publicKeys: string[]): string[] {
-        if (!this.checkScalar(privateSpendKey)) {
+    public async calculateMultisigPrivateKeys (
+        privateSpendKey: string,
+        publicKeys: string[]
+    ): Promise<string[]> {
+        if (!await this.checkScalar(privateSpendKey)) {
             throw new Error('privateSpendKey is not a scalar');
         }
         if (!Array.isArray(publicKeys)) {
@@ -232,7 +253,7 @@ export class Crypto {
      * Calculates a shared private key from the private keys supplied
      * @param privateKeys the array of private keys
      */
-    public calculateSharedPrivateKey(privateKeys: string[]): string {
+    public async calculateSharedPrivateKey (privateKeys: string[]): Promise<string> {
         if (!Array.isArray(privateKeys)) {
             throw new Error('privateKeys must be an array');
         }
@@ -250,7 +271,7 @@ export class Crypto {
      * Calculates a shared public key from the public keys supplied
      * @param publicKeys the array of public keys
      */
-    public calculateSharedPublicKey(publicKeys: string[]): string {
+    public async calculateSharedPublicKey (publicKeys: string[]): Promise<string> {
         if (!Array.isArray(publicKeys)) {
             throw new Error('publicKeys must be an array');
         }
@@ -268,7 +289,7 @@ export class Crypto {
      * Checks whether a given key is a public key
      * @param key the public key to check
      */
-    public checkKey(key: string): boolean {
+    public async checkKey (key: string): Promise<boolean> {
         if (!isHex64(key)) {
             return false;
         }
@@ -283,11 +304,12 @@ export class Crypto {
      * @param inputKeys the output keys used during signing (mixins + real)
      * @param signatures the signatures
      */
-    public checkRingSignature(
+    public async checkRingSignature (
         hash: string,
         keyImage: string,
         inputKeys: string[],
-        signatures: string[]): boolean {
+        signatures: string[]
+    ): Promise<boolean> {
         return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
     }
 
@@ -298,11 +320,12 @@ export class Crypto {
      * @param inputKeys the output keys used during signing (mixins + real)
      * @param signatures the signatures
      */
-    public checkRingSignatures(
+    public async checkRingSignatures (
         hash: string,
         keyImage: string,
         inputKeys: string[],
-        signatures: string[]): boolean {
+        signatures: string[]
+    ): Promise<boolean> {
         if (!isHex64(hash)) {
             return false;
         }
@@ -341,11 +364,11 @@ export class Crypto {
      * Checks whether the given key is a private key
      * @param privateKey
      */
-    public checkScalar(privateKey: string): boolean {
+    public async checkScalar (privateKey: string): Promise<boolean> {
         if (!isHex64(privateKey)) {
             return false;
         }
-        return (privateKey === this.scReduce32(privateKey));
+        return (privateKey === await this.scReduce32(privateKey));
     }
 
     /**
@@ -354,11 +377,15 @@ export class Crypto {
      * @param publicKey the public key of the private key used to sign
      * @param signature the signature
      */
-    public checkSignature(hash: string, publicKey: string, signature: string): boolean {
+    public async checkSignature (
+        hash: string,
+        publicKey: string,
+        signature: string
+    ): Promise<boolean> {
         if (!isHex64(hash)) {
             return false;
         }
-        if (!this.checkKey(publicKey)) {
+        if (!await this.checkKey(publicKey)) {
             return false;
         }
         if (!isHex128(signature)) {
@@ -372,7 +399,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_fast_hash method
      * @param data
      */
-    public cn_fast_hash(data: string): string {
+    public async cn_fast_hash (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Supplied data must be in hexadecimal form');
         }
@@ -393,12 +420,13 @@ export class Crypto {
      * @param k the random scalar provided with the prepared ring signatures
      * @param signatures the prepared ring signatures
      */
-    public completeRingSignatures(
+    public async completeRingSignatures (
         privateEphemeral: string,
         realIndex: number,
         k: string,
-        signatures: string[]): string[] {
-        if (!this.checkScalar(privateEphemeral)) {
+        signatures: string[]
+    ): Promise<string[]> {
+        if (!await this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private key found');
         }
         if (!Array.isArray(signatures)) {
@@ -407,7 +435,7 @@ export class Crypto {
         if (!isUInt(realIndex) || realIndex > signatures.length - 1) {
             throw new Error('Invalid realIndex format');
         }
-        if (!this.checkScalar(k)) {
+        if (!await this.checkScalar(k)) {
             throw new Error('Invalid k found');
         }
 
@@ -425,7 +453,10 @@ export class Crypto {
      * @param derivation the key derivation
      * @param outputIndex the index of the output in the transaction
      */
-    public derivationToScalar(derivation: string, outputIndex: number): string {
+    public async derivationToScalar (
+        derivation: string,
+        outputIndex: number
+    ): Promise<string> {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
         }
@@ -444,14 +475,18 @@ export class Crypto {
      * @param outputIndex the index of the output in the transaction
      * @param publicKey our public spend key
      */
-    public derivePublicKey(derivation: string, outputIndex: number, publicKey: string): string {
+    public async derivePublicKey (
+        derivation: string,
+        outputIndex: number,
+        publicKey: string
+    ): Promise<string> {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
         }
         if (!isUInt(outputIndex)) {
             throw new Error('Invalid output index found');
         }
-        if (!this.checkKey(publicKey)) {
+        if (!await this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
         }
 
@@ -465,14 +500,18 @@ export class Crypto {
      * @param outputIndex the index of the output in the transaction
      * @param privateKey our private spend key
      */
-    public deriveSecretKey(derivation: string, outputIndex: number, privateKey: string): string {
+    public async deriveSecretKey (
+        derivation: string,
+        outputIndex: number,
+        privateKey: string
+    ): Promise<string> {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
         }
         if (!isUInt(outputIndex)) {
             throw new Error('Invalid output index found');
         }
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -485,23 +524,23 @@ export class Crypto {
      * @param privateKey our root private spend key (seed)
      * @param walletIndex the index of the subwallet
      */
-    public generateDeterministicSubwalletKeys(
+    public async generateDeterministicSubwalletKeys (
         privateKey: string,
-        walletIndex: number,
-    ): Interfaces.IKeyPair {
-        if (!this.checkScalar(privateKey)) {
+        walletIndex: number
+    ): Promise<Interfaces.IKeyPair> {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
         if (!isUInt(walletIndex)) {
             throw new Error('Invalid wallet index found');
         }
 
-        const keys = tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
+        const keys = await tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
 
         if (keys) {
             return {
                 privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                publicKey: keys.publicKey || keys.PublicKey,
+                publicKey: keys.publicKey || keys.PublicKey
             };
         } else {
             throw new Error('Could not generate deterministic subwallet keys');
@@ -513,11 +552,11 @@ export class Crypto {
      * @param publicKey
      * @param privateKey
      */
-    public generateKeyDerivation(publicKey: string, privateKey: string): string {
-        if (!this.checkKey(publicKey)) {
+    public async generateKeyDerivation (publicKey: string, privateKey: string): Promise<string> {
+        if (!await this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
         }
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -530,12 +569,16 @@ export class Crypto {
      * @param privateKey the private key
      * @param outputIndex the output index
      */
-    public generateKeyDerivationScalar(publicKey: string, privateKey: string, outputIndex: number): string {
-        if (!this.checkKey(publicKey)) {
+    public async generateKeyDerivationScalar (
+        publicKey: string,
+        privateKey: string,
+        outputIndex: number
+    ): Promise<string> {
+        if (!await this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
         }
 
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -551,11 +594,11 @@ export class Crypto {
      * @param publicEphemeral the public ephemeral of the output
      * @param privateEphemeral the private ephemeral of the output
      */
-    public generateKeyImage(publicEphemeral: string, privateEphemeral: string): string {
-        if (!this.checkKey(publicEphemeral)) {
+    public async generateKeyImage (publicEphemeral: string, privateEphemeral: string): Promise<string> {
+        if (!await this.checkKey(publicEphemeral)) {
             throw new Error('Invalid public ephemeral found');
         }
-        if (!this.checkScalar(privateEphemeral)) {
+        if (!await this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private ephemeral found');
         }
 
@@ -565,13 +608,13 @@ export class Crypto {
     /**
      * Generates a new random key pair
      */
-    public generateKeys(): Interfaces.IKeyPair {
-        const keys = tryRunFunc('generateKeys');
+    public async generateKeys (): Promise<Interfaces.IKeyPair> {
+        const keys = await tryRunFunc('generateKeys');
 
         if (keys) {
             return {
                 privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                publicKey: keys.publicKey || keys.PublicKey,
+                publicKey: keys.publicKey || keys.PublicKey
             };
         } else {
             throw new Error('Could not generate keys');
@@ -583,11 +626,11 @@ export class Crypto {
      * @param signature the prepared real input signature
      * @param privateKey our private spend key (or multisig private key)
      */
-    public generatePartialSigningKey(signature: string, privateKey: string): string {
+    public async generatePartialSigningKey (signature: string, privateKey: string): Promise<string> {
         if (!isHex128(signature)) {
             throw new Error('Invalid signature found');
         }
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -598,8 +641,8 @@ export class Crypto {
      * Generates a private view key from the private spend key
      * @param privateKey the private spend key
      */
-    public generatePrivateViewKeyFromPrivateSpendKey(privateKey: string): string {
-        if (!this.checkScalar(privateKey)) {
+    public async generatePrivateViewKeyFromPrivateSpendKey (privateKey: string): Promise<string> {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -614,19 +657,19 @@ export class Crypto {
      * @param privateEphemeral the private ephemeral of the output being spent
      * @param realIndex the array index of the real output being spent in the publicKeys array
      */
-    public generateRingSignatures(
+    public async generateRingSignatures (
         hash: string,
         keyImage: string,
         publicKeys: string[],
         privateEphemeral: string,
-        realIndex: number): string[] {
+        realIndex: number): Promise<string[]> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
         if (!isHex64(keyImage)) {
             throw new Error('Invalid key image found');
         }
-        if (!this.checkScalar(privateEphemeral)) {
+        if (!await this.checkScalar(privateEphemeral)) {
             throw new Error('Invalid private key found');
         }
         if (!Array.isArray(publicKeys)) {
@@ -651,14 +694,18 @@ export class Crypto {
      * @param publicKey the public key used in signing
      * @param privateKey the private key used to sign
      */
-    public generateSignature(hash: string, publicKey: string, privateKey: string): string {
+    public async generateSignature (
+        hash: string,
+        publicKey: string,
+        privateKey: string
+    ): Promise<string> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
-        if (!this.checkKey(publicKey)) {
+        if (!await this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
         }
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -669,17 +716,17 @@ export class Crypto {
      * Generates a vew key pair from the private spend key
      * @param privateKey the private spend key
      */
-    public generateViewKeysFromPrivateSpendKey(privateKey: string): Interfaces.IKeyPair {
-        if (!this.checkScalar(privateKey)) {
+    public async generateViewKeysFromPrivateSpendKey (privateKey: string): Promise<Interfaces.IKeyPair> {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
-        const keys = tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
+        const keys = await tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
 
         if (keys) {
             return {
                 privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                publicKey: keys.publicKey || keys.PublicKey,
+                publicKey: keys.publicKey || keys.PublicKey
             };
         } else {
             throw new Error('Could not generate view keys from private spend key');
@@ -690,7 +737,7 @@ export class Crypto {
      * Converts a hash to an elliptic curve point
      * @param hash the hash
      */
-    public hashToEllipticCurve(hash: string): string {
+    public async hashToEllipticCurve (hash: string): Promise<string> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
@@ -702,7 +749,7 @@ export class Crypto {
      * Converts a hash to a scalar
      * @param hash the hash
      */
-    public hashToScalar(hash: string): string {
+    public async hashToScalar (hash: string): Promise<string> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
@@ -717,11 +764,12 @@ export class Crypto {
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
      */
-    public prepareRingSignatures(
+    public async prepareRingSignatures (
         hash: string,
         keyImage: string,
         publicKeys: string[],
-        realIndex: number): Interfaces.IPreparedRingSignatures {
+        realIndex: number
+    ): Promise<Interfaces.IPreparedRingSignatures> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
@@ -741,12 +789,12 @@ export class Crypto {
             }
         });
 
-        const result = tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
+        const result = await tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
 
         if (result) {
             return {
                 signatures: result.signatures,
-                key: result.key,
+                key: result.key
             };
         } else {
             throw new Error('Could not prepare ring signatures');
@@ -756,7 +804,7 @@ export class Crypto {
     /**
      * Re-initializes the underlying cryptographic primitives
      */
-    public reloadCrypto(): boolean {
+    public async reloadCrypto (): Promise<boolean> {
         return initialize();
     }
 
@@ -769,12 +817,13 @@ export class Crypto {
      * @param partialKeyImages the array of partial key images from the needed
      * number of participants in the multisig scheme
      */
-    public restoreKeyImage(
+    public async restoreKeyImage (
         publicEphemeral: string,
         derivation: string,
         outputIndex: number,
-        partialKeyImages: string[]): string {
-        if (!this.checkKey(publicEphemeral)) {
+        partialKeyImages: string[]
+    ): Promise<string> {
+        if (!await this.checkKey(publicEphemeral)) {
             throw new Error('Invalid public ephemeral found');
         }
         if (!isHex64(derivation)) {
@@ -808,13 +857,14 @@ export class Crypto {
      * @param k the random scalar generated py preparing the ring signatures
      * @param signatures the prepared ring signatures
      */
-    public restoreRingSignatures(
+    public async restoreRingSignatures (
         derivation: string,
         outputIndex: number,
         partialSigningKeys: string[],
         realIndex: number,
         k: string,
-        signatures: string[]): string[] {
+        signatures: string[]
+    ): Promise<string[]> {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
         }
@@ -824,7 +874,7 @@ export class Crypto {
         if (!Array.isArray(partialSigningKeys)) {
             throw new Error('partial signing keys must be an array');
         }
-        if (!this.checkScalar(k)) {
+        if (!await this.checkScalar(k)) {
             throw new Error('Invalid k found');
         }
         if (!Array.isArray(signatures)) {
@@ -861,12 +911,12 @@ export class Crypto {
      * @param derivationScalar the derivation scalar
      * @param publicKey the public key
      */
-    public scalarDerivePublicKey(derivationScalar: string, publicKey: string): string {
-        if (!this.checkScalar(derivationScalar)) {
+    public async scalarDerivePublicKey (derivationScalar: string, publicKey: string): Promise<string> {
+        if (!await this.checkScalar(derivationScalar)) {
             throw new Error('Invalid derivation scalar found');
         }
 
-        if (!this.checkKey(publicKey)) {
+        if (!await this.checkKey(publicKey)) {
             throw new Error('Invalid public key found');
         }
 
@@ -878,12 +928,12 @@ export class Crypto {
      * @param derivationScalar the derivation scalar
      * @param privateKey the private key
      */
-    public scalarDeriveSecretKey(derivationScalar: string, privateKey: string): string {
-        if (!this.checkScalar(derivationScalar)) {
+    public async scalarDeriveSecretKey (derivationScalar: string, privateKey: string): Promise<string> {
+        if (!await this.checkScalar(derivationScalar)) {
             throw new Error('Invalid derivation scalar found');
         }
 
-        if (!this.checkScalar(privateKey)) {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -895,7 +945,7 @@ export class Crypto {
      * @param keyImageA
      * @param keyImageB
      */
-    public scalarmultKey(keyImageA: string, keyImageB: string): string {
+    public async scalarmultKey (keyImageA: string, keyImageB: string): Promise<string> {
         if (!isHex64(keyImageA)) {
             throw new Error('Invalid key image A found');
         }
@@ -910,7 +960,7 @@ export class Crypto {
      * Reduces a value to a scalar (mod q)
      * @param data
      */
-    public scReduce32(data: string): string {
+    public async scReduce32 (data: string): Promise<string> {
         if (!isHex64(data)) {
             throw new Error('Invalid data format');
         }
@@ -922,8 +972,8 @@ export class Crypto {
      * Calculates the public key of a private key
      * @param privateKey
      */
-    public secretKeyToPublicKey(privateKey: string): string {
-        if (!this.checkScalar(privateKey)) {
+    public async secretKeyToPublicKey (privateKey: string): Promise<string> {
+        if (!await this.checkScalar(privateKey)) {
             throw new Error('Invalid private key found');
         }
 
@@ -934,7 +984,7 @@ export class Crypto {
      * Calculates the merkle tree branch of the given hashes
      * @param hashes the array of hashes
      */
-    public tree_branch(hashes: string[]): string[] {
+    public async tree_branch (hashes: string[]): Promise<string[]> {
         if (!Array.isArray(hashes)) {
             throw new Error('hashes must be an array');
         }
@@ -952,7 +1002,7 @@ export class Crypto {
      * Calculates the depth of the merkle tree
      * @param count the number of hashes in the tree
      */
-    public tree_depth(count: number): number {
+    public async tree_depth (count: number): Promise<number> {
         if (!isUInt(count)) {
             throw new Error('Invalid count found');
         }
@@ -964,7 +1014,7 @@ export class Crypto {
      * Calculates the merkle tree hash of the given hashes
      * @param hashes the array of hashes
      */
-    public tree_hash(hashes: string[]): string {
+    public async tree_hash (hashes: string[]): Promise<string> {
         if (!Array.isArray(hashes)) {
             throw new Error('hashes must be an array');
         }
@@ -984,7 +1034,11 @@ export class Crypto {
      * @param leaf the leaf on the merkle tree
      * @param path the path on the merkle tree
      */
-    public tree_hash_from_branch(branches: string[], leaf: string, path: number): string {
+    public async tree_hash_from_branch (
+        branches: string[],
+        leaf: string,
+        path: number
+    ): Promise<string> {
         if (!Array.isArray(branches)) {
             throw new Error('branches must be an array');
         }
@@ -1014,14 +1068,18 @@ export class Crypto {
      * @param outputIndex the index of the output in the transaction
      * @param outputKey the output key in the transaction
      */
-    public underivePublicKey(derivation: string, outputIndex: number, outputKey: string): string {
+    public async underivePublicKey (
+        derivation: string,
+        outputIndex: number,
+        outputKey: string
+    ): Promise<string> {
         if (!isHex64(derivation)) {
             throw new Error('Invalid derivation found');
         }
         if (!isUInt(outputIndex)) {
             throw new Error('Invalid output index found');
         }
-        if (!this.checkKey(outputKey)) {
+        if (!await this.checkKey(outputKey)) {
             throw new Error('Invalid output key found');
         }
 
@@ -1032,7 +1090,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_slow_hash_v0 method
      * @param data
      */
-    public cn_slow_hash_v0(data: string): string {
+    public async cn_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1044,7 +1102,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_slow_hash_v1 method
      * @param data
      */
-    public cn_slow_hash_v1(data: string): string {
+    public async cn_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1056,7 +1114,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_slow_hash_v2 method
      * @param data
      */
-    public cn_slow_hash_v2(data: string): string {
+    public async cn_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1068,7 +1126,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v0 method
      * @param data
      */
-    public cn_lite_slow_hash_v0(data: string): string {
+    public async cn_lite_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1080,7 +1138,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v1 method
      * @param data
      */
-    public cn_lite_slow_hash_v1(data: string): string {
+    public async cn_lite_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1092,7 +1150,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_lite_slow_hash_v2 method
      * @param data
      */
-    public cn_lite_slow_hash_v2(data: string): string {
+    public async cn_lite_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1104,7 +1162,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v0 method
      * @param data
      */
-    public cn_dark_slow_hash_v0(data: string): string {
+    public async cn_dark_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1116,7 +1174,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v1 method
      * @param data
      */
-    public cn_dark_slow_hash_v1(data: string): string {
+    public async cn_dark_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1128,7 +1186,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_slow_hash_v2 method
      * @param data
      */
-    public cn_dark_slow_hash_v2(data: string): string {
+    public async cn_dark_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1140,7 +1198,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v0 method
      * @param data
      */
-    public cn_dark_lite_slow_hash_v0(data: string): string {
+    public async cn_dark_lite_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1152,7 +1210,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v1 method
      * @param data
      */
-    public cn_dark_lite_slow_hash_v1(data: string): string {
+    public async cn_dark_lite_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1164,7 +1222,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_dark_lite_slow_hash_v2 method
      * @param data
      */
-    public cn_dark_lite_slow_hash_v2(data: string): string {
+    public async cn_dark_lite_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1176,7 +1234,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v0 method
      * @param data
      */
-    public cn_turtle_slow_hash_v0(data: string): string {
+    public async cn_turtle_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1188,7 +1246,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v1 method
      * @param data
      */
-    public cn_turtle_slow_hash_v1(data: string): string {
+    public async cn_turtle_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1200,7 +1258,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_slow_hash_v2 method
      * @param data
      */
-    public cn_turtle_slow_hash_v2(data: string): string {
+    public async cn_turtle_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1212,7 +1270,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v0 method
      * @param data
      */
-    public cn_turtle_lite_slow_hash_v0(data: string): string {
+    public async cn_turtle_lite_slow_hash_v0 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1224,7 +1282,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v1 method
      * @param data
      */
-    public cn_turtle_lite_slow_hash_v1(data: string): string {
+    public async cn_turtle_lite_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1236,7 +1294,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the cn_turtle_lite_slow_hash_v2 method
      * @param data
      */
-    public cn_turtle_lite_slow_hash_v2(data: string): string {
+    public async cn_turtle_lite_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1249,7 +1307,7 @@ export class Crypto {
      * @param data
      * @param height the height of the blockchain
      */
-    public cn_soft_shell_slow_hash_v0(data: string, height: number): string {
+    public async cn_soft_shell_slow_hash_v0 (data: string, height: number): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1265,7 +1323,7 @@ export class Crypto {
      * @param data
      * @param height the height of the blockchain
      */
-    public cn_soft_shell_slow_hash_v1(data: string, height: number): string {
+    public async cn_soft_shell_slow_hash_v1 (data: string, height: number): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1281,7 +1339,7 @@ export class Crypto {
      * @param data
      * @param height the height of the blockchain
      */
-    public cn_soft_shell_slow_hash_v2(data: string, height: number): string {
+    public async cn_soft_shell_slow_hash_v2 (data: string, height: number): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1297,7 +1355,7 @@ export class Crypto {
      * @param data
      * @param version
      */
-    public chukwa_slow_hash(data: string, version: number = 1): string {
+    public async chukwa_slow_hash (data: string, version = 1): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1305,14 +1363,14 @@ export class Crypto {
         let func = 'chukwa_slow_hash_';
 
         switch (version) {
-            case 1:
-                func += 'v1';
-                break;
-            case 2:
-                func += 'v2';
-                break;
-            default:
-                throw new Error('Unknown Chukwa version number');
+        case 1:
+            func += 'v1';
+            break;
+        case 2:
+            func += 'v2';
+            break;
+        default:
+            throw new Error('Unknown Chukwa version number');
         }
 
         return tryRunFunc(func, data);
@@ -1325,7 +1383,12 @@ export class Crypto {
      * @param memory
      * @param threads
      */
-    public chukwa_slow_hash_base(data: string, iterations: number, memory: number, threads: number): string {
+    public async chukwa_slow_hash_base (
+        data: string,
+        iterations: number,
+        memory: number,
+        threads: number
+    ): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1337,7 +1400,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the chukwa_slow_hash_v1 method
      * @param data
      */
-    public chukwa_slow_hash_v1(data: string): string {
+    public async chukwa_slow_hash_v1 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1349,7 +1412,7 @@ export class Crypto {
      * Calculates the hash of the data supplied using the chukwa_slow_hash_v2 method
      * @param data
      */
-    public chukwa_slow_hash_v2(data: string): string {
+    public async chukwa_slow_hash_v2 (data: string): Promise<string> {
         if (!isHex(data)) {
             throw new Error('Invalid data found');
         }
@@ -1361,7 +1424,7 @@ export class Crypto {
 /**
  * @ignore
  */
-function initialize(): boolean {
+function initialize (): boolean {
     if (moduleVars.crypto === null) {
         if (loadNativeAddon()) {
             return true;
@@ -1381,8 +1444,8 @@ function initialize(): boolean {
 /**
  * @ignore
  */
-function tryRunFunc(...args: any[]): any {
-    function tryVectorStringToArray(vs: any) {
+async function tryRunFunc (...args: any[]): Promise<any> {
+    function tryVectorStringToArray (vs: any) {
         if (vs instanceof moduleVars.crypto.VectorString) {
             const tmp = [];
 
@@ -1398,59 +1461,63 @@ function tryRunFunc(...args: any[]): any {
 
     const func = args.shift();
 
-    if (userCryptoFunctions[func]) {
-        return userCryptoFunctions[func](...args);
-    } else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
-        /* If the function name starts with 'check' then it
-           will return a boolean which we can just send back
-           up the stack */
-        if (func.indexOf('check') === 0) {
-            return moduleVars.crypto[func](...args);
-        } else {
-            const [err, res] = moduleVars.crypto[func](...args);
-            if (err) {
-                throw err;
+    return new Promise((resolve, reject) => {
+        if (userCryptoFunctions[func]) {
+            return resolve(userCryptoFunctions[func](...args));
+        } else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
+            /* If the function name starts with 'check' then it
+               will return a boolean which we can just send back
+               up the stack */
+            if (func.indexOf('check') === 0) {
+                return resolve(moduleVars.crypto[func](...args));
+            } else {
+                const [err, res] = moduleVars.crypto[func](...args);
+
+                if (err) {
+                    return reject(err);
+                }
+
+                return resolve(res);
+            }
+        } else if (moduleVars.crypto[func]) {
+            for (let i = 0; i < args.length; i++) {
+                if (Array.isArray(args[i])) {
+                    args[i] = args[i].toVectorString();
+                }
             }
 
-            return res;
-        }
-    } else if (moduleVars.crypto[func]) {
-        for (let i = 0; i < args.length; i++) {
-            if (Array.isArray(args[i])) {
-                args[i] = args[i].toVectorString();
+            const res = moduleVars.crypto[func](...args);
+
+            if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
+                return resolve(tryVectorStringToArray(res));
+            } else {
+                Object.keys(res).forEach((key) => {
+                    res[key] = tryVectorStringToArray(res[key]);
+                });
+
+                return resolve(res);
             }
-        }
-
-        const res = moduleVars.crypto[func](...args);
-
-        if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
-            return tryVectorStringToArray(res);
         } else {
-            Object.keys(res).forEach((key) => {
-                res[key] = tryVectorStringToArray(res[key]);
-            });
-
-            return res;
+            return reject(new Error('Could not locate method in underlying Cryptographic library'));
         }
-    } else {
-        throw new Error('Could not locate method in underlying Cryptographic library');
-    }
+    });
 }
 
 /**
  * @ignore
  */
-function loadBrowserWASM(): boolean {
+function loadBrowserWASM (): boolean {
     if (typeof window === 'undefined') {
         return false;
     }
 
     try {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const Self = window.TurtleCoinCrypto();
 
-        if (Object.getOwnPropertyNames(Self).length === 0
-            || typeof Self.cn_fast_hash === 'undefined') {
+        if (Object.getOwnPropertyNames(Self).length === 0 ||
+            typeof Self.cn_fast_hash === 'undefined') {
             return false;
         }
 
@@ -1466,12 +1533,12 @@ function loadBrowserWASM(): boolean {
 /**
  * @ignore
  */
-function loadNativeAddon(): boolean {
+function loadNativeAddon (): boolean {
     try {
         const Self = require('bindings')('turtlecoin-crypto.node');
 
-        if (Object.getOwnPropertyNames(Self).length === 0
-            || typeof Self.cn_fast_hash === 'undefined') {
+        if (Object.getOwnPropertyNames(Self).length === 0 ||
+            typeof Self.cn_fast_hash === 'undefined') {
             return false;
         }
 
@@ -1487,12 +1554,12 @@ function loadNativeAddon(): boolean {
 /**
  * @ignore
  */
-function loadNativeJS(): boolean {
+function loadNativeJS (): boolean {
     try {
         const Self = require('./turtlecoin-crypto.js')();
 
-        if (Object.getOwnPropertyNames(Self).length === 0
-            || typeof Self.cn_fast_hash === 'undefined') {
+        if (Object.getOwnPropertyNames(Self).length === 0 ||
+            typeof Self.cn_fast_hash === 'undefined') {
             return false;
         }
 
@@ -1508,7 +1575,7 @@ function loadNativeJS(): boolean {
 /**
  * @ignore
  */
-function loadWASMJS(): boolean {
+function loadWASMJS (): boolean {
     if (typeof window === 'undefined') {
         return false;
     }
@@ -1532,7 +1599,7 @@ function loadWASMJS(): boolean {
 /**
  * @ignore
  */
-function isHex(value: string): boolean {
+function isHex (value: string): boolean {
     if (value.length % 2 !== 0) {
         return false;
     }
@@ -1545,28 +1612,28 @@ function isHex(value: string): boolean {
 /**
  * @ignore
  */
-function isHex64(value: string): boolean {
+function isHex64 (value: string): boolean {
     return (isHex(value) && value.length === 64);
 }
 
 /**
  * @ignore
  */
-function isHex128(value: string): boolean {
+function isHex128 (value: string): boolean {
     return (isHex(value) && value.length === 128);
 }
 
 /**
  * @ignore
  */
-function isUInt(value: number) {
+function isUInt (value: number) {
     return (value === toInt(value) && toInt(value) >= 0);
 }
 
 /**
  * @ignore
  */
-function toInt(value: number | string): number | boolean {
+function toInt (value: number | string): number | boolean {
     if (typeof value === 'number') {
         return value;
     } else {
