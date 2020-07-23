@@ -12,7 +12,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Crypto = void 0;
 const js_sha3_1 = require("js-sha3");
 /**
  * @ignore
@@ -334,12 +333,8 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Supplied data must be in hexadecimal form');
             }
-            try {
-                return tryRunFunc('cn_fast_hash', data);
-            }
-            catch (e) {
-                return js_sha3_1.keccak256(Buffer.from(data, 'hex'));
-            }
+            return tryRunFunc('cn_fast_hash', data)
+                .catch(() => { return js_sha3_1.keccak256(Buffer.from(data, 'hex')); });
         });
     }
     /**
@@ -1311,21 +1306,36 @@ function tryRunFunc(...args) {
         const func = args.shift();
         return new Promise((resolve, reject) => {
             if (userCryptoFunctions[func]) {
-                return resolve(userCryptoFunctions[func](...args));
+                try {
+                    return resolve(userCryptoFunctions[func](...args));
+                }
+                catch (e) {
+                    return reject(new Error('Error with use defined cryptographic primitive'));
+                }
             }
             else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
                 /* If the function name starts with 'check' then it
                    will return a boolean which we can just send back
                    up the stack */
                 if (func.indexOf('check') === 0) {
-                    return resolve(moduleVars.crypto[func](...args));
+                    try {
+                        return resolve(moduleVars.crypto[func](...args));
+                    }
+                    catch (e) {
+                        return reject(new Error('Underlying cryptographic module failure'));
+                    }
                 }
                 else {
-                    const [err, res] = moduleVars.crypto[func](...args);
-                    if (err) {
-                        return reject(err);
+                    try {
+                        const [err, res] = moduleVars.crypto[func](...args);
+                        if (err) {
+                            return reject(err);
+                        }
+                        return resolve(res);
                     }
-                    return resolve(res);
+                    catch (e) {
+                        return reject(new Error('Underlying cryptographic method failure'));
+                    }
                 }
             }
             else if (moduleVars.crypto[func]) {
@@ -1334,15 +1344,20 @@ function tryRunFunc(...args) {
                         args[i] = args[i].toVectorString();
                     }
                 }
-                const res = moduleVars.crypto[func](...args);
-                if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
-                    return resolve(tryVectorStringToArray(res));
+                try {
+                    const res = moduleVars.crypto[func](...args);
+                    if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
+                        return resolve(tryVectorStringToArray(res));
+                    }
+                    else {
+                        Object.keys(res).forEach((key) => {
+                            res[key] = tryVectorStringToArray(res[key]);
+                        });
+                        return resolve(res);
+                    }
                 }
-                else {
-                    Object.keys(res).forEach((key) => {
-                        res[key] = tryVectorStringToArray(res[key]);
-                    });
-                    return resolve(res);
+                catch (e) {
+                    return reject(new Error('Underlying cryptographic method failure'));
                 }
             }
             else {

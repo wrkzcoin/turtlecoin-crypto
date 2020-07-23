@@ -20,7 +20,7 @@ if (process.env.FORCE_JS) {
 }
 
 describe('Cryptography', function () {
-    this.timeout(30000);
+    this.timeout(60000);
 
     describe('Core', () => {
         it('Generate Random Keys', async () => {
@@ -672,7 +672,7 @@ describe('Cryptography', function () {
 });
 
 describe('Hash Generation Methods', function () {
-    this.timeout(30000);
+    this.timeout(60000);
 
     const testdata = '0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946127c7a97418f9348828f0f02';
 

@@ -404,11 +404,8 @@ export class Crypto {
             throw new Error('Supplied data must be in hexadecimal form');
         }
 
-        try {
-            return tryRunFunc('cn_fast_hash', data);
-        } catch (e) {
-            return keccak256(Buffer.from(data, 'hex'));
-        }
+        return tryRunFunc('cn_fast_hash', data)
+            .catch(() => { return keccak256(Buffer.from(data, 'hex')); });
     }
 
     /**
@@ -1463,21 +1460,33 @@ async function tryRunFunc (...args: any[]): Promise<any> {
 
     return new Promise((resolve, reject) => {
         if (userCryptoFunctions[func]) {
-            return resolve(userCryptoFunctions[func](...args));
+            try {
+                return resolve(userCryptoFunctions[func](...args));
+            } catch (e) {
+                return reject(new Error('Error with use defined cryptographic primitive'));
+            }
         } else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
             /* If the function name starts with 'check' then it
                will return a boolean which we can just send back
                up the stack */
             if (func.indexOf('check') === 0) {
-                return resolve(moduleVars.crypto[func](...args));
-            } else {
-                const [err, res] = moduleVars.crypto[func](...args);
-
-                if (err) {
-                    return reject(err);
+                try {
+                    return resolve(moduleVars.crypto[func](...args));
+                } catch (e) {
+                    return reject(new Error('Underlying cryptographic module failure'));
                 }
+            } else {
+                try {
+                    const [err, res] = moduleVars.crypto[func](...args);
 
-                return resolve(res);
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    return resolve(res);
+                } catch (e) {
+                    return reject(new Error('Underlying cryptographic method failure'));
+                }
             }
         } else if (moduleVars.crypto[func]) {
             for (let i = 0; i < args.length; i++) {
@@ -1486,16 +1495,20 @@ async function tryRunFunc (...args: any[]): Promise<any> {
                 }
             }
 
-            const res = moduleVars.crypto[func](...args);
+            try {
+                const res = moduleVars.crypto[func](...args);
 
-            if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
-                return resolve(tryVectorStringToArray(res));
-            } else {
-                Object.keys(res).forEach((key) => {
-                    res[key] = tryVectorStringToArray(res[key]);
-                });
+                if (typeof res !== 'object' || res instanceof moduleVars.crypto.VectorString) {
+                    return resolve(tryVectorStringToArray(res));
+                } else {
+                    Object.keys(res).forEach((key) => {
+                        res[key] = tryVectorStringToArray(res[key]);
+                    });
 
-                return resolve(res);
+                    return resolve(res);
+                }
+            } catch (e) {
+                return reject(new Error('Underlying cryptographic method failure'));
             }
         } else {
             return reject(new Error('Could not locate method in underlying Cryptographic library'));
