@@ -257,8 +257,9 @@ export declare class Crypto {
      * @param keyImage the key image of the output being spent
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @param k a random scalar (private key)
      */
-    prepareRingSignatures(hash: string, keyImage: string, publicKeys: string[], realIndex: number): Promise<Interfaces.IPreparedRingSignatures>;
+    prepareRingSignatures(hash: string, keyImage: string, publicKeys: string[], realIndex: number, k?: string): Promise<Interfaces.IPreparedRingSignatures>;
     /**
      * Re-initializes the underlying cryptographic primitives
      */

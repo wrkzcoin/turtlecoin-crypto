@@ -47,7 +47,7 @@ Array.prototype.toVectorString = function () {
         throw new Error('VectorString unavailable');
     }
     const arr = new moduleVars.crypto.VectorString();
-    this.forEach((key) => arr.push_back(key));
+    this.map(elem => arr.push_back(elem));
     return arr;
 };
 /**
@@ -79,16 +79,17 @@ class Crypto {
     static get isNative() {
         switch (moduleVars.type) {
             case Types.NODEADDON:
-                return false;
-            default:
                 return true;
+            default:
+                return false;
         }
     }
     /**
      * Returns if the wrapper is loaded and ready
      */
     static get isReady() {
-        return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
+        return (moduleVars.crypto !== null &&
+            typeof moduleVars.crypto.cn_fast_hash === 'function');
     }
     /**
      * Retrieves the array of user-defined cryptographic primitive functions
@@ -188,12 +189,13 @@ class Crypto {
             if (!Array.isArray(publicKeys)) {
                 throw new Error('publicKeys must be an array');
             }
-            publicKeys.forEach((key) => {
-                if (!this.checkKey(key)) {
+            publicKeys = publicKeys.map(elem => elem.toLowerCase());
+            for (const key of publicKeys) {
+                if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
-            });
-            return tryRunFunc('calculateMultisigPrivateKeys', privateSpendKey, publicKeys);
+            }
+            return tryRunFunc('calculateMultisigPrivateKeys', privateSpendKey.toLowerCase(), publicKeys);
         });
     }
     /**
@@ -205,11 +207,12 @@ class Crypto {
             if (!Array.isArray(privateKeys)) {
                 throw new Error('privateKeys must be an array');
             }
-            privateKeys.forEach((key) => {
-                if (!this.checkScalar(key)) {
+            privateKeys = privateKeys.map(elem => elem.toLowerCase());
+            for (const key of privateKeys) {
+                if (!(yield this.checkScalar(key))) {
                     throw new Error('Invalid private key found');
                 }
-            });
+            }
             return tryRunFunc('calculateSharedPrivateKey', privateKeys);
         });
     }
@@ -222,11 +225,12 @@ class Crypto {
             if (!Array.isArray(publicKeys)) {
                 throw new Error('publicKeys must be an array');
             }
-            publicKeys.forEach((key) => {
-                if (!this.checkKey(key)) {
+            publicKeys = publicKeys.map(elem => elem.toLowerCase());
+            for (const key of publicKeys) {
+                if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
-            });
+            }
             return tryRunFunc('calculateSharedPublicKey', publicKeys);
         });
     }
@@ -239,7 +243,7 @@ class Crypto {
             if (!isHex64(key)) {
                 return false;
             }
-            return tryRunFunc('checkKey', key);
+            return tryRunFunc('checkKey', key.toLowerCase());
         });
     }
     /**
@@ -251,7 +255,19 @@ class Crypto {
      */
     checkRingSignature(hash, keyImage, inputKeys, signatures) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
+            inputKeys = inputKeys.map(elem => elem.toLowerCase());
+            signatures = signatures.map(elem => elem.toLowerCase());
+            for (const key of inputKeys) {
+                if (!(yield this.checkKey(key))) {
+                    throw new Error('Invalid input key found');
+                }
+            }
+            for (const sig of signatures) {
+                if (!isHex128(sig)) {
+                    throw new Error('Invalid signature format found');
+                }
+            }
+            return this.checkRingSignatures(hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
         });
     }
     /**
@@ -276,20 +292,22 @@ class Crypto {
                 return false;
             }
             let err = false;
-            inputKeys.forEach((key) => {
-                if (!this.checkKey(key)) {
+            inputKeys = inputKeys.map(elem => elem.toLowerCase());
+            signatures = signatures.map(elem => elem.toLowerCase());
+            for (const key of inputKeys) {
+                if (!(yield this.checkKey(key))) {
                     err = true;
                 }
-            });
-            signatures.forEach((sig) => {
+            }
+            for (const sig of signatures) {
                 if (!isHex128(sig)) {
                     err = true;
                 }
-            });
+            }
             if (err) {
                 return false;
             }
-            return tryRunFunc('checkRingSignature', hash, keyImage, inputKeys, signatures);
+            return tryRunFunc('checkRingSignature', hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
         });
     }
     /**
@@ -301,6 +319,7 @@ class Crypto {
             if (!isHex64(privateKey)) {
                 return false;
             }
+            privateKey = privateKey.toLowerCase();
             return (privateKey === (yield this.scReduce32(privateKey)));
         });
     }
@@ -321,7 +340,7 @@ class Crypto {
             if (!isHex128(signature)) {
                 return false;
             }
-            return tryRunFunc('checkSignature', hash, publicKey, signature);
+            return tryRunFunc('checkSignature', hash.toLowerCase(), publicKey.toLowerCase(), signature.toLowerCase());
         });
     }
     /**
@@ -333,6 +352,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Supplied data must be in hexadecimal form');
             }
+            data = data.toLowerCase();
             return tryRunFunc('cn_fast_hash', data)
                 .catch(() => { return js_sha3_1.keccak256(Buffer.from(data, 'hex')); });
         });
@@ -360,12 +380,12 @@ class Crypto {
             if (!(yield this.checkScalar(k))) {
                 throw new Error('Invalid k found');
             }
-            signatures.forEach((sig) => {
+            for (const sig of signatures) {
                 if (!isHex128(sig)) {
                     throw new Error('Invalid signature found');
                 }
-            });
-            return tryRunFunc('completeRingSignatures', privateEphemeral, realIndex, k, signatures);
+            }
+            return tryRunFunc('completeRingSignatures', privateEphemeral.toLowerCase(), realIndex, k.toLowerCase(), signatures);
         });
     }
     /**
@@ -381,7 +401,7 @@ class Crypto {
             if (!isUInt(outputIndex)) {
                 throw new Error('Invalid output index found');
             }
-            return tryRunFunc('derivationToScalar', derivation, outputIndex);
+            return tryRunFunc('derivationToScalar', derivation.toLowerCase(), outputIndex);
         });
     }
     /**
@@ -402,7 +422,7 @@ class Crypto {
             if (!(yield this.checkKey(publicKey))) {
                 throw new Error('Invalid public key found');
             }
-            return tryRunFunc('derivePublicKey', derivation, outputIndex, publicKey);
+            return tryRunFunc('derivePublicKey', derivation.toLowerCase(), outputIndex, publicKey.toLowerCase());
         });
     }
     /**
@@ -423,7 +443,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('deriveSecretKey', derivation, outputIndex, privateKey);
+            return tryRunFunc('deriveSecretKey', derivation.toLowerCase(), outputIndex, privateKey.toLowerCase());
         });
     }
     /**
@@ -440,7 +460,7 @@ class Crypto {
             if (!isUInt(walletIndex)) {
                 throw new Error('Invalid wallet index found');
             }
-            const keys = yield tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
+            const keys = yield tryRunFunc('generateDeterministicSubwalletKeys', privateKey.toLowerCase(), walletIndex);
             if (keys) {
                 return {
                     privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
@@ -465,7 +485,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generateKeyDerivation', publicKey, privateKey);
+            return tryRunFunc('generateKeyDerivation', publicKey.toLowerCase(), privateKey.toLowerCase());
         });
     }
     /**
@@ -485,7 +505,7 @@ class Crypto {
             if (!isUInt(outputIndex)) {
                 throw new Error('Invalid output index found');
             }
-            return tryRunFunc('generateKeyDerivationScalar', publicKey, privateKey, outputIndex);
+            return tryRunFunc('generateKeyDerivationScalar', publicKey.toLowerCase(), privateKey.toLowerCase(), outputIndex);
         });
     }
     /**
@@ -501,7 +521,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateEphemeral))) {
                 throw new Error('Invalid private ephemeral found');
             }
-            return tryRunFunc('generateKeyImage', publicEphemeral, privateEphemeral);
+            return tryRunFunc('generateKeyImage', publicEphemeral.toLowerCase(), privateEphemeral.toLowerCase());
         });
     }
     /**
@@ -534,7 +554,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generatePartialSigningKey', signature, privateKey);
+            return tryRunFunc('generatePartialSigningKey', signature.toLowerCase(), privateKey.toLowerCase());
         });
     }
     /**
@@ -546,7 +566,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey);
+            return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey.toLowerCase());
         });
     }
     /**
@@ -574,12 +594,13 @@ class Crypto {
             if (!isUInt(realIndex) || realIndex > publicKeys.length - 1) {
                 throw new Error('Invalid real index found');
             }
-            publicKeys.forEach((key) => {
-                if (!this.checkKey(key)) {
+            publicKeys = publicKeys.map(elem => elem.toLowerCase());
+            for (const key of publicKeys) {
+                if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
-            });
-            return tryRunFunc('generateRingSignatures', hash, keyImage, publicKeys, privateEphemeral, realIndex);
+            }
+            return tryRunFunc('generateRingSignatures', hash.toLowerCase(), keyImage.toLowerCase(), publicKeys, privateEphemeral.toLowerCase(), realIndex);
         });
     }
     /**
@@ -599,7 +620,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generateSignature', hash, publicKey, privateKey);
+            return tryRunFunc('generateSignature', hash.toLowerCase(), publicKey.toLowerCase(), privateKey.toLowerCase());
         });
     }
     /**
@@ -611,7 +632,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            const keys = yield tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
+            const keys = yield tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey.toLowerCase());
             if (keys) {
                 return {
                     privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
@@ -632,7 +653,7 @@ class Crypto {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-            return tryRunFunc('hashToEllipticCurve', hash);
+            return tryRunFunc('hashToEllipticCurve', hash.toLowerCase());
         });
     }
     /**
@@ -644,7 +665,7 @@ class Crypto {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-            return tryRunFunc('hashToScalar', hash);
+            return tryRunFunc('hashToScalar', hash.toLowerCase());
         });
     }
     /**
@@ -653,8 +674,9 @@ class Crypto {
      * @param keyImage the key image of the output being spent
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @param k a random scalar (private key)
      */
-    prepareRingSignatures(hash, keyImage, publicKeys, realIndex) {
+    prepareRingSignatures(hash, keyImage, publicKeys, realIndex, k) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
@@ -668,12 +690,34 @@ class Crypto {
             if (!isUInt(realIndex) || realIndex > publicKeys.length - 1) {
                 throw new Error('Invalid real index found');
             }
-            publicKeys.forEach((key) => {
-                if (!this.checkKey(key)) {
+            if (k) {
+                k = k.toLowerCase();
+            }
+            hash = hash.toLowerCase();
+            keyImage = keyImage.toLowerCase();
+            publicKeys = publicKeys.map(elem => elem.toLowerCase());
+            for (const key of publicKeys) {
+                if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
-            });
-            const result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
+            }
+            let result;
+            if (!k) {
+                result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
+            }
+            else {
+                if (moduleVars.type === Types.NODEADDON) {
+                    result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex, k);
+                }
+                else if (moduleVars.type === Types.JS ||
+                    moduleVars.type === Types.WASM ||
+                    moduleVars.type === Types.WASMJS) {
+                    result = yield tryRunFunc('prepareRingSignaturesK', hash, keyImage, publicKeys, realIndex, k);
+                }
+                else {
+                    result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex, k);
+                }
+            }
             if (result) {
                 return {
                     signatures: result.signatures,
@@ -716,12 +760,13 @@ class Crypto {
             if (!Array.isArray(partialKeyImages)) {
                 throw new Error('partial key images must be an array');
             }
-            partialKeyImages.forEach((key) => {
+            partialKeyImages = partialKeyImages.map(elem => elem.toLowerCase());
+            for (const key of partialKeyImages) {
                 if (!isHex64(key)) {
                     throw new Error('Invalid key image found');
                 }
-            });
-            return tryRunFunc('restoreKeyImage', publicEphemeral, derivation, outputIndex, partialKeyImages);
+            }
+            return tryRunFunc('restoreKeyImage', publicEphemeral.toLowerCase(), derivation.toLowerCase(), outputIndex, partialKeyImages);
         });
     }
     /**
@@ -756,17 +801,19 @@ class Crypto {
             if (!isUInt(realIndex) || realIndex > signatures.length - 1) {
                 throw new Error('Invalid real index found');
             }
-            partialSigningKeys.forEach((key) => {
-                if (!this.checkScalar(key)) {
+            partialSigningKeys = partialSigningKeys.map(elem => elem.toLowerCase());
+            signatures = signatures.map(elem => elem.toLowerCase());
+            for (const key of partialSigningKeys) {
+                if (!(yield this.checkScalar(key))) {
                     throw new Error('Invalid partial signing key found');
                 }
-            });
-            signatures.forEach((sig) => {
+            }
+            for (const sig of signatures) {
                 if (!isHex128(sig)) {
                     throw new Error('Invalid signature found');
                 }
-            });
-            return tryRunFunc('restoreRingSignatures', derivation, outputIndex, partialSigningKeys, realIndex, k, signatures);
+            }
+            return tryRunFunc('restoreRingSignatures', derivation.toLowerCase(), outputIndex, partialSigningKeys, realIndex, k.toLowerCase(), signatures);
         });
     }
     /**
@@ -782,7 +829,7 @@ class Crypto {
             if (!(yield this.checkKey(publicKey))) {
                 throw new Error('Invalid public key found');
             }
-            return tryRunFunc('scalarDerivePublicKey', derivationScalar, publicKey);
+            return tryRunFunc('scalarDerivePublicKey', derivationScalar.toLowerCase(), publicKey.toLowerCase());
         });
     }
     /**
@@ -798,7 +845,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('scalarDeriveSecretKey', derivationScalar, privateKey);
+            return tryRunFunc('scalarDeriveSecretKey', derivationScalar.toLowerCase(), privateKey.toLowerCase());
         });
     }
     /**
@@ -814,7 +861,7 @@ class Crypto {
             if (!isHex64(keyImageB)) {
                 throw new Error('Invalid key image B found');
             }
-            return tryRunFunc('scalarmultKey', keyImageA, keyImageB);
+            return tryRunFunc('scalarmultKey', keyImageA.toLowerCase(), keyImageB.toLowerCase());
         });
     }
     /**
@@ -826,7 +873,7 @@ class Crypto {
             if (!isHex64(data)) {
                 throw new Error('Invalid data format');
             }
-            return tryRunFunc('scReduce32', data);
+            return tryRunFunc('scReduce32', data.toLowerCase());
         });
     }
     /**
@@ -838,7 +885,7 @@ class Crypto {
             if (!(yield this.checkScalar(privateKey))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('secretKeyToPublicKey', privateKey);
+            return tryRunFunc('secretKeyToPublicKey', privateKey.toLowerCase());
         });
     }
     /**
@@ -850,11 +897,12 @@ class Crypto {
             if (!Array.isArray(hashes)) {
                 throw new Error('hashes must be an array');
             }
-            hashes.forEach((hash) => {
+            hashes = hashes.map(elem => elem.toLowerCase());
+            for (const hash of hashes) {
                 if (!isHex64(hash)) {
                     throw new Error('Invalid hash found');
                 }
-            });
+            }
             return tryRunFunc('tree_branch', hashes);
         });
     }
@@ -879,11 +927,12 @@ class Crypto {
             if (!Array.isArray(hashes)) {
                 throw new Error('hashes must be an array');
             }
-            hashes.forEach((hash) => {
+            hashes = hashes.map(elem => elem.toLowerCase());
+            for (const hash of hashes) {
                 if (!isHex64(hash)) {
                     throw new Error('Invalid hash found');
                 }
-            });
+            }
             return tryRunFunc('tree_hash', hashes);
         });
     }
@@ -904,16 +953,17 @@ class Crypto {
             if (!isUInt(path)) {
                 throw new Error('Invalid path found');
             }
-            branches.forEach((branch) => {
+            branches = branches.map(elem => elem.toLowerCase());
+            for (const branch of branches) {
                 if (!isHex64(branch)) {
                     throw new Error('Invalid branch found');
                 }
-            });
+            }
             if (moduleVars.type === Types.NODEADDON) {
-                return tryRunFunc('tree_hash_from_branch', branches, leaf, path);
+                return tryRunFunc('tree_hash_from_branch', branches, leaf.toLowerCase(), path);
             }
             else {
-                return tryRunFunc('tree_hash_from_branch', branches, leaf, path.toString());
+                return tryRunFunc('tree_hash_from_branch', branches, leaf.toLowerCase(), path.toString());
             }
         });
     }
@@ -934,7 +984,7 @@ class Crypto {
             if (!(yield this.checkKey(outputKey))) {
                 throw new Error('Invalid output key found');
             }
-            return tryRunFunc('underivePublicKey', derivation, outputIndex, outputKey);
+            return tryRunFunc('underivePublicKey', derivation.toLowerCase(), outputIndex, outputKey.toLowerCase());
         });
     }
     /**
@@ -946,7 +996,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_slow_hash_v0', data);
+            return tryRunFunc('cn_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -958,7 +1008,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_slow_hash_v1', data);
+            return tryRunFunc('cn_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -970,7 +1020,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_slow_hash_v2', data);
+            return tryRunFunc('cn_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -982,7 +1032,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_lite_slow_hash_v0', data);
+            return tryRunFunc('cn_lite_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -994,7 +1044,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_lite_slow_hash_v1', data);
+            return tryRunFunc('cn_lite_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1006,7 +1056,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_lite_slow_hash_v2', data);
+            return tryRunFunc('cn_lite_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -1018,7 +1068,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_slow_hash_v0', data);
+            return tryRunFunc('cn_dark_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -1030,7 +1080,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_slow_hash_v1', data);
+            return tryRunFunc('cn_dark_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1042,7 +1092,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_slow_hash_v2', data);
+            return tryRunFunc('cn_dark_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -1054,7 +1104,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_lite_slow_hash_v0', data);
+            return tryRunFunc('cn_dark_lite_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -1066,7 +1116,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_lite_slow_hash_v1', data);
+            return tryRunFunc('cn_dark_lite_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1078,7 +1128,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_dark_lite_slow_hash_v2', data);
+            return tryRunFunc('cn_dark_lite_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -1090,7 +1140,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_slow_hash_v0', data);
+            return tryRunFunc('cn_turtle_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -1102,7 +1152,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_slow_hash_v1', data);
+            return tryRunFunc('cn_turtle_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1114,7 +1164,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_slow_hash_v2', data);
+            return tryRunFunc('cn_turtle_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -1126,7 +1176,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_lite_slow_hash_v0', data);
+            return tryRunFunc('cn_turtle_lite_slow_hash_v0', data.toLowerCase());
         });
     }
     /**
@@ -1138,7 +1188,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_lite_slow_hash_v1', data);
+            return tryRunFunc('cn_turtle_lite_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1150,7 +1200,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('cn_turtle_lite_slow_hash_v2', data);
+            return tryRunFunc('cn_turtle_lite_slow_hash_v2', data.toLowerCase());
         });
     }
     /**
@@ -1166,7 +1216,7 @@ class Crypto {
             if (!isUInt(height)) {
                 throw new Error('Invalid height found');
             }
-            return tryRunFunc('cn_soft_shell_slow_hash_v0', data, height);
+            return tryRunFunc('cn_soft_shell_slow_hash_v0', data.toLowerCase(), height);
         });
     }
     /**
@@ -1182,7 +1232,7 @@ class Crypto {
             if (!isUInt(height)) {
                 throw new Error('Invalid height found');
             }
-            return tryRunFunc('cn_soft_shell_slow_hash_v1', data, height);
+            return tryRunFunc('cn_soft_shell_slow_hash_v1', data.toLowerCase(), height);
         });
     }
     /**
@@ -1198,7 +1248,7 @@ class Crypto {
             if (!isUInt(height)) {
                 throw new Error('Invalid height found');
             }
-            return tryRunFunc('cn_soft_shell_slow_hash_v2', data, height);
+            return tryRunFunc('cn_soft_shell_slow_hash_v2', data.toLowerCase(), height);
         });
     }
     /**
@@ -1222,7 +1272,7 @@ class Crypto {
                 default:
                     throw new Error('Unknown Chukwa version number');
             }
-            return tryRunFunc(func, data);
+            return tryRunFunc(func, data.toLowerCase());
         });
     }
     /**
@@ -1237,7 +1287,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('chukwa_slow_hash_base', data, iterations, memory, threads);
+            return tryRunFunc('chukwa_slow_hash_base', data.toLowerCase(), iterations, memory, threads);
         });
     }
     /**
@@ -1249,7 +1299,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('chukwa_slow_hash_v1', data);
+            return tryRunFunc('chukwa_slow_hash_v1', data.toLowerCase());
         });
     }
     /**
@@ -1261,7 +1311,7 @@ class Crypto {
             if (!isHex(data)) {
                 throw new Error('Invalid data found');
             }
-            return tryRunFunc('chukwa_slow_hash_v2', data);
+            return tryRunFunc('chukwa_slow_hash_v2', data.toLowerCase());
         });
     }
 }
