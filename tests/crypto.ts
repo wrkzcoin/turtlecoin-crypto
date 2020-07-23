@@ -200,6 +200,28 @@ describe('Cryptography', function () {
 
             assert(check);
         });
+
+        it('Prepare Ring Signatures - Precomputed K', async () => {
+            const prefixHash = 'b542df5b6e7f5f05275c98e7345884e2ac726aeeb07e03e44e0389eb86cd05f0';
+            const keyImage = '6865866ed8a25824e042e21dd36e946836b58b03366e489aecf979f444f599b0';
+            const publicKeys = [
+                '492390897da1cabd3886e3eff43ad1d04aa510a905bec0acd31a0a2f260e7862',
+                '7644ccb5410cca2be18b033e5f7497aeeeafd1d8f317f29cba4803e4306aa402',
+                'bb9a956ffdf8159ad69474e6b0811316c44a17a540d5e39a44642d4d933a6460',
+                'e1cd9ccdfdf2b3a45ac2cfd1e29185d22c185742849f52368c3cdd1c0ce499c0'
+            ];
+            const privateEphemeral = '73a8e577d58f7c11992201d4014ac7eef39c1e9f6f6d78673103de60a0c3240b';
+
+            const keys = await TurtleCoinCrypto.generateKeys();
+
+            const prep = await TurtleCoinCrypto.prepareRingSignatures(prefixHash, keyImage, publicKeys, 3, keys.privateKey);
+
+            const signatures = await TurtleCoinCrypto.completeRingSignatures(privateEphemeral, 3, prep.key, prep.signatures);
+
+            const check = await TurtleCoinCrypto.checkRingSignatures(prefixHash, keyImage, publicKeys, signatures);
+
+            assert(check && prep.key === keys.privateKey);
+        });
     });
 
     describe('Multisig', () => {
