@@ -80,7 +80,7 @@ Array.prototype.toVectorString = function () {
 
     const arr = new moduleVars.crypto.VectorString();
 
-    this.forEach((key) => arr.push_back(key));
+    this.map(elem => arr.push_back(elem));
 
     return arr;
 };
@@ -115,9 +115,9 @@ export class Crypto {
     public static get isNative (): boolean {
         switch (moduleVars.type) {
         case Types.NODEADDON:
-            return false;
-        default:
             return true;
+        default:
+            return false;
         }
     }
 
@@ -125,7 +125,8 @@ export class Crypto {
      * Returns if the wrapper is loaded and ready
      */
     public static get isReady (): boolean {
-        return (moduleVars.crypto !== null && typeof moduleVars.crypto.cn_fast_hash === 'function');
+        return (moduleVars.crypto !== null &&
+            typeof moduleVars.crypto.cn_fast_hash === 'function');
     }
 
     /**
@@ -240,13 +241,16 @@ export class Crypto {
             throw new Error('publicKeys must be an array');
         }
 
-        publicKeys.forEach((key) => {
-            if (!this.checkKey(key)) {
+        publicKeys = publicKeys.map(elem => elem.toLowerCase());
+
+        for (const key of publicKeys) {
+            if (!await this.checkKey(key)) {
                 throw new Error('Invalid public key found');
             }
-        });
+        }
 
-        return tryRunFunc('calculateMultisigPrivateKeys', privateSpendKey, publicKeys);
+        return tryRunFunc('calculateMultisigPrivateKeys',
+            privateSpendKey.toLowerCase(), publicKeys);
     }
 
     /**
@@ -258,11 +262,13 @@ export class Crypto {
             throw new Error('privateKeys must be an array');
         }
 
-        privateKeys.forEach((key) => {
-            if (!this.checkScalar(key)) {
+        privateKeys = privateKeys.map(elem => elem.toLowerCase());
+
+        for (const key of privateKeys) {
+            if (!await this.checkScalar(key)) {
                 throw new Error('Invalid private key found');
             }
-        });
+        }
 
         return tryRunFunc('calculateSharedPrivateKey', privateKeys);
     }
@@ -276,11 +282,13 @@ export class Crypto {
             throw new Error('publicKeys must be an array');
         }
 
-        publicKeys.forEach((key) => {
-            if (!this.checkKey(key)) {
+        publicKeys = publicKeys.map(elem => elem.toLowerCase());
+
+        for (const key of publicKeys) {
+            if (!await this.checkKey(key)) {
                 throw new Error('Invalid public key found');
             }
-        });
+        }
 
         return tryRunFunc('calculateSharedPublicKey', publicKeys);
     }
@@ -294,7 +302,7 @@ export class Crypto {
             return false;
         }
 
-        return tryRunFunc('checkKey', key);
+        return tryRunFunc('checkKey', key.toLowerCase());
     }
 
     /**
@@ -310,7 +318,24 @@ export class Crypto {
         inputKeys: string[],
         signatures: string[]
     ): Promise<boolean> {
-        return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
+        inputKeys = inputKeys.map(elem => elem.toLowerCase());
+
+        signatures = signatures.map(elem => elem.toLowerCase());
+
+        for (const key of inputKeys) {
+            if (!await this.checkKey(key)) {
+                throw new Error('Invalid input key found');
+            }
+        }
+
+        for (const sig of signatures) {
+            if (!isHex128(sig)) {
+                throw new Error('Invalid signature format found');
+            }
+        }
+
+        return this.checkRingSignatures(
+            hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
     }
 
     /**
@@ -341,23 +366,28 @@ export class Crypto {
 
         let err = false;
 
-        inputKeys.forEach((key) => {
-            if (!this.checkKey(key)) {
+        inputKeys = inputKeys.map(elem => elem.toLowerCase());
+
+        signatures = signatures.map(elem => elem.toLowerCase());
+
+        for (const key of inputKeys) {
+            if (!await this.checkKey(key)) {
                 err = true;
             }
-        });
+        }
 
-        signatures.forEach((sig) => {
+        for (const sig of signatures) {
             if (!isHex128(sig)) {
                 err = true;
             }
-        });
+        }
 
         if (err) {
             return false;
         }
 
-        return tryRunFunc('checkRingSignature', hash, keyImage, inputKeys, signatures);
+        return tryRunFunc('checkRingSignature',
+            hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
     }
 
     /**
@@ -368,6 +398,9 @@ export class Crypto {
         if (!isHex64(privateKey)) {
             return false;
         }
+
+        privateKey = privateKey.toLowerCase();
+
         return (privateKey === await this.scReduce32(privateKey));
     }
 
@@ -392,7 +425,8 @@ export class Crypto {
             return false;
         }
 
-        return tryRunFunc('checkSignature', hash, publicKey, signature);
+        return tryRunFunc('checkSignature',
+            hash.toLowerCase(), publicKey.toLowerCase(), signature.toLowerCase());
     }
 
     /**
@@ -403,6 +437,8 @@ export class Crypto {
         if (!isHex(data)) {
             throw new Error('Supplied data must be in hexadecimal form');
         }
+
+        data = data.toLowerCase();
 
         return tryRunFunc('cn_fast_hash', data)
             .catch(() => { return keccak256(Buffer.from(data, 'hex')); });
@@ -436,13 +472,14 @@ export class Crypto {
             throw new Error('Invalid k found');
         }
 
-        signatures.forEach((sig) => {
+        for (const sig of signatures) {
             if (!isHex128(sig)) {
                 throw new Error('Invalid signature found');
             }
-        });
+        }
 
-        return tryRunFunc('completeRingSignatures', privateEphemeral, realIndex, k, signatures);
+        return tryRunFunc('completeRingSignatures',
+            privateEphemeral.toLowerCase(), realIndex, k.toLowerCase(), signatures);
     }
 
     /**
@@ -462,7 +499,7 @@ export class Crypto {
             throw new Error('Invalid output index found');
         }
 
-        return tryRunFunc('derivationToScalar', derivation, outputIndex);
+        return tryRunFunc('derivationToScalar', derivation.toLowerCase(), outputIndex);
     }
 
     /**
@@ -487,7 +524,8 @@ export class Crypto {
             throw new Error('Invalid public key found');
         }
 
-        return tryRunFunc('derivePublicKey', derivation, outputIndex, publicKey);
+        return tryRunFunc('derivePublicKey',
+            derivation.toLowerCase(), outputIndex, publicKey.toLowerCase());
     }
 
     /**
@@ -512,7 +550,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('deriveSecretKey', derivation, outputIndex, privateKey);
+        return tryRunFunc('deriveSecretKey',
+            derivation.toLowerCase(), outputIndex, privateKey.toLowerCase());
     }
 
     /**
@@ -532,7 +571,8 @@ export class Crypto {
             throw new Error('Invalid wallet index found');
         }
 
-        const keys = await tryRunFunc('generateDeterministicSubwalletKeys', privateKey, walletIndex);
+        const keys = await tryRunFunc('generateDeterministicSubwalletKeys',
+            privateKey.toLowerCase(), walletIndex);
 
         if (keys) {
             return {
@@ -557,7 +597,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('generateKeyDerivation', publicKey, privateKey);
+        return tryRunFunc('generateKeyDerivation',
+            publicKey.toLowerCase(), privateKey.toLowerCase());
     }
 
     /**
@@ -583,7 +624,8 @@ export class Crypto {
             throw new Error('Invalid output index found');
         }
 
-        return tryRunFunc('generateKeyDerivationScalar', publicKey, privateKey, outputIndex);
+        return tryRunFunc('generateKeyDerivationScalar',
+            publicKey.toLowerCase(), privateKey.toLowerCase(), outputIndex);
     }
 
     /**
@@ -599,7 +641,8 @@ export class Crypto {
             throw new Error('Invalid private ephemeral found');
         }
 
-        return tryRunFunc('generateKeyImage', publicEphemeral, privateEphemeral);
+        return tryRunFunc('generateKeyImage',
+            publicEphemeral.toLowerCase(), privateEphemeral.toLowerCase());
     }
 
     /**
@@ -631,7 +674,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('generatePartialSigningKey', signature, privateKey);
+        return tryRunFunc('generatePartialSigningKey',
+            signature.toLowerCase(), privateKey.toLowerCase());
     }
 
     /**
@@ -643,7 +687,7 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey);
+        return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey.toLowerCase());
     }
 
     /**
@@ -659,7 +703,8 @@ export class Crypto {
         keyImage: string,
         publicKeys: string[],
         privateEphemeral: string,
-        realIndex: number): Promise<string[]> {
+        realIndex: number
+    ): Promise<string[]> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
         }
@@ -676,13 +721,16 @@ export class Crypto {
             throw new Error('Invalid real index found');
         }
 
-        publicKeys.forEach((key) => {
-            if (!this.checkKey(key)) {
+        publicKeys = publicKeys.map(elem => elem.toLowerCase());
+
+        for (const key of publicKeys) {
+            if (!await this.checkKey(key)) {
                 throw new Error('Invalid public key found');
             }
-        });
+        }
 
-        return tryRunFunc('generateRingSignatures', hash, keyImage, publicKeys, privateEphemeral, realIndex);
+        return tryRunFunc('generateRingSignatures',
+            hash.toLowerCase(), keyImage.toLowerCase(), publicKeys, privateEphemeral.toLowerCase(), realIndex);
     }
 
     /**
@@ -706,7 +754,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('generateSignature', hash, publicKey, privateKey);
+        return tryRunFunc('generateSignature',
+            hash.toLowerCase(), publicKey.toLowerCase(), privateKey.toLowerCase());
     }
 
     /**
@@ -718,7 +767,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        const keys = await tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey);
+        const keys = await tryRunFunc('generateViewKeysFromPrivateSpendKey',
+            privateKey.toLowerCase());
 
         if (keys) {
             return {
@@ -739,7 +789,7 @@ export class Crypto {
             throw new Error('Invalid hash found');
         }
 
-        return tryRunFunc('hashToEllipticCurve', hash);
+        return tryRunFunc('hashToEllipticCurve', hash.toLowerCase());
     }
 
     /**
@@ -751,7 +801,7 @@ export class Crypto {
             throw new Error('Invalid hash found');
         }
 
-        return tryRunFunc('hashToScalar', hash);
+        return tryRunFunc('hashToScalar', hash.toLowerCase());
     }
 
     /**
@@ -760,12 +810,14 @@ export class Crypto {
      * @param keyImage the key image of the output being spent
      * @param publicKeys an array of the output keys used for signing (mixins + our output)
      * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @param k a random scalar (private key)
      */
     public async prepareRingSignatures (
         hash: string,
         keyImage: string,
         publicKeys: string[],
-        realIndex: number
+        realIndex: number,
+        k?: string
     ): Promise<Interfaces.IPreparedRingSignatures> {
         if (!isHex64(hash)) {
             throw new Error('Invalid hash found');
@@ -780,13 +832,41 @@ export class Crypto {
             throw new Error('Invalid real index found');
         }
 
-        publicKeys.forEach((key) => {
-            if (!this.checkKey(key)) {
+        if (k) {
+            k = k.toLowerCase();
+        }
+
+        hash = hash.toLowerCase();
+
+        keyImage = keyImage.toLowerCase();
+
+        publicKeys = publicKeys.map(elem => elem.toLowerCase());
+
+        for (const key of publicKeys) {
+            if (!await this.checkKey(key)) {
                 throw new Error('Invalid public key found');
             }
-        });
+        }
 
-        const result = await tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
+        let result;
+
+        if (!k) {
+            result = await tryRunFunc('prepareRingSignatures',
+                hash, keyImage, publicKeys, realIndex);
+        } else {
+            if (moduleVars.type === Types.NODEADDON) {
+                result = await tryRunFunc('prepareRingSignatures',
+                    hash, keyImage, publicKeys, realIndex, k);
+            } else if (moduleVars.type === Types.JS ||
+                moduleVars.type === Types.WASM ||
+                moduleVars.type === Types.WASMJS) {
+                result = await tryRunFunc('prepareRingSignaturesK',
+                    hash, keyImage, publicKeys, realIndex, k);
+            } else {
+                result = await tryRunFunc('prepareRingSignatures',
+                    hash, keyImage, publicKeys, realIndex, k);
+            }
+        }
 
         if (result) {
             return {
@@ -833,13 +913,16 @@ export class Crypto {
             throw new Error('partial key images must be an array');
         }
 
-        partialKeyImages.forEach((key) => {
+        partialKeyImages = partialKeyImages.map(elem => elem.toLowerCase());
+
+        for (const key of partialKeyImages) {
             if (!isHex64(key)) {
                 throw new Error('Invalid key image found');
             }
-        });
+        }
 
-        return tryRunFunc('restoreKeyImage', publicEphemeral, derivation, outputIndex, partialKeyImages);
+        return tryRunFunc('restoreKeyImage',
+            publicEphemeral.toLowerCase(), derivation.toLowerCase(), outputIndex, partialKeyImages);
     }
 
     /**
@@ -881,25 +964,29 @@ export class Crypto {
             throw new Error('Invalid real index found');
         }
 
-        partialSigningKeys.forEach((key) => {
-            if (!this.checkScalar(key)) {
+        partialSigningKeys = partialSigningKeys.map(elem => elem.toLowerCase());
+
+        signatures = signatures.map(elem => elem.toLowerCase());
+
+        for (const key of partialSigningKeys) {
+            if (!await this.checkScalar(key)) {
                 throw new Error('Invalid partial signing key found');
             }
-        });
+        }
 
-        signatures.forEach((sig) => {
+        for (const sig of signatures) {
             if (!isHex128(sig)) {
                 throw new Error('Invalid signature found');
             }
-        });
+        }
 
         return tryRunFunc(
             'restoreRingSignatures',
-            derivation,
+            derivation.toLowerCase(),
             outputIndex,
             partialSigningKeys,
             realIndex,
-            k,
+            k.toLowerCase(),
             signatures);
     }
 
@@ -917,7 +1004,8 @@ export class Crypto {
             throw new Error('Invalid public key found');
         }
 
-        return tryRunFunc('scalarDerivePublicKey', derivationScalar, publicKey);
+        return tryRunFunc('scalarDerivePublicKey',
+            derivationScalar.toLowerCase(), publicKey.toLowerCase());
     }
 
     /**
@@ -934,7 +1022,8 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('scalarDeriveSecretKey', derivationScalar, privateKey);
+        return tryRunFunc('scalarDeriveSecretKey',
+            derivationScalar.toLowerCase(), privateKey.toLowerCase());
     }
 
     /**
@@ -950,7 +1039,8 @@ export class Crypto {
             throw new Error('Invalid key image B found');
         }
 
-        return tryRunFunc('scalarmultKey', keyImageA, keyImageB);
+        return tryRunFunc('scalarmultKey',
+            keyImageA.toLowerCase(), keyImageB.toLowerCase());
     }
 
     /**
@@ -962,7 +1052,7 @@ export class Crypto {
             throw new Error('Invalid data format');
         }
 
-        return tryRunFunc('scReduce32', data);
+        return tryRunFunc('scReduce32', data.toLowerCase());
     }
 
     /**
@@ -974,7 +1064,7 @@ export class Crypto {
             throw new Error('Invalid private key found');
         }
 
-        return tryRunFunc('secretKeyToPublicKey', privateKey);
+        return tryRunFunc('secretKeyToPublicKey', privateKey.toLowerCase());
     }
 
     /**
@@ -986,11 +1076,13 @@ export class Crypto {
             throw new Error('hashes must be an array');
         }
 
-        hashes.forEach((hash) => {
+        hashes = hashes.map(elem => elem.toLowerCase());
+
+        for (const hash of hashes) {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-        });
+        }
 
         return tryRunFunc('tree_branch', hashes);
     }
@@ -1016,11 +1108,13 @@ export class Crypto {
             throw new Error('hashes must be an array');
         }
 
-        hashes.forEach((hash) => {
+        hashes = hashes.map(elem => elem.toLowerCase());
+
+        for (const hash of hashes) {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-        });
+        }
 
         return tryRunFunc('tree_hash', hashes);
     }
@@ -1046,16 +1140,20 @@ export class Crypto {
             throw new Error('Invalid path found');
         }
 
-        branches.forEach((branch) => {
+        branches = branches.map(elem => elem.toLowerCase());
+
+        for (const branch of branches) {
             if (!isHex64(branch)) {
                 throw new Error('Invalid branch found');
             }
-        });
+        }
 
         if (moduleVars.type === Types.NODEADDON) {
-            return tryRunFunc('tree_hash_from_branch', branches, leaf, path);
+            return tryRunFunc('tree_hash_from_branch',
+                branches, leaf.toLowerCase(), path);
         } else {
-            return tryRunFunc('tree_hash_from_branch', branches, leaf, path.toString());
+            return tryRunFunc('tree_hash_from_branch',
+                branches, leaf.toLowerCase(), path.toString());
         }
     }
 
@@ -1080,7 +1178,8 @@ export class Crypto {
             throw new Error('Invalid output key found');
         }
 
-        return tryRunFunc('underivePublicKey', derivation, outputIndex, outputKey);
+        return tryRunFunc('underivePublicKey',
+            derivation.toLowerCase(), outputIndex, outputKey.toLowerCase());
     }
 
     /**
@@ -1092,7 +1191,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_slow_hash_v0', data);
+        return tryRunFunc('cn_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1104,7 +1203,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_slow_hash_v1', data);
+        return tryRunFunc('cn_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1116,7 +1215,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_slow_hash_v2', data);
+        return tryRunFunc('cn_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1128,7 +1227,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_lite_slow_hash_v0', data);
+        return tryRunFunc('cn_lite_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1140,7 +1239,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_lite_slow_hash_v1', data);
+        return tryRunFunc('cn_lite_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1152,7 +1251,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_lite_slow_hash_v2', data);
+        return tryRunFunc('cn_lite_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1164,7 +1263,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_slow_hash_v0', data);
+        return tryRunFunc('cn_dark_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1176,7 +1275,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_slow_hash_v1', data);
+        return tryRunFunc('cn_dark_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1188,7 +1287,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_slow_hash_v2', data);
+        return tryRunFunc('cn_dark_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1200,7 +1299,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_lite_slow_hash_v0', data);
+        return tryRunFunc('cn_dark_lite_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1212,7 +1311,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_lite_slow_hash_v1', data);
+        return tryRunFunc('cn_dark_lite_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1224,7 +1323,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_dark_lite_slow_hash_v2', data);
+        return tryRunFunc('cn_dark_lite_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1236,7 +1335,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_slow_hash_v0', data);
+        return tryRunFunc('cn_turtle_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1248,7 +1347,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_slow_hash_v1', data);
+        return tryRunFunc('cn_turtle_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1260,7 +1359,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_slow_hash_v2', data);
+        return tryRunFunc('cn_turtle_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1272,7 +1371,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_lite_slow_hash_v0', data);
+        return tryRunFunc('cn_turtle_lite_slow_hash_v0', data.toLowerCase());
     }
 
     /**
@@ -1284,7 +1383,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_lite_slow_hash_v1', data);
+        return tryRunFunc('cn_turtle_lite_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1296,7 +1395,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('cn_turtle_lite_slow_hash_v2', data);
+        return tryRunFunc('cn_turtle_lite_slow_hash_v2', data.toLowerCase());
     }
 
     /**
@@ -1312,7 +1411,7 @@ export class Crypto {
             throw new Error('Invalid height found');
         }
 
-        return tryRunFunc('cn_soft_shell_slow_hash_v0', data, height);
+        return tryRunFunc('cn_soft_shell_slow_hash_v0', data.toLowerCase(), height);
     }
 
     /**
@@ -1328,7 +1427,7 @@ export class Crypto {
             throw new Error('Invalid height found');
         }
 
-        return tryRunFunc('cn_soft_shell_slow_hash_v1', data, height);
+        return tryRunFunc('cn_soft_shell_slow_hash_v1', data.toLowerCase(), height);
     }
 
     /**
@@ -1344,7 +1443,7 @@ export class Crypto {
             throw new Error('Invalid height found');
         }
 
-        return tryRunFunc('cn_soft_shell_slow_hash_v2', data, height);
+        return tryRunFunc('cn_soft_shell_slow_hash_v2', data.toLowerCase(), height);
     }
 
     /**
@@ -1370,7 +1469,7 @@ export class Crypto {
             throw new Error('Unknown Chukwa version number');
         }
 
-        return tryRunFunc(func, data);
+        return tryRunFunc(func, data.toLowerCase());
     }
 
     /**
@@ -1390,7 +1489,8 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('chukwa_slow_hash_base', data, iterations, memory, threads);
+        return tryRunFunc('chukwa_slow_hash_base',
+            data.toLowerCase(), iterations, memory, threads);
     }
 
     /**
@@ -1402,7 +1502,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('chukwa_slow_hash_v1', data);
+        return tryRunFunc('chukwa_slow_hash_v1', data.toLowerCase());
     }
 
     /**
@@ -1414,7 +1514,7 @@ export class Crypto {
             throw new Error('Invalid data found');
         }
 
-        return tryRunFunc('chukwa_slow_hash_v2', data);
+        return tryRunFunc('chukwa_slow_hash_v2', data.toLowerCase());
     }
 }
 
