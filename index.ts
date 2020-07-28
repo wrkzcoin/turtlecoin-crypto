@@ -318,24 +318,8 @@ export class Crypto {
         inputKeys: string[],
         signatures: string[]
     ): Promise<boolean> {
-        inputKeys = inputKeys.map(elem => elem.toLowerCase());
-
-        signatures = signatures.map(elem => elem.toLowerCase());
-
-        for (const key of inputKeys) {
-            if (!await this.checkKey(key)) {
-                throw new Error('Invalid input key found');
-            }
-        }
-
-        for (const sig of signatures) {
-            if (!isHex128(sig)) {
-                throw new Error('Invalid signature format found');
-            }
-        }
-
         return this.checkRingSignatures(
-            hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
+            hash, keyImage, inputKeys, signatures);
     }
 
     /**
