@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Crypto = void 0;
 const js_sha3_1 = require("js-sha3");
 /**
  * @ignore
@@ -255,19 +256,7 @@ class Crypto {
      */
     checkRingSignature(hash, keyImage, inputKeys, signatures) {
         return __awaiter(this, void 0, void 0, function* () {
-            inputKeys = inputKeys.map(elem => elem.toLowerCase());
-            signatures = signatures.map(elem => elem.toLowerCase());
-            for (const key of inputKeys) {
-                if (!(yield this.checkKey(key))) {
-                    throw new Error('Invalid input key found');
-                }
-            }
-            for (const sig of signatures) {
-                if (!isHex128(sig)) {
-                    throw new Error('Invalid signature format found');
-                }
-            }
-            return this.checkRingSignatures(hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
+            return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
         });
     }
     /**
