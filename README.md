@@ -217,7 +217,7 @@ You will need the following packages:
 ```bash
 git clone -b master --single-branch https://github.com/turtlecoin/turtlecoin-crypto
 cd turtlecoin-crypto
-bash ./build_js.sh
+source ./build_js.sh
 ```
 
 This script will install the necessary dependencies on your machine and then proceed to compile the library to Native Javascript and WASM.
