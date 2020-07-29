@@ -468,7 +468,9 @@ describe('Cryptography', function () {
                 });
             });
 
-            describe('Transactions', () => {
+            describe('Transactions', async function () {
+                this.timeout(60000);
+
                 it('Restore KeyImage from Partial KeyImages of Party #1 & Party #2', async () => {
                     const partialKeyImages: string[] = [];
 
@@ -807,7 +809,9 @@ describe('Hash Generation Methods', function () {
     ];
 
     algos.forEach((algo) => {
-        it(algo.name, async () => {
+        it(algo.name, async function () {
+            this.timeout(60000);
+
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const hash = await TurtleCoinCrypto[algo.func](testdata);
@@ -816,27 +820,37 @@ describe('Hash Generation Methods', function () {
         });
     });
 
-    it('chukwa_slow_hash', async () => {
+    it('chukwa_slow_hash', async function () {
+        this.timeout(60000);
+
         const hash = await TurtleCoinCrypto.chukwa_slow_hash(testdata);
         assert(hash === 'c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e');
     });
 
-    it('chukwa_slow_hash [1]', async () => {
+    it('chukwa_slow_hash [1]', async function () {
+        this.timeout(60000);
+
         const hash = await TurtleCoinCrypto.chukwa_slow_hash(testdata, 1);
         assert(hash === 'c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e');
     });
 
-    it('chukwa_slow_hash [2]', async () => {
+    it('chukwa_slow_hash [2]', async function () {
+        this.timeout(60000);
+
         const hash = await TurtleCoinCrypto.chukwa_slow_hash(testdata, 2);
         assert(hash === '3578c135261366a7bac407b8c0ff50f3ad96f096ec2813e9644e6e77a43f803d');
     });
 
-    it('chukwa_slow_hash_base [3 iterations, 512KB, 1 thread]', async () => {
+    it('chukwa_slow_hash_base [3 iterations, 512KB, 1 thread]', async function () {
+        this.timeout(60000);
+
         const hash = await TurtleCoinCrypto.chukwa_slow_hash_base(testdata, 3, 512, 1);
         assert(hash === 'c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e');
     });
 
-    it('chukwa_slow_hash_base [4 iterations, 1024KB, 1 thread]', async () => {
+    it('chukwa_slow_hash_base [4 iterations, 1024KB, 1 thread]', async function () {
+        this.timeout(60000);
+
         const hash = await TurtleCoinCrypto.chukwa_slow_hash_base(testdata, 4, 1024, 1);
         assert(hash === '3578c135261366a7bac407b8c0ff50f3ad96f096ec2813e9644e6e77a43f803d');
     });
