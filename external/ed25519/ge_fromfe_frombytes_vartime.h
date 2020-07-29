@@ -10,6 +10,7 @@
 #include "fe_add.h"
 #include "fe_copy.h"
 #include "fe_divpowm1.h"
+#include "fe_invert.h"
 #include "fe_isnegative.h"
 #include "fe_isnonzero.h"
 #include "fe_mul.h"
