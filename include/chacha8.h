@@ -45,7 +45,7 @@ namespace Crypto
         Hash pwd_hash;
         cn_slow_hash_v0(password.data(), password.size(), pwd_hash);
         memcpy(&key, &pwd_hash, sizeof(key));
-        memset(&pwd_hash, 0, sizeof(pwd_hash));
+        memset(&pwd_hash.data, 0, sizeof(pwd_hash.data));
     }
 
     /**
