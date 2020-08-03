@@ -53,31 +53,45 @@ describe('Cryptography', function () {
 
         describe('Traditional Derivation Math', () => {
             it('Generate Key Derivation', async () => {
-                const derivation = await TurtleCoinCrypto.generateKeyDerivation('3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94', '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909');
+                const derivation = await TurtleCoinCrypto.generateKeyDerivation(
+                    '3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94',
+                    '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909');
 
                 assert(derivation === '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20');
             });
 
             it('Derive Public Key', async () => {
-                const publicKey = await TurtleCoinCrypto.derivePublicKey('4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20', 2, '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
+                const publicKey = await TurtleCoinCrypto.derivePublicKey(
+                    '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20',
+                    2,
+                    '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
 
                 assert(publicKey === 'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
             });
 
             it('Underive Public Key: Ours', async () => {
-                const publicKey = await TurtleCoinCrypto.underivePublicKey('4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20', 2, 'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
+                const publicKey = await TurtleCoinCrypto.underivePublicKey(
+                    '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20',
+                    2,
+                    'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
 
                 assert(publicKey === '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
             });
 
             it('Underive Public Key: Not Ours', async () => {
-                const publicKey = await TurtleCoinCrypto.underivePublicKey('4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20', 0, 'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
+                const publicKey = await TurtleCoinCrypto.underivePublicKey(
+                    '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20',
+                    0,
+                    'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
 
                 assert(publicKey !== '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
             });
 
             it('Derive Secret Key', async () => {
-                const secretKey = await TurtleCoinCrypto.deriveSecretKey('4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20', 2, 'd9d555a892a85f64916cae1a168bd3f7f400b6471c7b12b438b599601298210b');
+                const secretKey = await TurtleCoinCrypto.deriveSecretKey(
+                    '4827dbde0c0994c0979e2f9c046825bb4a065b6e35cabc0290ff5216af060c20',
+                    2,
+                    'd9d555a892a85f64916cae1a168bd3f7f400b6471c7b12b438b599601298210b');
 
                 assert(secretKey === 'e52ece5717f01843e3accc4df651d669e339c31eb8059145e881faae19ad4a0e');
             });
@@ -85,13 +99,18 @@ describe('Cryptography', function () {
 
         describe('New Derivation Math', () => {
             it('Generate Key Derivation Scalar', async () => {
-                const derivationScalar = await TurtleCoinCrypto.generateKeyDerivationScalar('3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94', '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909', 2);
+                const derivationScalar = await TurtleCoinCrypto.generateKeyDerivationScalar(
+                    '3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94',
+                    '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909',
+                    2);
 
                 assert(derivationScalar === '0c5978af8447b9de51401e33e0c60272ee380dd79b8a7e91afcc604e07152903');
             });
 
             it('Derivation to Scalar', async () => {
-                const derivation = await TurtleCoinCrypto.generateKeyDerivation('3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94', '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909');
+                const derivation = await TurtleCoinCrypto.generateKeyDerivation(
+                    '3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94',
+                    '6968a0b8f744ec4b8cea5ec124a1b4bd1626a2e6f31e999f8adbab52c4dfa909');
 
                 const derivationScalar = await TurtleCoinCrypto.derivationToScalar(derivation, 2);
 
@@ -99,38 +118,47 @@ describe('Cryptography', function () {
             });
 
             it('Derive Public Key', async () => {
-                const publicKey = await TurtleCoinCrypto.scalarDerivePublicKey('0c5978af8447b9de51401e33e0c60272ee380dd79b8a7e91afcc604e07152903', '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
+                const publicKey = await TurtleCoinCrypto.scalarDerivePublicKey(
+                    '0c5978af8447b9de51401e33e0c60272ee380dd79b8a7e91afcc604e07152903',
+                    '854a637b2863af9e8e8216eb2382f3d16616b3ac3e53d0976fbd6f8da6c56418');
 
                 assert(publicKey === 'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d');
             });
 
             it('Derive Secret Key', async () => {
-                const secretKey = await TurtleCoinCrypto.scalarDeriveSecretKey('0c5978af8447b9de51401e33e0c60272ee380dd79b8a7e91afcc604e07152903', 'd9d555a892a85f64916cae1a168bd3f7f400b6471c7b12b438b599601298210b');
+                const secretKey = await TurtleCoinCrypto.scalarDeriveSecretKey(
+                    '0c5978af8447b9de51401e33e0c60272ee380dd79b8a7e91afcc604e07152903',
+                    'd9d555a892a85f64916cae1a168bd3f7f400b6471c7b12b438b599601298210b');
 
                 assert(secretKey === 'e52ece5717f01843e3accc4df651d669e339c31eb8059145e881faae19ad4a0e');
             });
         });
 
         it('Generate Key Image', async () => {
-            const keyImage = await TurtleCoinCrypto.generateKeyImage('bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d', 'e52ece5717f01843e3accc4df651d669e339c31eb8059145e881faae19ad4a0e');
+            const keyImage = await TurtleCoinCrypto.generateKeyImage(
+                'bb55bef919d1c9f74b5b52a8a6995a1dc4af4c0bb8824f5dc889012bc748173d',
+                'e52ece5717f01843e3accc4df651d669e339c31eb8059145e881faae19ad4a0e');
 
             assert(keyImage === '5997cf23543ce2e05c327297a47f26e710af868344859a6f8d65683d8a2498b0');
         });
 
         it('Generate Deterministic Subwallet #0', async () => {
-            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 0);
+            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys(
+                'dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 0);
 
             assert(spendKey.privateKey === 'dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c');
         });
 
         it('Generate Deterministic Subwallet #1', async () => {
-            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 1);
+            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys(
+                'dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 1);
 
             assert(spendKey.privateKey === 'c55cbe4fd1c49dca5958fa1c7b9212c2dbf3fd5bfec84de741d434056e298600');
         });
 
         it('Generate Deterministic Subwallet #64', async () => {
-            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys('dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 64);
+            const spendKey = await TurtleCoinCrypto.generateDeterministicSubwalletKeys(
+                'dd0c02d3202634821b4d9d91b63d919725f5c3e97e803f3512e52fb0dc2aab0c', 64);
 
             assert(spendKey.privateKey === '29c2afed13271e2bb3321c2483356fd8798f2709af4de3906b6627ec71727108');
         });
@@ -174,7 +202,8 @@ describe('Cryptography', function () {
             ];
             const privateEphemeral = '73a8e577d58f7c11992201d4014ac7eef39c1e9f6f6d78673103de60a0c3240b';
 
-            const signatures = await TurtleCoinCrypto.generateRingSignatures(prefixHash, keyImage, publicKeys, privateEphemeral, 3);
+            const signatures = await TurtleCoinCrypto.generateRingSignatures(
+                prefixHash, keyImage, publicKeys, privateEphemeral, 3);
 
             const check = await TurtleCoinCrypto.checkRingSignatures(prefixHash, keyImage, publicKeys, signatures);
 
@@ -194,7 +223,8 @@ describe('Cryptography', function () {
 
             const prep = await TurtleCoinCrypto.prepareRingSignatures(prefixHash, keyImage, publicKeys, 3);
 
-            const signatures = await TurtleCoinCrypto.completeRingSignatures(privateEphemeral, 3, prep.key, prep.signatures);
+            const signatures = await TurtleCoinCrypto.completeRingSignatures(
+                privateEphemeral, 3, prep.key, prep.signatures);
 
             const check = await TurtleCoinCrypto.checkRingSignatures(prefixHash, keyImage, publicKeys, signatures);
 
@@ -214,9 +244,11 @@ describe('Cryptography', function () {
 
             const keys = await TurtleCoinCrypto.generateKeys();
 
-            const prep = await TurtleCoinCrypto.prepareRingSignatures(prefixHash, keyImage, publicKeys, 3, keys.privateKey);
+            const prep = await TurtleCoinCrypto.prepareRingSignatures(
+                prefixHash, keyImage, publicKeys, 3, keys.privateKey);
 
-            const signatures = await TurtleCoinCrypto.completeRingSignatures(privateEphemeral, 3, prep.key, prep.signatures);
+            const signatures = await TurtleCoinCrypto.completeRingSignatures(
+                privateEphemeral, 3, prep.key, prep.signatures);
 
             const check = await TurtleCoinCrypto.checkRingSignatures(prefixHash, keyImage, publicKeys, signatures);
 
@@ -316,13 +348,15 @@ describe('Cryptography', function () {
 
             describe('Party 1', () => {
                 it('Generate Shared Public Spend Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey([party1.spend.publicKey, party2.spend.publicKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(
+                        [party1.spend.publicKey, party2.spend.publicKey]);
 
                     assert(sharedKey === sharedKeys.spend.publicKey);
                 });
 
                 it('Generate Shared Private View Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey([party1.view.secretKey, party2.view.secretKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey(
+                        [party1.view.secretKey, party2.view.secretKey]);
 
                     assert(sharedKey === sharedKeys.view.secretKey);
                 });
@@ -330,13 +364,15 @@ describe('Cryptography', function () {
 
             describe('Party 2', () => {
                 it('Generate Shared Public Spend Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey([party2.spend.publicKey, party1.spend.publicKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(
+                        [party2.spend.publicKey, party1.spend.publicKey]);
 
                     assert(sharedKey === sharedKeys.spend.publicKey);
                 });
 
                 it('Generate Shared Private View Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey([party2.view.secretKey, party1.view.secretKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey(
+                        [party2.view.secretKey, party1.view.secretKey]);
 
                     assert(sharedKey === sharedKeys.view.secretKey);
                 });
@@ -344,11 +380,14 @@ describe('Cryptography', function () {
 
             describe('Transactions', () => {
                 it('Restore KeyImage from Partial KeyImages', async () => {
-                    const keyImage1 = await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, party1.spend.secretKey);
+                    const keyImage1 = await TurtleCoinCrypto.generateKeyImage(
+                        tx.publicEphemeral, party1.spend.secretKey);
 
-                    const keyImage2 = await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, party2.spend.secretKey);
+                    const keyImage2 = await TurtleCoinCrypto.generateKeyImage(
+                        tx.publicEphemeral, party2.spend.secretKey);
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, [keyImage1, keyImage2]);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, [keyImage1, keyImage2]);
 
                     assert(keyImage === tx.keyImage);
                 });
@@ -362,15 +401,20 @@ describe('Cryptography', function () {
                         'e1cd9ccdfdf2b3a45ac2cfd1e29185d22c185742849f52368c3cdd1c0ce499c0'
                     ];
 
-                    const prep = await TurtleCoinCrypto.prepareRingSignatures(prefixHash, tx.keyImage, publicKeys, 3);
+                    const prep = await TurtleCoinCrypto.prepareRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, 3);
 
-                    const sig1 = await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], party1.spend.secretKey);
+                    const sig1 = await TurtleCoinCrypto.generatePartialSigningKey(
+                        prep.signatures[3], party1.spend.secretKey);
 
-                    const sig2 = await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], party2.spend.secretKey);
+                    const sig2 = await TurtleCoinCrypto.generatePartialSigningKey(
+                        prep.signatures[3], party2.spend.secretKey);
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, [sig1, sig2], 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, [sig1, sig2], 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(success);
                 });
@@ -405,20 +449,23 @@ describe('Cryptography', function () {
 
             describe('Party 1', () => {
                 it('Generate Multisig Keys', async () => {
-                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(party1.spend.secretKey, [party2.spend.publicKey, party3.spend.publicKey]);
+                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
+                        party1.spend.secretKey, [party2.spend.publicKey, party3.spend.publicKey]);
 
                     assert.deepStrictEqual(keys, party1.multisig.secretKeys);
                 });
 
                 it('Generate Shared Public Spend Key', async () => {
-                    const keys = party1.multisig.publicKeys.concat(party2.multisig.publicKeys, party3.multisig.publicKeys);
+                    const keys = party1.multisig.publicKeys.concat(
+                        party2.multisig.publicKeys, party3.multisig.publicKeys);
                     const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(keys);
 
                     assert(sharedKey === sharedKeys.spend.publicKey);
                 });
 
                 it('Generate Shared Private View Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey([party1.view.secretKey, party2.view.secretKey, party3.view.secretKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey(
+                        [party1.view.secretKey, party2.view.secretKey, party3.view.secretKey]);
 
                     assert(sharedKey === sharedKeys.view.secretKey);
                 });
@@ -426,13 +473,15 @@ describe('Cryptography', function () {
 
             describe('Party 2', () => {
                 it('Generate Multisig Keys', async () => {
-                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(party2.spend.secretKey, [party3.spend.publicKey, party1.spend.publicKey]);
+                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
+                        party2.spend.secretKey, [party3.spend.publicKey, party1.spend.publicKey]);
 
                     assert.deepStrictEqual(keys, party2.multisig.secretKeys);
                 });
 
                 it('Generate Shared Public Spend Key', async () => {
-                    const keys = party2.multisig.publicKeys.concat(party3.multisig.publicKeys, party1.multisig.publicKeys);
+                    const keys = party2.multisig.publicKeys.concat(
+                        party3.multisig.publicKeys, party1.multisig.publicKeys);
 
                     const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(keys);
 
@@ -440,7 +489,8 @@ describe('Cryptography', function () {
                 });
 
                 it('Generate Shared Private View Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey([party2.view.secretKey, party3.view.secretKey, party1.view.secretKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey(
+                        [party2.view.secretKey, party3.view.secretKey, party1.view.secretKey]);
 
                     assert(sharedKey === sharedKeys.view.secretKey);
                 });
@@ -448,13 +498,15 @@ describe('Cryptography', function () {
 
             describe('Party 3', () => {
                 it('Generate Multisig Keys', async () => {
-                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(party3.spend.secretKey, [party1.spend.publicKey, party2.spend.publicKey]);
+                    const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
+                        party3.spend.secretKey, [party1.spend.publicKey, party2.spend.publicKey]);
 
                     assert.deepStrictEqual(keys, party3.multisig.secretKeys);
                 });
 
                 it('Generate Shared Public Spend Key', async () => {
-                    const keys = party3.multisig.publicKeys.concat(party1.multisig.publicKeys, party2.multisig.publicKeys);
+                    const keys = party3.multisig.publicKeys.concat(
+                        party1.multisig.publicKeys, party2.multisig.publicKeys);
 
                     const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(keys);
 
@@ -462,7 +514,8 @@ describe('Cryptography', function () {
                 });
 
                 it('Generate Shared Private View Key', async () => {
-                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey([party3.view.secretKey, party2.view.secretKey, party1.view.secretKey]);
+                    const sharedKey = await TurtleCoinCrypto.calculateSharedPrivateKey(
+                        [party3.view.secretKey, party2.view.secretKey, party1.view.secretKey]);
 
                     assert(sharedKey === sharedKeys.view.secretKey);
                 });
@@ -482,7 +535,8 @@ describe('Cryptography', function () {
                         partialKeyImages.push(await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, key));
                     }
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
 
                     assert(keyImage === tx.keyImage);
                 });
@@ -498,7 +552,8 @@ describe('Cryptography', function () {
                         partialKeyImages.push(await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, key));
                     }
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
 
                     assert(keyImage === tx.keyImage);
                 });
@@ -514,7 +569,8 @@ describe('Cryptography', function () {
                         partialKeyImages.push(await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, key));
                     }
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
 
                     assert(keyImage === tx.keyImage);
                 });
@@ -534,7 +590,8 @@ describe('Cryptography', function () {
                         partialKeyImages.push(await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, key));
                     }
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
 
                     assert(keyImage === tx.keyImage);
                 });
@@ -546,7 +603,8 @@ describe('Cryptography', function () {
                         partialKeyImages.push(await TurtleCoinCrypto.generateKeyImage(tx.publicEphemeral, key));
                     }
 
-                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
+                    const keyImage = await TurtleCoinCrypto.restoreKeyImage(
+                        tx.publicEphemeral, tx.derivation, tx.input.index, partialKeyImages);
 
                     assert(keyImage !== tx.keyImage);
                 });
@@ -565,16 +623,20 @@ describe('Cryptography', function () {
                     const partialSignatures: string[] = [];
 
                     for (const key of party1.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
                     for (const key of party2.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(success);
                 });
@@ -593,16 +655,20 @@ describe('Cryptography', function () {
                     const partialSignatures: string[] = [];
 
                     for (const key of party1.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
                     for (const key of party3.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(success);
                 });
@@ -621,16 +687,20 @@ describe('Cryptography', function () {
                     const partialSignatures: string[] = [];
 
                     for (const key of party2.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
                     for (const key of party3.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(success);
                 });
@@ -649,20 +719,25 @@ describe('Cryptography', function () {
                     const partialSignatures: string[] = [];
 
                     for (const key of party1.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
                     for (const key of party2.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
                     for (const key of party3.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(success);
                 });
@@ -681,12 +756,15 @@ describe('Cryptography', function () {
                     const partialSignatures: string[] = [];
 
                     for (const key of party1.multisig.secretKeys) {
-                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(prep.signatures[3], key));
+                        partialSignatures.push(await TurtleCoinCrypto.generatePartialSigningKey(
+                            prep.signatures[3], key));
                     }
 
-                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
+                    const sigs = await TurtleCoinCrypto.restoreRingSignatures(
+                        tx.derivation, tx.input.index, partialSignatures, 3, prep.key, prep.signatures);
 
-                    const success = await TurtleCoinCrypto.checkRingSignatures(prefixHash, tx.keyImage, publicKeys, sigs);
+                    const success = await TurtleCoinCrypto.checkRingSignatures(
+                        prefixHash, tx.keyImage, publicKeys, sigs);
 
                     assert(!success);
                 });
@@ -698,7 +776,10 @@ describe('Cryptography', function () {
 describe('Hash Generation Methods', function () {
     this.timeout(60000);
 
-    const testdata = '0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946127c7a97418f9348828f0f02';
+    const testdata =
+        '0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9' +
+        'abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946' +
+        '127c7a97418f9348828f0f02';
 
     const algos = [
         {

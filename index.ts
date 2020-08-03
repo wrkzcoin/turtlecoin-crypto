@@ -96,16 +96,16 @@ export class Crypto {
      */
     public static get type (): string {
         switch (moduleVars.type) {
-        case Types.NODEADDON:
-            return 'c++';
-        case Types.WASM:
-            return 'wasm';
-        case Types.WASMJS:
-            return 'wasmjs';
-        case Types.JS:
-            return 'js';
-        default:
-            return 'unknown';
+            case Types.NODEADDON:
+                return 'c++';
+            case Types.WASM:
+                return 'wasm';
+            case Types.WASMJS:
+                return 'wasmjs';
+            case Types.JS:
+                return 'js';
+            default:
+                return 'unknown';
         }
     }
 
@@ -114,10 +114,10 @@ export class Crypto {
      */
     public static get isNative (): boolean {
         switch (moduleVars.type) {
-        case Types.NODEADDON:
-            return true;
-        default:
-            return false;
+            case Types.NODEADDON:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -1443,14 +1443,14 @@ export class Crypto {
         let func = 'chukwa_slow_hash_';
 
         switch (version) {
-        case 1:
-            func += 'v1';
-            break;
-        case 2:
-            func += 'v2';
-            break;
-        default:
-            throw new Error('Unknown Chukwa version number');
+            case 1:
+                func += 'v1';
+                break;
+            case 2:
+                func += 'v2';
+                break;
+            default:
+                throw new Error('Unknown Chukwa version number');
         }
 
         return tryRunFunc(func, data.toLowerCase());
