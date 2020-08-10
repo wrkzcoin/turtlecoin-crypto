@@ -8,6 +8,6 @@
 
 #include "fe.h"
 
-void fe_tobytes(unsigned char *, const fe);
+void fe_tobytes(unsigned char *s, const fe h);
 
 #endif // ED25519_FE_TOBYTES_H

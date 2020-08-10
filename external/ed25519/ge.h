@@ -3,8 +3,8 @@
 //
 // Please see the included LICENSE file for more information.
 
-#ifndef GE_H
-#define GE_H
+#ifndef ED25519_GE_H
+#define ED25519_GE_H
 
 #include "fe.h"
 
@@ -48,4 +48,4 @@ typedef struct
 
 typedef ge_cached ge_dsmp[8];
 
-#endif // GE_H
+#endif // ED25519_GE_H

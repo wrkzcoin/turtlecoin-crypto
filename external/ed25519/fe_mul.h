@@ -8,6 +8,6 @@
 
 #include "fe.h"
 
-void fe_mul(fe, const fe, const fe);
+void fe_mul(fe h, const fe f, const fe g);
 
 #endif // ED25519_FE_MUL_H

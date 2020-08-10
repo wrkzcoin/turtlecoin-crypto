@@ -3,14 +3,14 @@
 //
 // Please see the included LICENSE file for more information.
 
-#ifndef GE_ADD_H
-#define GE_ADD_H
+#ifndef ED25519_GE_ADD_H
+#define ED25519_GE_ADD_H
 
 #include "fe_add.h"
 #include "fe_mul.h"
 #include "fe_sub.h"
 #include "ge.h"
 
-void ge_add(ge_p1p1 *, const ge_p3 *, const ge_cached *);
+void ge_add(ge_p1p1 *r, const ge_p3 *p, const ge_cached *q);
 
-#endif // GE_ADD_H
+#endif // ED25519_GE_ADD_H

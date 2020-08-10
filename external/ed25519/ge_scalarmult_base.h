@@ -7,6 +7,7 @@
 #define ED25519_GE_SCALARMULT_BASE_H
 
 #include "equal.h"
+#include "fe_copy.h"
 #include "fe_neg.h"
 #include "ge.h"
 #include "ge_madd.h"

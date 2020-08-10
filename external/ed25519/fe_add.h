@@ -3,11 +3,11 @@
 //
 // Please see the included LICENSE file for more information.
 
-#ifndef ED25519_FEE_ADD_H
-#define ED25519_FEE_ADD_H
+#ifndef ED25519_FE_ADD_H
+#define ED25519_FE_ADD_H
 
 #include "fe.h"
 
 void fe_add(fe h, const fe f, const fe g);
 
-#endif // ED25519_FEE_ADD_H
+#endif // ED25519_FE_ADD_H
