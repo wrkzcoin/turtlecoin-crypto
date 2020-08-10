@@ -3,11 +3,11 @@
 //
 // Please see the included LICENSE file for more information.
 
-#ifndef FE_H
-#define FE_H
+#ifndef ED25519_FE_H
+#define ED25519_FE_H
 
 #include <stdint.h>
 
 typedef int32_t fe[10];
 
-#endif // FE_H
+#endif // ED25519_FE_H

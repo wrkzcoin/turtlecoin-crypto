@@ -11,6 +11,6 @@
 #include "fe_sub.h"
 #include "ge.h"
 
-void ge_madd(ge_p1p1 *, const ge_p3 *, const ge_precomp *);
+void ge_madd(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q);
 
 #endif // ED25519_GE_MADD_H
