@@ -12,8 +12,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Crypto = void 0;
+exports.Crypto = exports.CryptoType = void 0;
 const js_sha3_1 = require("js-sha3");
+const Interfaces_1 = require("./Interfaces");
+Object.defineProperty(exports, "CryptoType", { enumerable: true, get: function () { return Interfaces_1.CryptoType; } });
 /**
  * @ignore
  */
@@ -21,21 +23,9 @@ const userCryptoFunctions = {};
 /**
  * @ignore
  */
-var Types;
-(function (Types) {
-    Types[Types["UNKNOWN"] = 0] = "UNKNOWN";
-    Types[Types["NODEADDON"] = 1] = "NODEADDON";
-    Types[Types["WASM"] = 2] = "WASM";
-    Types[Types["WASMJS"] = 3] = "WASMJS";
-    Types[Types["JS"] = 4] = "JS";
-    Types[Types["MIXED"] = 5] = "MIXED";
-})(Types || (Types = {}));
-/**
- * @ignore
- */
 const moduleVars = {
     crypto: null,
-    type: Types.UNKNOWN
+    type: Interfaces_1.CryptoType.UNKNOWN
 };
 /**
  * @ignore
@@ -61,25 +51,14 @@ class Crypto {
      * Returns the type of the cryptographic primitives used by the wrapper
      */
     static get type() {
-        switch (moduleVars.type) {
-            case Types.NODEADDON:
-                return 'c++';
-            case Types.WASM:
-                return 'wasm';
-            case Types.WASMJS:
-                return 'wasmjs';
-            case Types.JS:
-                return 'js';
-            default:
-                return 'unknown';
-        }
+        return moduleVars.type;
     }
     /**
      * Returns if the Node.js native library is being used
      */
     static get isNative() {
         switch (moduleVars.type) {
-            case Types.NODEADDON:
+            case Interfaces_1.CryptoType.NODEADDON:
                 return true;
             default:
                 return false;
@@ -105,13 +84,10 @@ class Crypto {
      * @param config
      */
     static set userCryptoFunctions(config) {
-        if (config && typeof config === 'object') {
-            Object.keys(config).forEach((key) => {
-                if (typeof config[key] === 'function') {
-                    userCryptoFunctions[key] = config[key];
-                }
-            });
-        }
+        Object.keys(config)
+            .forEach(key => {
+            userCryptoFunctions[key] = config[key];
+        });
     }
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
@@ -128,13 +104,8 @@ class Crypto {
         if (!initialize()) {
             throw new Error('Could not initialize underlying cryptographic library');
         }
-        if (config && typeof config === 'object') {
-            Object.keys(config).forEach((key) => {
-                if (typeof config[key] === 'function') {
-                    userCryptoFunctions[key] = config[key];
-                    moduleVars.type = Types.MIXED;
-                }
-            });
+        if (config) {
+            Crypto.userCryptoFunctions = config;
         }
     }
     /**
@@ -168,7 +139,10 @@ class Crypto {
      * @param config
      */
     set userCryptoFunctions(config) {
-        Crypto.userCryptoFunctions = config;
+        Object.keys(config)
+            .forEach(key => {
+            userCryptoFunctions[key] = config[key];
+        });
     }
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
@@ -179,111 +153,99 @@ class Crypto {
     /**
      * Calculates the multisignature (m) private keys using our private spend key
      * and the public spend keys of other participants in a M:N scheme
-     * @param privateSpendKey our private spend key
-     * @param publicKeys an array of the other participants public spend keys
+     * @param private_spend_key our private spend key
+     * @param public_keys an array of the other participants public spend keys
      */
-    calculateMultisigPrivateKeys(privateSpendKey, publicKeys) {
+    calculateMultisigPrivateKeys(private_spend_key, public_keys) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateSpendKey))) {
+            if (!(yield this.checkScalar(private_spend_key))) {
                 throw new Error('privateSpendKey is not a scalar');
             }
-            if (!Array.isArray(publicKeys)) {
-                throw new Error('publicKeys must be an array');
+            if (!Array.isArray(public_keys)) {
+                throw new Error('public_keys must be an array');
             }
-            publicKeys = publicKeys.map(elem => elem.toLowerCase());
-            for (const key of publicKeys) {
+            public_keys = public_keys.map(elem => elem.toLowerCase());
+            for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
             }
-            return tryRunFunc('calculateMultisigPrivateKeys', privateSpendKey.toLowerCase(), publicKeys);
+            return tryRunFunc('calculateMultisigPrivateKeys', private_spend_key.toLowerCase(), public_keys);
         });
     }
     /**
      * Calculates a shared private key from the private keys supplied
-     * @param privateKeys the array of private keys
+     * @param private_keys the array of private keys
      */
-    calculateSharedPrivateKey(privateKeys) {
+    calculateSharedPrivateKey(private_keys) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!Array.isArray(privateKeys)) {
-                throw new Error('privateKeys must be an array');
+            if (!Array.isArray(private_keys)) {
+                throw new Error('private_keys must be an array');
             }
-            privateKeys = privateKeys.map(elem => elem.toLowerCase());
-            for (const key of privateKeys) {
+            private_keys = private_keys.map(elem => elem.toLowerCase());
+            for (const key of private_keys) {
                 if (!(yield this.checkScalar(key))) {
                     throw new Error('Invalid private key found');
                 }
             }
-            return tryRunFunc('calculateSharedPrivateKey', privateKeys);
+            return tryRunFunc('calculateSharedPrivateKey', private_keys);
         });
     }
     /**
      * Calculates a shared public key from the public keys supplied
-     * @param publicKeys the array of public keys
+     * @param public_keys the array of public keys
      */
-    calculateSharedPublicKey(publicKeys) {
+    calculateSharedPublicKey(public_keys) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!Array.isArray(publicKeys)) {
-                throw new Error('publicKeys must be an array');
+            if (!Array.isArray(public_keys)) {
+                throw new Error('public_keys must be an array');
             }
-            publicKeys = publicKeys.map(elem => elem.toLowerCase());
-            for (const key of publicKeys) {
+            public_keys = public_keys.map(elem => elem.toLowerCase());
+            for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
             }
-            return tryRunFunc('calculateSharedPublicKey', publicKeys);
+            return tryRunFunc('calculateSharedPublicKey', public_keys);
         });
     }
     /**
      * Checks whether a given key is a public key
-     * @param key the public key to check
+     * @param public_key the public key to check
      */
-    checkKey(key) {
+    checkKey(public_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!isHex64(key)) {
+            if (!isHex64(public_key)) {
                 return false;
             }
-            return tryRunFunc('checkKey', key.toLowerCase());
+            return tryRunFunc('checkKey', public_key.toLowerCase());
         });
     }
     /**
      * Checks a set of ring signatures to verify that they are valid
-     * @param hash the hash (often the transaction prefix hash)
-     * @param keyImage real keyImage used to generate the signatures
-     * @param inputKeys the output keys used during signing (mixins + real)
+     * @param prefix_hash the hash (often the transaction prefix hash)
+     * @param key_image real key_image used to generate the signatures
+     * @param input_keys the output keys used during signing (mixins + real)
      * @param signatures the signatures
      */
-    checkRingSignature(hash, keyImage, inputKeys, signatures) {
+    checkRingSignatures(prefix_hash, key_image, input_keys, signatures) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.checkRingSignatures(hash, keyImage, inputKeys, signatures);
-        });
-    }
-    /**
-     * Checks a set of ring signatures to verify that they are valid
-     * @param hash the hash (often the transaction prefix hash)
-     * @param keyImage real keyImage used to generate the signatures
-     * @param inputKeys the output keys used during signing (mixins + real)
-     * @param signatures the signatures
-     */
-    checkRingSignatures(hash, keyImage, inputKeys, signatures) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!isHex64(hash)) {
+            if (!isHex64(prefix_hash)) {
                 return false;
             }
-            if (!isHex64(keyImage)) {
+            if (!isHex64(key_image)) {
                 return false;
             }
-            if (!Array.isArray(inputKeys)) {
+            if (!Array.isArray(input_keys)) {
                 return false;
             }
             if (!Array.isArray(signatures)) {
                 return false;
             }
             let err = false;
-            inputKeys = inputKeys.map(elem => elem.toLowerCase());
+            input_keys = input_keys.map(elem => elem.toLowerCase());
             signatures = signatures.map(elem => elem.toLowerCase());
-            for (const key of inputKeys) {
+            for (const key of input_keys) {
                 if (!(yield this.checkKey(key))) {
                     err = true;
                 }
@@ -296,40 +258,40 @@ class Crypto {
             if (err) {
                 return false;
             }
-            return tryRunFunc('checkRingSignature', hash.toLowerCase(), keyImage.toLowerCase(), inputKeys, signatures);
+            return tryRunFunc('checkRingSignature', prefix_hash.toLowerCase(), key_image.toLowerCase(), input_keys, signatures);
         });
     }
     /**
      * Checks whether the given key is a private key
-     * @param privateKey
+     * @param private_key
      */
-    checkScalar(privateKey) {
+    checkScalar(private_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!isHex64(privateKey)) {
+            if (!isHex64(private_key)) {
                 return false;
             }
-            privateKey = privateKey.toLowerCase();
-            return (privateKey === (yield this.scReduce32(privateKey)));
+            private_key = private_key.toLowerCase();
+            return (private_key === (yield this.scReduce32(private_key)));
         });
     }
     /**
      * Checks that the given signature is valid for the hash and public key supplied
-     * @param hash the hash (message digest) used
-     * @param publicKey the public key of the private key used to sign
+     * @param message_digest the hash (message digest) used
+     * @param public_key the public key of the private key used to sign
      * @param signature the signature
      */
-    checkSignature(hash, publicKey, signature) {
+    checkSignature(message_digest, public_key, signature) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!isHex64(hash)) {
+            if (!isHex64(message_digest)) {
                 return false;
             }
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 return false;
             }
             if (!isHex128(signature)) {
                 return false;
             }
-            return tryRunFunc('checkSignature', hash.toLowerCase(), publicKey.toLowerCase(), signature.toLowerCase());
+            return tryRunFunc('checkSignature', message_digest.toLowerCase(), public_key.toLowerCase(), signature.toLowerCase());
         });
     }
     /**
@@ -348,23 +310,23 @@ class Crypto {
     }
     /**
      * Completes a given set of prepared ring signatures using the single
-     * privateEphemeral
-     * @param privateEphemeral private ephemeral of the output being spent
-     * @param realIndex the position of the signature in the array that belongs
+     * private_ephemeral
+     * @param private_ephemeral private ephemeral of the output being spent
+     * @param real_output_index the position of the signature in the array that belongs
      * to the real output being spent
      * @param k the random scalar provided with the prepared ring signatures
      * @param signatures the prepared ring signatures
      */
-    completeRingSignatures(privateEphemeral, realIndex, k, signatures) {
+    completeRingSignatures(private_ephemeral, real_output_index, k, signatures) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateEphemeral))) {
+            if (!(yield this.checkScalar(private_ephemeral))) {
                 throw new Error('Invalid private key found');
             }
             if (!Array.isArray(signatures)) {
                 throw new Error('signatures must be an array');
             }
-            if (!isUInt(realIndex) || realIndex > signatures.length - 1) {
-                throw new Error('Invalid realIndex format');
+            if (!isUInt(real_output_index) || real_output_index > signatures.length - 1) {
+                throw new Error('Invalid real_output_index format');
             }
             if (!(yield this.checkScalar(k))) {
                 throw new Error('Invalid k found');
@@ -374,86 +336,86 @@ class Crypto {
                     throw new Error('Invalid signature found');
                 }
             }
-            return tryRunFunc('completeRingSignatures', privateEphemeral.toLowerCase(), realIndex, k.toLowerCase(), signatures);
+            return tryRunFunc('completeRingSignatures', private_ephemeral.toLowerCase(), real_output_index, k.toLowerCase(), signatures);
         });
     }
     /**
      * Converts a key derivation to its resulting scalar
      * @param derivation the key derivation
-     * @param outputIndex the index of the output in the transaction
+     * @param output_index the index of the output in the transaction
      */
-    derivationToScalar(derivation, outputIndex) {
+    derivationToScalar(derivation, output_index) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
-            return tryRunFunc('derivationToScalar', derivation.toLowerCase(), outputIndex);
+            return tryRunFunc('derivationToScalar', derivation.toLowerCase(), output_index);
         });
     }
     /**
      * Derives the public ephemeral from the key derivation, output index, and
      * our public spend key
      * @param derivation the key derivation
-     * @param outputIndex the index of the output in the transaction
-     * @param publicKey our public spend key
+     * @param output_index the index of the output in the transaction
+     * @param public_key our public spend key
      */
-    derivePublicKey(derivation, outputIndex, publicKey) {
+    derivePublicKey(derivation, output_index, public_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 throw new Error('Invalid public key found');
             }
-            return tryRunFunc('derivePublicKey', derivation.toLowerCase(), outputIndex, publicKey.toLowerCase());
+            return tryRunFunc('derivePublicKey', derivation.toLowerCase(), output_index, public_key.toLowerCase());
         });
     }
     /**
      * Derives the private ephemeral from the key derivation, output index, and
      * our private spend key
      * @param derivation the key derivation
-     * @param outputIndex the index of the output in the transaction
-     * @param privateKey our private spend key
+     * @param output_index the index of the output in the transaction
+     * @param private_key our private spend key
      */
-    deriveSecretKey(derivation, outputIndex, privateKey) {
+    deriveSecretKey(derivation, output_index, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('deriveSecretKey', derivation.toLowerCase(), outputIndex, privateKey.toLowerCase());
+            return tryRunFunc('deriveSecretKey', derivation.toLowerCase(), output_index, private_key.toLowerCase());
         });
     }
     /**
      * Generates a set of deterministic spend keys for a sub wallet given
      * our root private spend key and the index of the subwallet
-     * @param privateKey our root private spend key (seed)
+     * @param private_key our root private spend key (seed)
      * @param walletIndex the index of the subwallet
      */
-    generateDeterministicSubwalletKeys(privateKey, walletIndex) {
+    generateDeterministicSubwalletKeys(private_key, walletIndex) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
             if (!isUInt(walletIndex)) {
                 throw new Error('Invalid wallet index found');
             }
-            const keys = yield tryRunFunc('generateDeterministicSubwalletKeys', privateKey.toLowerCase(), walletIndex);
+            const keys = yield tryRunFunc('generateDeterministicSubwalletKeys', private_key.toLowerCase(), walletIndex);
             if (keys) {
                 return {
-                    privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                    publicKey: keys.publicKey || keys.PublicKey
+                    private_key: keys.private_key || keys.secretKey || keys.SecretKey,
+                    public_key: keys.public_key || keys.PublicKey
                 };
             }
             else {
@@ -463,54 +425,54 @@ class Crypto {
     }
     /**
      * Generates a key derivation (aB) given the public key and private key
-     * @param publicKey
-     * @param privateKey
+     * @param public_key
+     * @param private_key
      */
-    generateKeyDerivation(publicKey, privateKey) {
+    generateKeyDerivation(public_key, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 throw new Error('Invalid public key found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generateKeyDerivation', publicKey.toLowerCase(), privateKey.toLowerCase());
+            return tryRunFunc('generateKeyDerivation', public_key.toLowerCase(), private_key.toLowerCase());
         });
     }
     /**
      * Generates a key derivation scalar H_s(aB) given the public key and private key
-     * @param publicKey the public key
-     * @param privateKey the private key
-     * @param outputIndex the output index
+     * @param public_key the public key
+     * @param private_key the private key
+     * @param output_index the output index
      */
-    generateKeyDerivationScalar(publicKey, privateKey, outputIndex) {
+    generateKeyDerivationScalar(public_key, private_key, output_index) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 throw new Error('Invalid public key found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
-            return tryRunFunc('generateKeyDerivationScalar', publicKey.toLowerCase(), privateKey.toLowerCase(), outputIndex);
+            return tryRunFunc('generateKeyDerivationScalar', public_key.toLowerCase(), private_key.toLowerCase(), output_index);
         });
     }
     /**
      * Generates a key image given the public ephemeral and the private ephemeral
      * @param publicEphemeral the public ephemeral of the output
-     * @param privateEphemeral the private ephemeral of the output
+     * @param private_ephemeral the private ephemeral of the output
      */
-    generateKeyImage(publicEphemeral, privateEphemeral) {
+    generateKeyImage(publicEphemeral, private_ephemeral) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkKey(publicEphemeral))) {
                 throw new Error('Invalid public ephemeral found');
             }
-            if (!(yield this.checkScalar(privateEphemeral))) {
+            if (!(yield this.checkScalar(private_ephemeral))) {
                 throw new Error('Invalid private ephemeral found');
             }
-            return tryRunFunc('generateKeyImage', publicEphemeral.toLowerCase(), privateEphemeral.toLowerCase());
+            return tryRunFunc('generateKeyImage', publicEphemeral.toLowerCase(), private_ephemeral.toLowerCase());
         });
     }
     /**
@@ -521,8 +483,8 @@ class Crypto {
             const keys = yield tryRunFunc('generateKeys');
             if (keys) {
                 return {
-                    privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                    publicKey: keys.publicKey || keys.PublicKey
+                    private_key: keys.private_key || keys.secretKey || keys.SecretKey,
+                    public_key: keys.public_key || keys.PublicKey
                 };
             }
             else {
@@ -533,99 +495,99 @@ class Crypto {
     /**
      * Generates a partial signing key for a multisig ring signature set
      * @param signature the prepared real input signature
-     * @param privateKey our private spend key (or multisig private key)
+     * @param private_key our private spend key (or multisig private key)
      */
-    generatePartialSigningKey(signature, privateKey) {
+    generatePartialSigningKey(signature, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex128(signature)) {
                 throw new Error('Invalid signature found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generatePartialSigningKey', signature.toLowerCase(), privateKey.toLowerCase());
+            return tryRunFunc('generatePartialSigningKey', signature.toLowerCase(), private_key.toLowerCase());
         });
     }
     /**
      * Generates a private view key from the private spend key
-     * @param privateKey the private spend key
+     * @param private_key the private spend key
      */
-    generatePrivateViewKeyFromPrivateSpendKey(privateKey) {
+    generatePrivateViewKeyFromPrivateSpendKey(private_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', privateKey.toLowerCase());
+            return tryRunFunc('generatePrivateViewKeyFromPrivateSpendKey', private_key.toLowerCase());
         });
     }
     /**
      * Generates ring signatures for the supplied values
      * @param hash the message digest hash (often the transaction prefix hash)
-     * @param keyImage the key image of the output being spent
-     * @param publicKeys an array of the output keys used for signing (mixins + our output)
-     * @param privateEphemeral the private ephemeral of the output being spent
-     * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @param key_image the key image of the output being spent
+     * @param public_keys an array of the output keys used for signing (mixins + our output)
+     * @param private_ephemeral the private ephemeral of the output being spent
+     * @param real_output_index the array index of the real output being spent in the public_keys array
      */
-    generateRingSignatures(hash, keyImage, publicKeys, privateEphemeral, realIndex) {
+    generateRingSignatures(hash, key_image, public_keys, private_ephemeral, real_output_index) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-            if (!isHex64(keyImage)) {
+            if (!isHex64(key_image)) {
                 throw new Error('Invalid key image found');
             }
-            if (!(yield this.checkScalar(privateEphemeral))) {
+            if (!(yield this.checkScalar(private_ephemeral))) {
                 throw new Error('Invalid private key found');
             }
-            if (!Array.isArray(publicKeys)) {
+            if (!Array.isArray(public_keys)) {
                 throw new Error('public keys must be an array');
             }
-            if (!isUInt(realIndex) || realIndex > publicKeys.length - 1) {
+            if (!isUInt(real_output_index) || real_output_index > public_keys.length - 1) {
                 throw new Error('Invalid real index found');
             }
-            publicKeys = publicKeys.map(elem => elem.toLowerCase());
-            for (const key of publicKeys) {
+            public_keys = public_keys.map(elem => elem.toLowerCase());
+            for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
             }
-            return tryRunFunc('generateRingSignatures', hash.toLowerCase(), keyImage.toLowerCase(), publicKeys, privateEphemeral.toLowerCase(), realIndex);
+            return tryRunFunc('generateRingSignatures', hash.toLowerCase(), key_image.toLowerCase(), public_keys, private_ephemeral.toLowerCase(), real_output_index);
         });
     }
     /**
      * Generates a signature for the given message digest (hash)
      * @param hash the hash
-     * @param publicKey the public key used in signing
-     * @param privateKey the private key used to sign
+     * @param public_key the public key used in signing
+     * @param private_key the private key used to sign
      */
-    generateSignature(hash, publicKey, privateKey) {
+    generateSignature(hash, public_key, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 throw new Error('Invalid public key found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('generateSignature', hash.toLowerCase(), publicKey.toLowerCase(), privateKey.toLowerCase());
+            return tryRunFunc('generateSignature', hash.toLowerCase(), public_key.toLowerCase(), private_key.toLowerCase());
         });
     }
     /**
      * Generates a vew key pair from the private spend key
-     * @param privateKey the private spend key
+     * @param private_key the private spend key
      */
-    generateViewKeysFromPrivateSpendKey(privateKey) {
+    generateViewKeysFromPrivateSpendKey(private_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            const keys = yield tryRunFunc('generateViewKeysFromPrivateSpendKey', privateKey.toLowerCase());
+            const keys = yield tryRunFunc('generateViewKeysFromPrivateSpendKey', private_key.toLowerCase());
             if (keys) {
                 return {
-                    privateKey: keys.privateKey || keys.secretKey || keys.SecretKey,
-                    publicKey: keys.publicKey || keys.PublicKey
+                    private_key: keys.private_key || keys.secretKey || keys.SecretKey,
+                    public_key: keys.public_key || keys.PublicKey
                 };
             }
             else {
@@ -660,57 +622,57 @@ class Crypto {
     /**
      * Prepares ring signatures for completion or restoration later
      * @param hash the message digest hash (often the transaction prefix hash)
-     * @param keyImage the key image of the output being spent
-     * @param publicKeys an array of the output keys used for signing (mixins + our output)
-     * @param realIndex the array index of the real output being spent in the publicKeys array
+     * @param key_image the key image of the output being spent
+     * @param public_keys an array of the output keys used for signing (mixins + our output)
+     * @param real_output_index the array index of the real output being spent in the public_keys array
      * @param k a random scalar (private key)
      */
-    prepareRingSignatures(hash, keyImage, publicKeys, realIndex, k) {
+    prepareRingSignatures(hash, key_image, public_keys, real_output_index, k) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(hash)) {
                 throw new Error('Invalid hash found');
             }
-            if (!isHex64(keyImage)) {
+            if (!isHex64(key_image)) {
                 throw new Error('Invalid key image found');
             }
-            if (!Array.isArray(publicKeys)) {
-                throw new Error('publicKeys must be an array');
+            if (!Array.isArray(public_keys)) {
+                throw new Error('public_keys must be an array');
             }
-            if (!isUInt(realIndex) || realIndex > publicKeys.length - 1) {
+            if (!isUInt(real_output_index) || real_output_index > public_keys.length - 1) {
                 throw new Error('Invalid real index found');
             }
             if (k) {
                 k = k.toLowerCase();
             }
             hash = hash.toLowerCase();
-            keyImage = keyImage.toLowerCase();
-            publicKeys = publicKeys.map(elem => elem.toLowerCase());
-            for (const key of publicKeys) {
+            key_image = key_image.toLowerCase();
+            public_keys = public_keys.map(elem => elem.toLowerCase());
+            for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
                     throw new Error('Invalid public key found');
                 }
             }
             let result;
             if (!k) {
-                result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex);
+                result = yield tryRunFunc('prepareRingSignatures', hash, key_image, public_keys, real_output_index);
             }
             else {
-                if (moduleVars.type === Types.NODEADDON) {
-                    result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex, k);
+                if (moduleVars.type === Interfaces_1.CryptoType.NODEADDON) {
+                    result = yield tryRunFunc('prepareRingSignatures', hash, key_image, public_keys, real_output_index, k);
                 }
-                else if (moduleVars.type === Types.JS ||
-                    moduleVars.type === Types.WASM ||
-                    moduleVars.type === Types.WASMJS) {
-                    result = yield tryRunFunc('prepareRingSignaturesK', hash, keyImage, publicKeys, realIndex, k);
+                else if (moduleVars.type === Interfaces_1.CryptoType.JS ||
+                    moduleVars.type === Interfaces_1.CryptoType.WASM ||
+                    moduleVars.type === Interfaces_1.CryptoType.WASMJS) {
+                    result = yield tryRunFunc('prepareRingSignaturesK', hash, key_image, public_keys, real_output_index, k);
                 }
                 else {
-                    result = yield tryRunFunc('prepareRingSignatures', hash, keyImage, publicKeys, realIndex, k);
+                    result = yield tryRunFunc('prepareRingSignatures', hash, key_image, public_keys, real_output_index, k);
                 }
             }
             if (result) {
                 return {
                     signatures: result.signatures,
-                    key: result.key
+                    k: result.key
                 };
             }
             else {
@@ -731,11 +693,11 @@ class Crypto {
      * participants in a multisig wallet
      * @param publicEphemeral the transaction public ephemeral
      * @param derivation the key derivation of the our output
-     * @param outputIndex the index of our output in the transaction
+     * @param output_index the index of our output in the transaction
      * @param partialKeyImages the array of partial key images from the needed
      * number of participants in the multisig scheme
      */
-    restoreKeyImage(publicEphemeral, derivation, outputIndex, partialKeyImages) {
+    restoreKeyImage(publicEphemeral, derivation, output_index, partialKeyImages) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkKey(publicEphemeral))) {
                 throw new Error('Invalid public ephemeral found');
@@ -743,7 +705,7 @@ class Crypto {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
             if (!Array.isArray(partialKeyImages)) {
@@ -755,7 +717,7 @@ class Crypto {
                     throw new Error('Invalid key image found');
                 }
             }
-            return tryRunFunc('restoreKeyImage', publicEphemeral.toLowerCase(), derivation.toLowerCase(), outputIndex, partialKeyImages);
+            return tryRunFunc('restoreKeyImage', publicEphemeral.toLowerCase(), derivation.toLowerCase(), output_index, partialKeyImages);
         });
     }
     /**
@@ -763,19 +725,19 @@ class Crypto {
      * and the necessary number of partial signing keys generated by other
      * participants in the multisig wallet
      * @param derivation the key derivation for the output being spent
-     * @param outputIndex the index of the output being spent in the transaction
+     * @param output_index the index of the output being spent in the transaction
      * @param partialSigningKeys the array of partial signing keys from the necessary number
      * of participants
-     * @param realIndex the index of the real input in the ring signatures
+     * @param real_output_index the index of the real input in the ring signatures
      * @param k the random scalar generated py preparing the ring signatures
      * @param signatures the prepared ring signatures
      */
-    restoreRingSignatures(derivation, outputIndex, partialSigningKeys, realIndex, k, signatures) {
+    restoreRingSignatures(derivation, output_index, partialSigningKeys, real_output_index, k, signatures) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
             if (!Array.isArray(partialSigningKeys)) {
@@ -787,7 +749,7 @@ class Crypto {
             if (!Array.isArray(signatures)) {
                 throw new Error('signatures must be an array');
             }
-            if (!isUInt(realIndex) || realIndex > signatures.length - 1) {
+            if (!isUInt(real_output_index) || real_output_index > signatures.length - 1) {
                 throw new Error('Invalid real index found');
             }
             partialSigningKeys = partialSigningKeys.map(elem => elem.toLowerCase());
@@ -802,55 +764,55 @@ class Crypto {
                     throw new Error('Invalid signature found');
                 }
             }
-            return tryRunFunc('restoreRingSignatures', derivation.toLowerCase(), outputIndex, partialSigningKeys, realIndex, k.toLowerCase(), signatures);
+            return tryRunFunc('restoreRingSignatures', derivation.toLowerCase(), output_index, partialSigningKeys, real_output_index, k.toLowerCase(), signatures);
         });
     }
     /**
      * Derives the public key using the derivation scalar
      * @param derivationScalar the derivation scalar
-     * @param publicKey the public key
+     * @param public_key the public key
      */
-    scalarDerivePublicKey(derivationScalar, publicKey) {
+    scalarDerivePublicKey(derivationScalar, public_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkScalar(derivationScalar))) {
                 throw new Error('Invalid derivation scalar found');
             }
-            if (!(yield this.checkKey(publicKey))) {
+            if (!(yield this.checkKey(public_key))) {
                 throw new Error('Invalid public key found');
             }
-            return tryRunFunc('scalarDerivePublicKey', derivationScalar.toLowerCase(), publicKey.toLowerCase());
+            return tryRunFunc('scalarDerivePublicKey', derivationScalar.toLowerCase(), public_key.toLowerCase());
         });
     }
     /**
      * Derives the private key using the derivation scalar
      * @param derivationScalar the derivation scalar
-     * @param privateKey the private key
+     * @param private_key the private key
      */
-    scalarDeriveSecretKey(derivationScalar, privateKey) {
+    scalarDeriveSecretKey(derivationScalar, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkScalar(derivationScalar))) {
                 throw new Error('Invalid derivation scalar found');
             }
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('scalarDeriveSecretKey', derivationScalar.toLowerCase(), privateKey.toLowerCase());
+            return tryRunFunc('scalarDeriveSecretKey', derivationScalar.toLowerCase(), private_key.toLowerCase());
         });
     }
     /**
      * Multiplies two key images together
-     * @param keyImageA
-     * @param keyImageB
+     * @param key_imageA
+     * @param key_imageB
      */
-    scalarmultKey(keyImageA, keyImageB) {
+    scalarmultKey(key_imageA, key_imageB) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!isHex64(keyImageA)) {
+            if (!isHex64(key_imageA)) {
                 throw new Error('Invalid key image A found');
             }
-            if (!isHex64(keyImageB)) {
+            if (!isHex64(key_imageB)) {
                 throw new Error('Invalid key image B found');
             }
-            return tryRunFunc('scalarmultKey', keyImageA.toLowerCase(), keyImageB.toLowerCase());
+            return tryRunFunc('scalarmultKey', key_imageA.toLowerCase(), key_imageB.toLowerCase());
         });
     }
     /**
@@ -867,14 +829,14 @@ class Crypto {
     }
     /**
      * Calculates the public key of a private key
-     * @param privateKey
+     * @param private_key
      */
-    secretKeyToPublicKey(privateKey) {
+    secretKeyToPublicKey(private_key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!(yield this.checkScalar(privateKey))) {
+            if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
             }
-            return tryRunFunc('secretKeyToPublicKey', privateKey.toLowerCase());
+            return tryRunFunc('secretKeyToPublicKey', private_key.toLowerCase());
         });
     }
     /**
@@ -948,7 +910,7 @@ class Crypto {
                     throw new Error('Invalid branch found');
                 }
             }
-            if (moduleVars.type === Types.NODEADDON) {
+            if (moduleVars.type === Interfaces_1.CryptoType.NODEADDON) {
                 return tryRunFunc('tree_hash_from_branch', branches, leaf.toLowerCase(), path);
             }
             else {
@@ -959,21 +921,21 @@ class Crypto {
     /**
      * Underives a public key instead of deriving it
      * @param derivation the key derivation
-     * @param outputIndex the index of the output in the transaction
+     * @param output_index the index of the output in the transaction
      * @param outputKey the output key in the transaction
      */
-    underivePublicKey(derivation, outputIndex, outputKey) {
+    underivePublicKey(derivation, output_index, outputKey) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!isHex64(derivation)) {
                 throw new Error('Invalid derivation found');
             }
-            if (!isUInt(outputIndex)) {
+            if (!isUInt(output_index)) {
                 throw new Error('Invalid output index found');
             }
             if (!(yield this.checkKey(outputKey))) {
                 throw new Error('Invalid output key found');
             }
-            return tryRunFunc('underivePublicKey', derivation.toLowerCase(), outputIndex, outputKey.toLowerCase());
+            return tryRunFunc('underivePublicKey', derivation.toLowerCase(), output_index, outputKey.toLowerCase());
         });
     }
     /**
@@ -1352,7 +1314,7 @@ function tryRunFunc(...args) {
                     return reject(new Error('Error with use defined cryptographic primitive'));
                 }
             }
-            else if (moduleVars.type === Types.NODEADDON && moduleVars.crypto[func]) {
+            else if (moduleVars.type === Interfaces_1.CryptoType.NODEADDON && moduleVars.crypto[func]) {
                 /* If the function name starts with 'check' then it
                    will return a boolean which we can just send back
                    up the stack */
@@ -1421,7 +1383,7 @@ function loadBrowserWASM() {
             return false;
         }
         moduleVars.crypto = Self;
-        moduleVars.type = Types.WASM;
+        moduleVars.type = Interfaces_1.CryptoType.WASM;
         return true;
     }
     catch (e) {
@@ -1439,7 +1401,7 @@ function loadNativeAddon() {
             return false;
         }
         moduleVars.crypto = Self;
-        moduleVars.type = Types.NODEADDON;
+        moduleVars.type = Interfaces_1.CryptoType.NODEADDON;
         return true;
     }
     catch (e) {
@@ -1457,7 +1419,7 @@ function loadNativeJS() {
             return false;
         }
         moduleVars.crypto = Self;
-        moduleVars.type = Types.JS;
+        moduleVars.type = Interfaces_1.CryptoType.JS;
         return true;
     }
     catch (e) {
@@ -1477,7 +1439,7 @@ function loadWASMJS() {
             return false;
         }
         moduleVars.crypto = Self;
-        moduleVars.type = Types.WASMJS;
+        moduleVars.type = Interfaces_1.CryptoType.WASMJS;
         return true;
     }
     catch (e) {
