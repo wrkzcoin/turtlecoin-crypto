@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 import { keccak256 } from 'js-sha3';
-import { describe, it } from 'mocha';
+import { before, describe, it } from 'mocha';
 import { Crypto } from '../';
 
 const TurtleCoinCrypto = new Crypto();
