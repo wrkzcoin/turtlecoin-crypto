@@ -9,7 +9,7 @@
     "build-native:win32": "build_js.sh",
     "build-native:default": "./build_js.sh",
     "build-typescript": "./node_modules/.bin/tsc",
-    "docs": "./node_modules/.bin/typedoc && touch docs/.nojekyll",
+    "docs": "./node_modules/.bin/typedoc && touch docs/.nojekyll && git restore docs/CNAME",
     "install": "prebuild-install --download --verbose || node-gyp rebuild",
     "prepublishOnly": "npm run build-typescript && npm run build-native && npm run test",
     "style": "./node_modules/.bin/eslint typescript/*.ts tests/crypto.ts",
