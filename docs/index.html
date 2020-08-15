@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>turtlecoin-crypto</title>
-	<meta name="description" content="">
+	<meta name="description" content="Documentation for turtlecoin-crypto">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -99,9 +99,13 @@
 					<h5>Prerequisites</h5>
 				</a>
 				<p>Read very careful if you want this to work right the first time.</p>
-				<p>1) Open a <em>Windows Powershell</em> console as <strong>Administrator</strong></p>
-				<p>2) Run the command: <code>npm install -g windows-build-tools --vs2015</code>
-				<strong><em>This will take a while. Sit tight.</em></strong></p>
+				<ol>
+					<li><p>Open a <em>Windows Powershell</em> console as <strong>Administrator</strong></p>
+					</li>
+					<li><p>Run the command: <code>npm install -g windows-build-tools --vs2015</code>
+						<strong><em>This will take a while. Sit tight.</em></strong></p>
+					</li>
+				</ol>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h3>Installation</h3>
 				</a>
@@ -112,12 +116,12 @@
 				<a href="#typescript" id="typescript" style="color: inherit; text-decoration: none;">
 					<h4>TypeScript</h4>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Crypto } <span class="hljs-keyword">from</span> <span class="hljs-string">'turtlecoin-crypto'</span>;
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { Crypto } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;turtlecoin-crypto&#x27;</span>;
 <span class="hljs-keyword">const</span> TurtleCoinCrypto = <span class="hljs-keyword">new</span> Crypto();</code></pre>
 				<a href="#commonjs" id="commonjs" style="color: inherit; text-decoration: none;">
 					<h4>CommonJS</h4>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> Crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">'turtlecoin-crypto'</span>).Crypto
+				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> Crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;turtlecoin-crypto&#x27;</span>).Crypto
 <span class="hljs-keyword">const</span> TurtleCoinCrypto = <span class="hljs-keyword">new</span> Crypto()</code></pre>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h4>Documentation</h4>
@@ -173,7 +177,7 @@ wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -</code>
 				</ul>
 				<pre><code class="language-bash">sudo apt-get update
 sudo apt-get install aptitude -y
-sudo aptitude install -y -o Aptitude::ProblemResolver::SolutionCost=<span class="hljs-string">'100*canceled-actions,200*removals'</span>
+sudo aptitude install -y -o Aptitude::ProblemResolver::SolutionCost=<span class="hljs-string">&#x27;100*canceled-actions,200*removals&#x27;</span>
 sudo aptitude install build-essential clang-6.0 libstdc++-7-dev git cmake
 <span class="hljs-built_in">export</span> CC=clang-6.0
 <span class="hljs-built_in">export</span> CXX=clang++-6.0
@@ -215,7 +219,7 @@ make -j</code></pre>
 				<a href="#building" id="building" style="color: inherit; text-decoration: none;">
 					<h5>Building</h5>
 				</a>
-				<pre><code class="language-bash"><span class="hljs-built_in">which</span> brew || /usr/bin/ruby -e <span class="hljs-string">"<span class="hljs-variable">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>"</span>
+				<pre><code class="language-bash"><span class="hljs-built_in">which</span> brew || /usr/bin/ruby -e <span class="hljs-string">&quot;<span class="hljs-subst">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)</span>&quot;</span>
 brew install --force cmake boost llvm
 <span class="hljs-built_in">export</span> CC=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin/clang
 <span class="hljs-built_in">export</span> CXX=/usr/<span class="hljs-built_in">local</span>/opt/llvm/bin/clang++
@@ -246,8 +250,9 @@ make</code></pre>
 					<li>From the start menu, open &#39;x64 Native Tools Command Prompt for vs2017&#39;.<pre><code>cd &lt;your_turtlecoin-crypto_directory&gt;
 mkdir build
 cd build
-set PATH="C:<span class="hljs-symbol">\P</span>rogram Files (x86)<span class="hljs-symbol">\M</span>icrosoft Visual Studio<span class="hljs-symbol">\2</span>017<span class="hljs-symbol">\C</span>ommunity<span class="hljs-symbol">\C</span>ommon7<span class="hljs-symbol">\I</span>DE<span class="hljs-symbol">\C</span>ommonExtensions<span class="hljs-symbol">\M</span>icrosoft<span class="hljs-symbol">\C</span>Make<span class="hljs-symbol">\C</span>Make<span class="hljs-symbol">\b</span>in";<span class="hljs-variable">%PATH%</span>
-cmake -G "Visual Studio 15 2017 Win64" ..</code></pre></li>
+set PATH=&quot;C:<span class="hljs-symbol">\P</span>rogram Files (x86)<span class="hljs-symbol">\M</span>icrosoft Visual Studio<span class="hljs-symbol">\2</span>017<span class="hljs-symbol">\C</span>ommunity<span class="hljs-symbol">\C</span>ommon7<span class="hljs-symbol">\I</span>DE<span class="hljs-symbol">\C</span>ommonExtensions<span class="hljs-symbol">\M</span>icrosoft<span class="hljs-symbol">\C</span>Make<span class="hljs-symbol">\C</span>Make<span class="hljs-symbol">\b</span>in&quot;;<span class="hljs-variable">%PATH%</span>
+cmake -G &quot;Visual Studio 15 2017 Win64&quot; ..</code></pre>
+					</li>
 				</ul>
 				<p><strong>Note:</strong> If you have errors on this step about not being able to find the some libraries, you may need to update your cmake. Open &#39;Visual Studio Installer&#39; and click &#39;Update&#39;.</p>
 				<p><code>MSBuild turtlecoin-crypto.sln /p:Configuration=Release /m</code></p>
@@ -335,57 +340,15 @@ cmake -G "Visual Studio 15 2017 Win64" ..</code></pre></li>
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
-				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
 				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
 				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
-				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
-				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
 			</ul>
 		</div>
 	</div>
@@ -395,6 +358,5 @@ cmake -G "Visual Studio 15 2017 Win64" ..</code></pre></li>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>
