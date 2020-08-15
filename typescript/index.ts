@@ -561,7 +561,7 @@ export class Crypto {
         if (keys) {
             return {
                 private_key: keys.private_key || keys.secretKey || keys.SecretKey,
-                public_key: keys.public_key || keys.PublicKey
+                public_key: keys.public_key || keys.publicKey || keys.PublicKey
             };
         } else {
             throw new Error('Could not generate keys');

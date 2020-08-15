@@ -25,7 +25,8 @@ describe('Cryptography', function () {
         it('Generate Random Keys', async () => {
             const keys = await TurtleCoinCrypto.generateKeys();
 
-            assert((keys));
+            assert(keys.public_key);
+            assert(keys.private_key);
         });
 
         it('Check Key - Public Key', async () => {
