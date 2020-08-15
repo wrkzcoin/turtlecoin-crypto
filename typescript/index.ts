@@ -91,9 +91,9 @@ export class Crypto {
      * @param config
      */
     public static set userCryptoFunctions (config: ICryptoConfig) {
-        Object.keys((config as any))
+        Object.keys(config)
             .forEach(key => {
-                (userCryptoFunctions as any)[key] = (config as any)[key];
+                userCryptoFunctions[key] = config[key];
             });
     }
 
@@ -154,10 +154,7 @@ export class Crypto {
      * @param config
      */
     public set userCryptoFunctions (config: ICryptoConfig) {
-        Object.keys((config as any))
-            .forEach(key => {
-                (userCryptoFunctions as any)[key] = (config as any)[key];
-            });
+        Crypto.userCryptoFunctions = config;
     }
 
     /**

@@ -60,13 +60,13 @@ export interface ICryptoConfig {
     checkKey?: (public_key: string) => Promise<boolean>;
     checkRingSignatures?:
         (prefix_hash: string, key_image: string, input_keys: string[], signatures: string[])
-        => Promise<boolean>;
+            => Promise<boolean>;
     checkScalar?: (private_key: string) => Promise<boolean>;
     checkSignature?: (message_digest: string, public_key: string, signature: string) => Promise<boolean>;
     cn_fast_hash?: (input_data: string) => Promise<string>;
     completeRingSignatures?:
         (private_ephemeral: string, real_output_index: number, k: string, signatures: string[])
-        => Promise<string[]>;
+            => Promise<string[]>;
     derivationToScalar?: (derivation: string, output_index: number) => Promise<string>;
     derivePublicKey?: (derivation: string, output_index: number, public_key: string) => Promise<string>;
     deriveSecretKey?: (derivation: string, output_index: number, private_key: string) => Promise<string>;
@@ -79,17 +79,17 @@ export interface ICryptoConfig {
     generatePrivateViewKeyFromPrivateSpendKey?: (private_key: string) => Promise<string>;
     generateRingSignatures?:
         (prefix_hash: string, key_image: string, public_keys: string[],
-        private_ephemeral: string, real_output_index: number) => Promise<string[]>;
+         private_ephemeral: string, real_output_index: number) => Promise<string[]>;
     generateSignature?: (message_digest: string, public_key: string, private_key: string) => Promise<string>;
     generateViewKeysFromPrivateSpendKey?: (private_key: string) => Promise<IKeyPair>;
     hashToEllipticCurve?: (data: string) => Promise<string>;
     hashToScalar?: (data: string) => Promise<string>;
     prepareRingSignatures?:
         (prefix_hash: string, key_image: string, public_keys: string[], real_output_index: number, k?: string)
-         => Promise<IPreparedRingSignatures>;
+            => Promise<IPreparedRingSignatures>;
     restoreKeyImage?:
         (public_ephemeral: string, derivation: string, output_index: number, partial_key_images: string[])
-         => Promise<string>;
+            => Promise<string>;
     restoreRingSignatures?:
         (derivation: string, output_index: number, partial_signing_keys: string[],
          real_output_index: number, k: string, signatures: string[]) => Promise<string[]>;
@@ -128,4 +128,6 @@ export interface ICryptoConfig {
     chukwa_slow_hash_base?: (data: string, iterations: number, memory: number, threads: number) => Promise<string>;
     chukwa_slow_hash_v1?: (data: string) => Promise<string>;
     chukwa_slow_hash_v2?: (data: string) => Promise<string>;
+
+    [key: string]: any;
 }

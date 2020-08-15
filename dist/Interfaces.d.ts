@@ -108,4 +108,5 @@ export interface ICryptoConfig {
     chukwa_slow_hash_base?: (data: string, iterations: number, memory: number, threads: number) => Promise<string>;
     chukwa_slow_hash_v1?: (data: string) => Promise<string>;
     chukwa_slow_hash_v2?: (data: string) => Promise<string>;
+    [key: string]: any;
 }

@@ -139,10 +139,7 @@ class Crypto {
      * @param config
      */
     set userCryptoFunctions(config) {
-        Object.keys(config)
-            .forEach(key => {
-            userCryptoFunctions[key] = config[key];
-        });
+        Crypto.userCryptoFunctions = config;
     }
     /**
      * Forces the wrapper to use the JS (slow) cryptographic primitives
