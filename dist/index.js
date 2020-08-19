@@ -1074,11 +1074,11 @@ class Crypto {
         }
         return tryRunFunc('chukwa_slow_hash', data);
     }
-    generateTransactionPow(serializedTransaction, nonceOffset) {
+    generateTransactionPow(serializedTransaction, nonceOffset, diff) {
         if (!isHex(serializedTransaction)) {
             throw new Error('Invalid data found');
         }
-        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset);
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
     }
 }
 exports.Crypto = Crypto;
