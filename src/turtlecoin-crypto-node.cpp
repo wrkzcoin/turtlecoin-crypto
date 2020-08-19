@@ -1918,10 +1918,11 @@ void generateTransactionPow(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string serializedTransaction = getString(info, 0);
     size_t nonceOffset = (size_t)getUInt32(info, 1);
+    size_t diff = (size_t)getUInt32(info, 2);
 
     try
     {
-        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset);
+        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset, diff);
         functionReturnValue = Nan::New(nonce);
         functionSuccess = true;
     }
