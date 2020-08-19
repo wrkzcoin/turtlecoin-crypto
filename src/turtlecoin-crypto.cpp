@@ -1186,7 +1186,7 @@ namespace Core
     uint32_t Cryptography::generateTransactionPow(
         const std::string serializedTransactionStr,
         const size_t nonceOffset,
-        const uint64_t diff)
+        const size_t diff)
     {
         std::vector<uint8_t> serializedTransaction = Common::fromHex(serializedTransactionStr);
 

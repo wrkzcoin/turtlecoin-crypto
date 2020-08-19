@@ -216,7 +216,7 @@ extern "C"
             static uint32_t generateTransactionPow(
                 const std::string serializedTransaction,
                 const size_t nonceOffset,
-                const uint64_t diff);
+                const size_t diff);
         };
     } // namespace Core
 
