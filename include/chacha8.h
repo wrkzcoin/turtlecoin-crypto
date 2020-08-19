@@ -10,8 +10,9 @@
 #include <random.h>
 #include <string>
 
-constexpr int CHACHA8_KEY_SIZE = 32;
-constexpr int CHACHA8_IV_SIZE = 8;
+constexpr inline int CHACHA8_KEY_SIZE = 32;
+
+constexpr inline int CHACHA8_IV_SIZE = 8;
 
 namespace Crypto
 {
@@ -32,7 +33,6 @@ namespace Crypto
     static_assert(
         sizeof(chacha8_key) == CHACHA8_KEY_SIZE && sizeof(chacha8_iv) == CHACHA8_IV_SIZE,
         "Invalid structure size");
-
 
     inline void chacha8(const void *data, size_t length, const chacha8_key &key, const chacha8_iv &iv, char *cipher)
     {

@@ -58,7 +58,6 @@ static const uint8_t padding[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                   0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                   0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-
 void blake256_compress(state *S, const uint8_t *block)
 {
     uint32_t v[16], m[16], i;
@@ -75,9 +74,13 @@ void blake256_compress(state *S, const uint8_t *block)
     v[b] = ROT(v[b] ^ v[c], 7);
 
     for (i = 0; i < 16; ++i)
+    {
         m[i] = U8TO32(block + i * 4);
+    }
     for (i = 0; i < 8; ++i)
+    {
         v[i] = S->h[i];
+    }
     v[8] = S->s[0] ^ 0x243F6A88;
     v[9] = S->s[1] ^ 0x85A308D3;
     v[10] = S->s[2] ^ 0x13198A2E;
@@ -108,9 +111,13 @@ void blake256_compress(state *S, const uint8_t *block)
     }
 
     for (i = 0; i < 16; ++i)
+    {
         S->h[i % 8] ^= v[i];
+    }
     for (i = 0; i < 8; ++i)
+    {
         S->h[i] ^= S->s[i % 4];
+    }
 }
 
 void blake256_init(state *S)
@@ -138,7 +145,9 @@ void blake256_update(state *S, const uint8_t *data, uint64_t datalen)
         memcpy((void *)(S->buf + left), (void *)data, fill);
         S->t[0] += 512;
         if (S->t[0] == 0)
+        {
             S->t[1]++;
+        }
         blake256_compress(S, S->buf);
         data += fill;
         datalen -= (fill << 3);
@@ -149,7 +158,9 @@ void blake256_update(state *S, const uint8_t *data, uint64_t datalen)
     {
         S->t[0] += 512;
         if (S->t[0] == 0)
+        {
             S->t[1]++;
+        }
         blake256_compress(S, data);
         data += 64;
         datalen -= 512;
@@ -171,7 +182,9 @@ void blake256_final_h(state *S, uint8_t *digest, uint8_t pa, uint8_t pb)
     uint8_t msglen[8];
     uint32_t lo = S->t[0] + S->buflen, hi = S->t[1];
     if (lo < (unsigned)S->buflen)
+    {
         hi++;
+    }
     U32TO8(msglen + 0, hi);
     U32TO8(msglen + 4, lo);
 
@@ -185,7 +198,9 @@ void blake256_final_h(state *S, uint8_t *digest, uint8_t pa, uint8_t pb)
         if (S->buflen < 440)
         { /* enough space to fill the block  */
             if (S->buflen == 0)
+            {
                 S->nullt = 1;
+            }
             S->t[0] -= 440 - S->buflen;
             blake256_update(S, padding, 440 - S->buflen);
         }

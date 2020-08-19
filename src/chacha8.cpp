@@ -53,7 +53,9 @@ namespace Crypto
         int i;
 
         if (!length)
+        {
             return;
+        }
 
         j0 = U8TO32_LITTLE(sigma + 0);
         j1 = U8TO32_LITTLE(sigma + 4);

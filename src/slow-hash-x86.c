@@ -1,7 +1,7 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2014-2018, The Aeon Project
-// Copyright (c) 2018, The TurtleCoin Developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -18,8 +18,10 @@
 #include <emmintrin.h>
 
 #if defined(_MSC_VER)
+
 #include <intrin.h>
 #include <windows.h>
+
 #define STATIC
 #define INLINE __inline
 #if !defined(RDATA_ALIGN16)
@@ -70,10 +72,10 @@
 #endif
 #endif
 
-#define pre_aes()                            \
-    j = state_index(a, lightFlag);           \
-    _c = _mm_load_si128(R128(&hp_state[j])); \
-    _a = _mm_load_si128(R128(a));
+#define pre_aes()                                       \
+    j = a[0] & mask;                                    \
+    _c = _mm_load_si128(R128(&hp_state[j]));            \
+    _a = _mm_load_si128(R128(a));                       \
 
 /*
  * An SSE-optimized implementation of the second half of CryptoNight step 3.
@@ -89,7 +91,7 @@
     _mm_store_si128(R128(c), _c);                               \
     _mm_store_si128(R128(&hp_state[j]), _mm_xor_si128(_b, _c)); \
     VARIANT1_1(&hp_state[j]);                                   \
-    j = state_index(c, lightFlag);                              \
+    j = c[0] & mask;                                            \
     p = U64(&hp_state[j]);                                      \
     b[0] = p[0];                                                \
     b[1] = p[1];                                                \
@@ -115,6 +117,7 @@
 #endif
 
 THREADV uint8_t *hp_state = NULL;
+
 THREADV int hp_allocated = 0;
 
 #if defined(_MSC_VER)
@@ -357,6 +360,7 @@ STATIC INLINE void
 }
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
+
 BOOL SetLockPagesPrivilege(HANDLE hProcess, BOOL bEnable)
 {
     struct
@@ -394,6 +398,7 @@ BOOL SetLockPagesPrivilege(HANDLE hProcess, BOOL bEnable)
 
     return TRUE;
 }
+
 #endif
 
 /**
@@ -408,7 +413,7 @@ BOOL SetLockPagesPrivilege(HANDLE hProcess, BOOL bEnable)
  * the allocated buffer.
  */
 
-void slow_hash_allocate_state(uint64_t page_size)
+void slow_hash_allocate_state(uint32_t page_size)
 {
     if (hp_state != NULL)
     {
@@ -444,7 +449,7 @@ void slow_hash_allocate_state(uint64_t page_size)
  *@brief frees the state allocated by slow_hash_allocate_state
  */
 
-void slow_hash_free_state(uint64_t page_size)
+void slow_hash_free_state(uint32_t page_size)
 {
     if (hp_state == NULL)
     {
@@ -505,14 +510,14 @@ void cn_slow_hash(
     int light,
     int variant,
     int prehashed,
-    uint64_t page_size,
-    uint64_t scratchpad,
-    uint64_t iterations)
+    uint32_t page_size,
+    uint32_t scratchpad,
+    uint32_t iterations,
+    uint64_t mask)
 {
-    uint64_t TOTALBLOCKS = (page_size / AES_BLOCK_SIZE);
-    uint64_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
-    uint64_t aes_rounds = (iterations / 2);
-    size_t lightFlag = (light ? 2 : 1);
+    uint32_t TOTALBLOCKS = (page_size / AES_BLOCK_SIZE);
+    uint32_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
+    uint32_t aes_rounds = (iterations / 2);
 
     RDATA_ALIGN16 uint8_t expandedKey[240]; /* These buffers are aligned to use later with SSE functions */
 

@@ -38,8 +38,6 @@ EXPORTDLL bool DllMain(
 #endif
 #endif
 
-static const uint64_t TRANSACTION_POW_DIFFICULTY = 10000;
-
 namespace Core
 {
     template<typename T> void toTypedVector(const std::vector<std::string> &stringVector, std::vector<T> &result)
@@ -161,7 +159,8 @@ namespace Core
         const int threadCount,
         uint32_t nonce,
         std::atomic<bool> &shouldStop,
-        uint32_t &resultNonce)
+        uint32_t &resultNonce,
+        const uint64_t diff)
     {
         /* Get a pointer to the start of where we want to insert our nonce */
         const auto noncePosition = &serializedTransaction[nonceOffset];
@@ -178,9 +177,9 @@ namespace Core
 
             Crypto::Hash hash;
 
-            Crypto::cn_turtle_lite_slow_hash_v2(serializedTransaction.data(), serializedTransaction.size(), hash);
+            Crypto::cn_upx(serializedTransaction.data(), serializedTransaction.size(), hash);
 
-            if (check_hash(hash, TRANSACTION_POW_DIFFICULTY))
+            if (check_hash(hash, diff))
             {
                 resultNonce = nonce;
                 shouldStop = true;
@@ -397,6 +396,17 @@ namespace Core
         Crypto::BinaryArray data = toBinaryArray(input);
 
         Crypto::cn_turtle_lite_slow_hash_v2(data.data(), data.size(), hash);
+
+        return Common::podToHex(hash);
+    }
+
+    std::string Cryptography::cn_upx(const std::string input)
+    {
+        Crypto::Hash hash = Crypto::Hash();
+
+        Crypto::BinaryArray data = toBinaryArray(input);
+
+        Crypto::cn_upx(data.data(), data.size(), hash);
 
         return Common::podToHex(hash);
     }
@@ -1175,7 +1185,8 @@ namespace Core
 
     uint32_t Cryptography::generateTransactionPow(
         const std::string serializedTransactionStr,
-        const size_t nonceOffset)
+        const size_t nonceOffset,
+        const uint64_t diff)
     {
         std::vector<uint8_t> serializedTransaction = Common::fromHex(serializedTransactionStr);
 
@@ -1196,7 +1207,8 @@ namespace Core
                 threadCount,
                 i,
                 std::ref(shouldStop),
-                std::ref(nonce)
+                std::ref(nonce),
+                diff
             ));
         }
 
@@ -1619,6 +1631,11 @@ extern "C"
         output = strdup(Core::Cryptography::cn_turtle_lite_slow_hash_v2(input).c_str());
     }
 
+    EXPORTDLL void cn_upx(const char *input, char *&output)
+    {
+        output = strdup(Core::Cryptography::cn_upx(input).c_str());
+    }
+
     EXPORTDLL void _cn_soft_shell_slow_hash_v0(const char *input, const uint32_t height, char *&output)
     {
         output = strdup(Core::Cryptography::cn_soft_shell_slow_hash_v0(input, height).c_str());
@@ -1868,10 +1885,10 @@ extern "C"
         calculateSharedPublicKey(publicKeys, publicKeysLength, publicKey);
     }
 
-    EXPORTDLL uint32_t _generateTransactionPow(const uint8_t *serializedTransaction, const size_t txLength, const size_t nonceOffset)
+    EXPORTDLL uint32_t _generateTransactionPow(const uint8_t *serializedTransaction, const size_t txLength, const size_t nonceOffset, const uint64_t diff)
     {
         std::vector<uint8_t> serialized(serializedTransaction, serializedTransaction + txLength);
         const std::string serializedStr = Common::toHex(serialized);
-        return Core::Cryptography::generateTransactionPow(serializedStr, nonceOffset);
+        return Core::Cryptography::generateTransactionPow(serializedStr, nonceOffset, diff);
     }
 }

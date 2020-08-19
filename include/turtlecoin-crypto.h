@@ -58,6 +58,8 @@ extern "C"
             static std::string cn_turtle_lite_slow_hash_v1(const std::string data);
             static std::string cn_turtle_lite_slow_hash_v2(const std::string data);
 
+            static std::string cn_upx(const std::string data);
+
             static std::string cn_soft_shell_slow_hash_v0(const std::string data, const uint64_t height);
             static std::string cn_soft_shell_slow_hash_v1(const std::string data, const uint64_t height);
             static std::string cn_soft_shell_slow_hash_v2(const std::string data, const uint64_t height);
@@ -213,7 +215,8 @@ extern "C"
 
             static uint32_t generateTransactionPow(
                 const std::string serializedTransaction,
-                const size_t nonceOffset);
+                const size_t nonceOffset,
+                const uint64_t diff);
         };
     } // namespace Core
 
