@@ -21,10 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/turtlecoin/turtlecoin-crypto.git"
+    "url": "git+https://github.com/wrkzcoin/turtlecoin-crypto#add_upx_tx_pow"
   },
   "bugs": {
-    "url": "https://github.com/turtlecoin/turtlecoin-crypto/issues"
+    "url": "https://github.com/wrkzcoin/turtlecoin-crypto/issues"
   },
   "engines": {
     "node": ">=6"
