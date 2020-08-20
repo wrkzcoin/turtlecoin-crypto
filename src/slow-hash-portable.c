@@ -180,7 +180,7 @@ void cn_slow_hash(
     for (i = 0; i < aes_rounds; i++)
     {
         // Iteration 1
-        j = ((uint64_t *)a) & mask;
+        j = U64(a)[0] & mask;
         p = &long_state[j];
         aesb_single_round(p, p, a);
         copy_block(c1, p);
@@ -190,7 +190,7 @@ void cn_slow_hash(
         VARIANT1_1(p);
 
         // Iteration 2
-        j = ((uint64_t *)c1) & mask;
+        j = U64(c1)[0] & mask;
         p = &long_state[j];
         copy_block(c, p);
 
