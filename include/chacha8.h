@@ -10,9 +10,8 @@
 #include <random.h>
 #include <string>
 
-constexpr inline int CHACHA8_KEY_SIZE = 32;
-
-constexpr inline int CHACHA8_IV_SIZE = 8;
+constexpr int CHACHA8_KEY_SIZE = 32;
+constexpr int CHACHA8_IV_SIZE = 8;
 
 namespace Crypto
 {
