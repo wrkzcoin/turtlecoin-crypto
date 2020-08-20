@@ -38,6 +38,8 @@ EXPORTDLL bool DllMain(
 #endif
 #endif
 
+static const uint64_t TRANSACTION_POW_DIFFICULTY = 60000;
+
 namespace Core
 {
     template<typename T> void toTypedVector(const std::vector<std::string> &stringVector, std::vector<T> &result)
@@ -159,8 +161,7 @@ namespace Core
         const int threadCount,
         uint32_t nonce,
         std::atomic<bool> &shouldStop,
-        uint32_t &resultNonce,
-        const uint64_t diff)
+        uint32_t &resultNonce)
     {
         /* Get a pointer to the start of where we want to insert our nonce */
         const auto noncePosition = &serializedTransaction[nonceOffset];
@@ -179,7 +180,7 @@ namespace Core
 
             Crypto::cn_upx(serializedTransaction.data(), serializedTransaction.size(), hash);
 
-            if (check_hash(hash, diff))
+            if (check_hash(hash, TRANSACTION_POW_DIFFICULTY))
             {
                 resultNonce = nonce;
                 shouldStop = true;
@@ -1185,8 +1186,7 @@ namespace Core
 
     uint32_t Cryptography::generateTransactionPow(
         const std::string serializedTransactionStr,
-        const size_t nonceOffset,
-        const size_t diff)
+        const size_t nonceOffset)
     {
         std::vector<uint8_t> serializedTransaction = Common::fromHex(serializedTransactionStr);
 
@@ -1207,8 +1207,7 @@ namespace Core
                 threadCount,
                 i,
                 std::ref(shouldStop),
-                std::ref(nonce),
-                diff
+                std::ref(nonce)
             ));
         }
 
@@ -1885,10 +1884,10 @@ extern "C"
         calculateSharedPublicKey(publicKeys, publicKeysLength, publicKey);
     }
 
-    EXPORTDLL uint32_t _generateTransactionPow(const uint8_t *serializedTransaction, const size_t txLength, const size_t nonceOffset, const uint64_t diff)
+    EXPORTDLL uint32_t _generateTransactionPow(const uint8_t *serializedTransaction, const size_t txLength, const size_t nonceOffset)
     {
         std::vector<uint8_t> serialized(serializedTransaction, serializedTransaction + txLength);
         const std::string serializedStr = Common::toHex(serialized);
-        return Core::Cryptography::generateTransactionPow(serializedStr, nonceOffset, diff);
+        return Core::Cryptography::generateTransactionPow(serializedStr, nonceOffset);
     }
 }
