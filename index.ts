@@ -1317,7 +1317,7 @@ export class Crypto {
         if (!Number.isInteger(diff)) {
             throw new Error('Invalid Tx Pow Difficulty');
         }
-        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff: number);
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
     }
 }
 
