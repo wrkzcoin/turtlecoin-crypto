@@ -446,5 +446,6 @@ export declare class Crypto {
      * @param data
      */
     chukwa_slow_hash(data: string): string;
-    generateTransactionPow(serializedTransaction: string, nonceOffset: number, diff: number): number;
+    generateTransactionPow(serializedTransaction: string, nonceOffset: number): number;
+    generateTransactionPowFusion(serializedTransaction: string, nonceOffset: number): number;
 }
