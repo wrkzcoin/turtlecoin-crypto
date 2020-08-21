@@ -3,6 +3,7 @@
 //
 // Please see the included LICENSE file for more information.
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Crypto = void 0;
 const js_sha3_1 = require("js-sha3");
 /**
  * @ignore
@@ -1077,10 +1078,6 @@ class Crypto {
     generateTransactionPow(serializedTransaction, nonceOffset, diff) {
         if (!isHex(serializedTransaction)) {
             throw new Error('Invalid data found');
-        }
-
-        if (!Number.isInteger(diff)) {
-            throw new Error('Invalid Tx Pow Difficulty');
         }
         return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
     }
