@@ -1310,12 +1310,14 @@ export class Crypto {
         return tryRunFunc('chukwa_slow_hash', data);
     }
 
-    public generateTransactionPow(serializedTransaction: string, nonceOffset: number): number {
+    public generateTransactionPow(serializedTransaction: string, nonceOffset: number, diff: number): number {
         if (!isHex(serializedTransaction)) {
             throw new Error('Invalid data found');
         }
-
-        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset);
+        if (!Number.isInteger(diff)) {
+            throw new Error('Invalid Tx Pow Difficulty');
+        }
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff: number);
     }
 }
 
