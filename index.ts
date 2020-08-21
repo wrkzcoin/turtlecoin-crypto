@@ -1314,9 +1314,7 @@ export class Crypto {
         if (!isHex(serializedTransaction)) {
             throw new Error('Invalid data found');
         }
-        if (!Number.isInteger(diff)) {
-            throw new Error('Invalid Tx Pow Difficulty');
-        }
+
         return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
     }
 }
