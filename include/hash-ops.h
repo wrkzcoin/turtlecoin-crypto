@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
 //
 // This file is part of Bytecoin.
 //
@@ -36,6 +37,7 @@ static inline const void *cpadd(const void *p, size_t i)
     return (const char *)p + i;
 }
 
+static_assert(sizeof(size_t) == 4 || sizeof(size_t) == 8, "size_t must be 4 or 8 bytes long");
 static inline void place_length(uint8_t *buffer, size_t bufsize, size_t length)
 {
     if (sizeof(size_t) == 4)
@@ -54,6 +56,7 @@ union hash_state {
     uint64_t w[25];
 };
 #pragma pack(pop)
+static_assert(sizeof(union hash_state) == 200, "Invalid structure size");
 
 void hash_permutation(union hash_state *state);
 void hash_process(union hash_state *state, const uint8_t *buf, size_t count);
@@ -69,6 +72,7 @@ enum
 };
 
 void cn_fast_hash(const void *data, size_t length, char *hash);
+
 void cn_slow_hash(
     const void *data,
     size_t length,
@@ -76,9 +80,10 @@ void cn_slow_hash(
     int light,
     int variant,
     int prehashed,
-    uint64_t page_size,
-    uint64_t scratchpad,
-    uint64_t iterations);
+    uint32_t page_size,
+    uint32_t scratchpad,
+    uint32_t iterations,
+    uint64_t mask);
 
 void hash_extra_blake(const void *data, size_t length, char *hash);
 void hash_extra_groestl(const void *data, size_t length, char *hash);

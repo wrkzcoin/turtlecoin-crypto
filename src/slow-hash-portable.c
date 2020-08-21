@@ -1,7 +1,7 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2014-2018, The Aeon Project
-// Copyright (c) 2018, The TurtleCoin Developers
+// Copyright (c) 2018-2019, The TurtleCoin Developers
 //
 // Please see the included LICENSE file for more information.
 
@@ -72,8 +72,6 @@ static void sum_half_blocks(uint8_t *a, const uint8_t *b)
     ((uint64_t *)a)[1] = SWAP64LE(a1);
 }
 
-#define U64(x) ((uint64_t *)(x))
-
 static void copy_block(uint8_t *dst, const uint8_t *src)
 {
     memcpy(dst, src, AES_BLOCK_SIZE);
@@ -115,13 +113,13 @@ void cn_slow_hash(
     int light,
     int variant,
     int prehashed,
-    uint64_t page_size,
-    uint64_t scratchpad,
-    uint64_t iterations)
+    uint32_t page_size,
+    uint32_t scratchpad,
+    uint32_t iterations,
+    uint64_t mask)
 {
-    uint64_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
-    uint64_t aes_rounds = (iterations / 2);
-    size_t lightFlag = (light ? 2 : 1);
+    uint32_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
+    uint32_t aes_rounds = (iterations / 2);
 
     uint8_t text[INIT_SIZE_BYTE];
     uint8_t a[AES_BLOCK_SIZE];
@@ -181,11 +179,8 @@ void cn_slow_hash(
 
     for (i = 0; i < aes_rounds; i++)
     {
-#define MASK(div) ((uint64_t)(((page_size / AES_BLOCK_SIZE) / (div)-1) << 4))
-#define state_index(x, div) ((*(uint64_t *)x) & MASK(div))
-
         // Iteration 1
-        j = state_index(a, lightFlag);
+        j = U64(a)[0] & mask;
         p = &long_state[j];
         aesb_single_round(p, p, a);
         copy_block(c1, p);
@@ -195,7 +190,7 @@ void cn_slow_hash(
         VARIANT1_1(p);
 
         // Iteration 2
-        j = state_index(c1, lightFlag);
+        j = U64(c1)[0] & mask;
         p = &long_state[j];
         copy_block(c, p);
 

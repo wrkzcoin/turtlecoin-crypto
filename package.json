@@ -21,10 +21,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/turtlecoin/turtlecoin-crypto.git"
+    "url": "git+https://github.com/wrkzcoin/turtlecoin-crypto#add_upx_tx_pow"
   },
   "bugs": {
-    "url": "https://github.com/turtlecoin/turtlecoin-crypto/issues"
+    "url": "https://github.com/wrkzcoin/turtlecoin-crypto/issues"
   },
   "engines": {
     "node": ">=6"
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@types/node": "^13.13.2",
+    "electron-rebuild": "^1.11.0",
     "mocha": "^6.2.3",
     "run-script-os": "^1.1.1",
     "tslint": "^5.20.1",

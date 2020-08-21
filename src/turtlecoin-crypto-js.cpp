@@ -277,6 +277,8 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("cn_turtle_lite_slow_hash_v1", &Core::Cryptography::cn_turtle_lite_slow_hash_v1);
     function("cn_turtle_lite_slow_hash_v2", &Core::Cryptography::cn_turtle_lite_slow_hash_v2);
 
+    function("cn_upx", &Core::Cryptography::cn_upx);
+
     function("cn_soft_shell_slow_hash_v0", &cn_soft_shell_slow_hash_v0);
     function("cn_soft_shell_slow_hash_v1", &cn_soft_shell_slow_hash_v1);
     function("cn_soft_shell_slow_hash_v2", &cn_soft_shell_slow_hash_v2);

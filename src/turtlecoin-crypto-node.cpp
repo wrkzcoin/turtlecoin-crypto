@@ -1851,6 +1851,35 @@ void cn_turtle_lite_slow_hash_v2(const Nan::FunctionCallbackInfo<v8::Value> &inf
     info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
 }
 
+/* UPX */
+void cn_upx(const Nan::FunctionCallbackInfo<v8::Value> &info)
+{
+    /* Setup our return object */
+    v8::Local<v8::Value> functionReturnValue = Nan::New("").ToLocalChecked();
+
+    bool functionSuccess = false;
+
+    std::string data = getString(info, 0);
+
+    if (!data.empty())
+    {
+        try
+        {
+            std::string hash = Core::Cryptography::cn_upx(data);
+
+            functionReturnValue = Nan::New(hash).ToLocalChecked();
+
+            functionSuccess = true;
+        }
+        catch (const std::exception &)
+        {
+            functionSuccess = false;
+        }
+    }
+
+    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
+}
+
 /* Chukwa */
 
 void chukwa_slow_hash(const Nan::FunctionCallbackInfo<v8::Value> &info)
@@ -1889,10 +1918,11 @@ void generateTransactionPow(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string serializedTransaction = getString(info, 0);
     size_t nonceOffset = (size_t)getUInt32(info, 1);
-
+    size_t diff = (size_t)getUInt32(info, 2);
+    
     try
     {
-        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset);
+        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset, diff);
         functionReturnValue = Nan::New(nonce);
         functionSuccess = true;
     }
@@ -2192,6 +2222,11 @@ NAN_MODULE_INIT(InitModule)
         target,
         Nan::New("cn_turtle_lite_slow_hash_v2").ToLocalChecked(),
         Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_turtle_lite_slow_hash_v2)).ToLocalChecked());
+
+    Nan::Set(
+        target,
+        Nan::New("cn_upx").ToLocalChecked(),
+        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(cn_upx)).ToLocalChecked());
 
     Nan::Set(
         target,

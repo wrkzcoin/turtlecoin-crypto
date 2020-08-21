@@ -2,43 +2,55 @@
 // Copyright (c) 2014-2018, The Monero Project
 // Copyright (c) 2014-2018, The Aeon Project
 // Copyright (c) 2018-2019, The TurtleCoin Developers
+// Copyright (c) 2018-2019, uPlexa Team
+// Copyright (c) 2018-2020, The WrkzCoin developers
 //
 // Please see the included LICENSE file for more information.
 
 #pragma once
 
 #include "argon2.h"
-
-#include <CryptoTypes.h>
 #include <cstring>
+#include <CryptoTypes.h>
 #include <stddef.h>
 
 // Standard Cryptonight Definitions
 #define CN_PAGE_SIZE 2097152
 #define CN_SCRATCHPAD 2097152
 #define CN_ITERATIONS 1048576
+#define CN_MASK 0x1FFFF0
 
 // Standard CryptoNight Lite Definitions
 #define CN_LITE_PAGE_SIZE 2097152
 #define CN_LITE_SCRATCHPAD 1048576
 #define CN_LITE_ITERATIONS 524288
+#define CN_LITE_MASK 0xFFFF0
 
 // Standard CryptoNight Dark
 #define CN_DARK_PAGE_SIZE 524288
 #define CN_DARK_SCRATCHPAD 524288
 #define CN_DARK_ITERATIONS 262144
+#define CN_DARK_MASK 0x7FFF0
+#define CN_DARK_LITE_MASK 0x3FFF0
 
 // Standard CryptoNight Turtle
 #define CN_TURTLE_PAGE_SIZE 262144
 #define CN_TURTLE_SCRATCHPAD 262144
-#define CN_TURTLE_ITERATIONS 131072
+#define CN_TURTLE_ITERATIONS 131072 
+#define CN_TURTLE_MASK 0x3FFF0
+#define CN_TURTLE_LITE_MASK 0x1FFF0
+
+// Standard CryptoNight UPX
+#define CN_UPX_PAGE_SIZE 131072
+#define CN_UPX_SCRATCHPAD 131072
+#define CN_UPX_ITERATIONS 32768
+#define CN_UPX_MASK 0x1FFF0
 
 // CryptoNight Soft Shell Definitions
 #define CN_SOFT_SHELL_MEMORY 262144 // This defines the lowest memory utilization for our curve
 #define CN_SOFT_SHELL_WINDOW 2048 // This defines how many blocks we cycle through as part of our algo sine wave
-#define CN_SOFT_SHELL_MULTIPLIER \
-    3 // This defines how big our steps are for each block and
-      // ultimately determines how big our sine wave is. A smaller value means a bigger wave
+#define CN_SOFT_SHELL_MULTIPLIER 3 // This defines how big our steps are for each block and
+// ultimately determines how big our sine wave is. A smaller value means a bigger wave
 #define CN_SOFT_SHELL_ITER (CN_SOFT_SHELL_MEMORY / 2)
 #define CN_SOFT_SHELL_PAD_MULTIPLIER (CN_SOFT_SHELL_WINDOW / CN_SOFT_SHELL_MULTIPLIER)
 #define CN_SOFT_SHELL_ITER_MULTIPLIER (CN_SOFT_SHELL_PAD_MULTIPLIER / 2)
@@ -51,8 +63,8 @@
 #define CHUKWA_HASHLEN 32 // The length of the resulting hash in bytes
 #define CHUKWA_SALTLEN 16 // The length of our salt in bytes
 #define CHUKWA_THREADS 1 // How many threads to use at once
-#define CHUKWA_ITERS 3 // How many iterations we perform as part of our slow-hash
-#define CHUKWA_MEMORY 512 // This value is in KiB (0.5MB)
+#define CHUKWA_ITERS   4 // How many iterations we perform as part of our slow-hash
+#define CHUKWA_MEMORY  256 // This value is in KiB (0.2MB)
 
 namespace Crypto
 {
@@ -61,7 +73,7 @@ namespace Crypto
 #include "hash-ops.h"
     }
 
-    static bool argon_optimization_selected = false;
+    static bool argon2_optimization_selected = false;
 
     /*
       Cryptonight hash functions
@@ -83,19 +95,46 @@ namespace Crypto
     inline void cn_slow_hash_v0(const void *data, size_t length, Hash &hash)
     {
         cn_slow_hash(
-            data, length, reinterpret_cast<char *>(&hash), 0, 0, 0, CN_PAGE_SIZE, CN_SCRATCHPAD, CN_ITERATIONS);
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            0,
+            0,
+            0,
+            CN_PAGE_SIZE,
+            CN_SCRATCHPAD,
+            CN_ITERATIONS,
+            CN_MASK);
     }
 
     inline void cn_slow_hash_v1(const void *data, size_t length, Hash &hash)
     {
         cn_slow_hash(
-            data, length, reinterpret_cast<char *>(&hash), 0, 1, 0, CN_PAGE_SIZE, CN_SCRATCHPAD, CN_ITERATIONS);
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            0,
+            1,
+            0,
+            CN_PAGE_SIZE,
+            CN_SCRATCHPAD,
+            CN_ITERATIONS,
+            CN_MASK);
     }
 
     inline void cn_slow_hash_v2(const void *data, size_t length, Hash &hash)
     {
         cn_slow_hash(
-            data, length, reinterpret_cast<char *>(&hash), 0, 2, 0, CN_PAGE_SIZE, CN_SCRATCHPAD, CN_ITERATIONS);
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            0,
+            2,
+            0,
+            CN_PAGE_SIZE,
+            CN_SCRATCHPAD,
+            CN_ITERATIONS,
+            CN_MASK);
     }
 
     // Standard CryptoNight Lite
@@ -110,7 +149,8 @@ namespace Crypto
             0,
             CN_LITE_PAGE_SIZE,
             CN_LITE_SCRATCHPAD,
-            CN_LITE_ITERATIONS);
+            CN_LITE_ITERATIONS,
+            CN_LITE_MASK);
     }
 
     inline void cn_lite_slow_hash_v1(const void *data, size_t length, Hash &hash)
@@ -124,7 +164,8 @@ namespace Crypto
             0,
             CN_LITE_PAGE_SIZE,
             CN_LITE_SCRATCHPAD,
-            CN_LITE_ITERATIONS);
+            CN_LITE_ITERATIONS,
+            CN_LITE_MASK);
     }
 
     inline void cn_lite_slow_hash_v2(const void *data, size_t length, Hash &hash)
@@ -138,7 +179,8 @@ namespace Crypto
             0,
             CN_LITE_PAGE_SIZE,
             CN_LITE_SCRATCHPAD,
-            CN_LITE_ITERATIONS);
+            CN_LITE_ITERATIONS,
+            CN_LITE_MASK);
     }
 
     // Standard CryptoNight Dark
@@ -153,7 +195,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_MASK);
     }
 
     inline void cn_dark_slow_hash_v1(const void *data, size_t length, Hash &hash)
@@ -167,7 +210,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_MASK);
     }
 
     inline void cn_dark_slow_hash_v2(const void *data, size_t length, Hash &hash)
@@ -181,7 +225,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_MASK);
     }
 
     // Standard CryptoNight Dark Lite
@@ -196,7 +241,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_LITE_MASK);
     }
 
     inline void cn_dark_lite_slow_hash_v1(const void *data, size_t length, Hash &hash)
@@ -210,7 +256,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_LITE_MASK);
     }
 
     inline void cn_dark_lite_slow_hash_v2(const void *data, size_t length, Hash &hash)
@@ -224,7 +271,8 @@ namespace Crypto
             0,
             CN_DARK_PAGE_SIZE,
             CN_DARK_SCRATCHPAD,
-            CN_DARK_ITERATIONS);
+            CN_DARK_ITERATIONS,
+            CN_DARK_LITE_MASK);
     }
 
     // Standard CryptoNight Turtle
@@ -239,7 +287,8 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_MASK);
     }
 
     inline void cn_turtle_slow_hash_v1(const void *data, size_t length, Hash &hash)
@@ -253,7 +302,8 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_MASK);
     }
 
     inline void cn_turtle_slow_hash_v2(const void *data, size_t length, Hash &hash)
@@ -267,7 +317,8 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_MASK);
     }
 
     // Standard CryptoNight Turtle Lite
@@ -282,7 +333,8 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_LITE_MASK);
     }
 
     inline void cn_turtle_lite_slow_hash_v1(const void *data, size_t length, Hash &hash)
@@ -296,7 +348,8 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_LITE_MASK);
     }
 
     inline void cn_turtle_lite_slow_hash_v2(const void *data, size_t length, Hash &hash)
@@ -310,59 +363,105 @@ namespace Crypto
             0,
             CN_TURTLE_PAGE_SIZE,
             CN_TURTLE_SCRATCHPAD,
-            CN_TURTLE_ITERATIONS);
+            CN_TURTLE_ITERATIONS,
+            CN_TURTLE_LITE_MASK);
+    }
+
+    inline void cn_upx(const void *data, size_t length, Hash &hash)
+    {
+        cn_slow_hash(
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            2,
+            2,
+            0,
+            CN_UPX_PAGE_SIZE,
+            CN_UPX_SCRATCHPAD,
+            CN_UPX_ITERATIONS,
+            CN_UPX_MASK);
     }
 
     // CryptoNight Soft Shell
-    inline void cn_soft_shell_slow_hash_v0(const void *data, size_t length, Hash &hash, uint64_t height)
+    inline void cn_soft_shell_slow_hash_v0(const void *data, size_t length, Hash &hash, uint32_t height)
     {
-        uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-        int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+        uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+        int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
         if (offset < 0)
         {
             offset = base_offset;
         }
 
-        uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+        uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
         scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-        uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-        uint64_t pagesize = scratchpad;
+        uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+        uint32_t pagesize = scratchpad;
 
-        cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 0, 0, pagesize, scratchpad, iterations);
+        cn_slow_hash(
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            1,
+            0,
+            0,
+            pagesize,
+            scratchpad,
+            iterations,
+            (((pagesize >> 4) - 1) / 2) << 4);
     }
 
-    inline void cn_soft_shell_slow_hash_v1(const void *data, size_t length, Hash &hash, uint64_t height)
+    inline void cn_soft_shell_slow_hash_v1(const void *data, size_t length, Hash &hash, uint32_t height)
     {
-        uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-        int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+        uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+        int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
         if (offset < 0)
         {
             offset = base_offset;
         }
 
-        uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+        uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
         scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-        uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-        uint64_t pagesize = scratchpad;
+        uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+        uint32_t pagesize = scratchpad;
 
-        cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 1, 0, pagesize, scratchpad, iterations);
+        cn_slow_hash(
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            1,
+            1,
+            0,
+            pagesize,
+            scratchpad,
+            iterations,
+            (((pagesize >> 4) - 1) / 2) << 4);
     }
 
-    inline void cn_soft_shell_slow_hash_v2(const void *data, size_t length, Hash &hash, uint64_t height)
+    inline void cn_soft_shell_slow_hash_v2(const void *data, size_t length, Hash &hash, uint32_t height)
     {
-        uint64_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
-        int64_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
+        uint32_t base_offset = (height % CN_SOFT_SHELL_WINDOW);
+        int32_t offset = (height % (CN_SOFT_SHELL_WINDOW * 2)) - (base_offset * 2);
         if (offset < 0)
         {
             offset = base_offset;
         }
 
-        uint64_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
+        uint32_t scratchpad = CN_SOFT_SHELL_MEMORY + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_PAD_MULTIPLIER);
         scratchpad = (static_cast<uint64_t>(scratchpad / 128)) * 128;
-        uint64_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint64_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
-        uint64_t pagesize = scratchpad;
+        uint32_t iterations = CN_SOFT_SHELL_ITER + (static_cast<uint32_t>(offset) * CN_SOFT_SHELL_ITER_MULTIPLIER);
+        uint32_t pagesize = scratchpad;
 
-        cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), 1, 2, 0, pagesize, scratchpad, iterations);
+        cn_slow_hash(
+            data,
+            length,
+            reinterpret_cast<char *>(&hash),
+            1,
+            2,
+            0,
+            pagesize,
+            scratchpad,
+            iterations,
+            (((pagesize >> 4) - 1) / 2) << 4);
     }
 
     inline void chukwa_slow_hash(const void *data, size_t length, Hash &hash)
@@ -373,13 +472,13 @@ namespace Crypto
         /* If this is the first time we've called this hash function then
            we need to have the Argon2 library check to see if any of the
            available CPU instruction sets are going to help us out */
-        if (!argon_optimization_selected)
+        if (!argon2_optimization_selected)
         {
             /* Call the library quick benchmark test to set which CPU
                instruction sets will be used */
             argon2_select_impl(NULL, NULL);
 
-            argon_optimization_selected = true;
+            argon2_optimization_selected = true;
         }
 
         argon2id_hash_raw(
