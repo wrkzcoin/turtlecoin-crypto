@@ -1918,33 +1918,11 @@ void generateTransactionPow(const Nan::FunctionCallbackInfo<v8::Value> &info)
 
     std::string serializedTransaction = getString(info, 0);
     size_t nonceOffset = (size_t)getUInt32(info, 1);
+    size_t diff = (size_t)getUInt32(info, 2);
     
     try
     {
-        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset);
-        functionReturnValue = Nan::New(nonce);
-        functionSuccess = true;
-    }
-    catch (const std::exception &)
-    {
-        functionSuccess = false;
-    }
-
-    info.GetReturnValue().Set(prepareResult(functionSuccess, functionReturnValue));
-}
-
-void generateTransactionPowFusion(const Nan::FunctionCallbackInfo<v8::Value> &info)
-{
-    v8::Local<v8::Value> functionReturnValue = Nan::New(0);
-
-    bool functionSuccess = false;
-
-    std::string serializedTransaction = getString(info, 0);
-    size_t nonceOffset = (size_t)getUInt32(info, 1);
-    
-    try
-    {
-        const uint32_t nonce = Core::Cryptography::generateTransactionPowFusion(serializedTransaction, nonceOffset);
+        const uint32_t nonce = Core::Cryptography::generateTransactionPow(serializedTransaction, nonceOffset, diff);
         functionReturnValue = Nan::New(nonce);
         functionSuccess = true;
     }
@@ -2143,11 +2121,6 @@ NAN_MODULE_INIT(InitModule)
         target,
         Nan::New("generateTransactionPow").ToLocalChecked(),
         Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateTransactionPow)).ToLocalChecked());
-
-    Nan::Set(
-        target,
-        Nan::New("generateTransactionPowFusion").ToLocalChecked(),
-        Nan::GetFunction(Nan::New<v8::FunctionTemplate>(generateTransactionPowFusion)).ToLocalChecked());
 
     /* Hashing Operations */
     Nan::Set(

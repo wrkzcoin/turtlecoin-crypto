@@ -215,11 +215,8 @@ extern "C"
 
             static uint32_t generateTransactionPow(
                 const std::string serializedTransaction,
-                const size_t nonceOffset);
-
-            static uint32_t generateTransactionPowFusion(
-                const std::string serializedTransaction,
-                const size_t nonceOffset);
+                const size_t nonceOffset,
+                const size_t diff);
         };
     } // namespace Core
 
