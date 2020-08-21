@@ -318,6 +318,7 @@ EMSCRIPTEN_BINDINGS(signatures)
     function("scReduce32", &Core::Cryptography::scReduce32);
     function("hashToScalar", &Core::Cryptography::hashToScalar);
     function("generateTransactionPow", &Core::Cryptography::generateTransactionPow);
+    function("generateTransactionPowFusion", &Core::Cryptography::generateTransactionPowFusion);
 
     /* Multisig Methods */
     function("calculateMultisigPrivateKeys", &Core::Cryptography::calculateMultisigPrivateKeys);
