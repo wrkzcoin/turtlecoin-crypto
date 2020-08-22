@@ -25,9 +25,14 @@ describe('Cryptography', function () {
   this.timeout(30000)
 
   describe('Core', () => {
-    it('Generate Transaction Proof of Work', () => {
-        const nonce = TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1);
+    it('Generate Transaction Proof of Work 1000', () => {
+        const nonce = TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1, 1000);
         assert(nonce > 0);
+    })
+
+    it('Generate Transaction Proof of Work 20000', () => {
+        const nonce2 = TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1, 20000);
+        assert(nonce2 > 0);
     })
 
     it('Generate Random Keys', () => {
