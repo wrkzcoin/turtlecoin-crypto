@@ -1317,7 +1317,11 @@ export class Crypto {
         if (!isUInt(diff)) {
             throw new Error('Invalid diff found');
         }
-        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
+        try {
+            return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
+        } catch (e) {
+            throw e;
+        }
     }
 }
 
