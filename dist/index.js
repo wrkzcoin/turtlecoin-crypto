@@ -1079,6 +1079,9 @@ class Crypto {
         if (!isHex(serializedTransaction)) {
             throw new Error('Invalid data found');
         }
+        if (!isUInt(diff)) {
+            throw new Error('Invalid diff found');
+        }
         return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
     }
 }
