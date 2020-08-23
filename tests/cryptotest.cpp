@@ -43,6 +43,8 @@ const std::string CN_TURTLE_LITE_SLOW_HASH_V2 = "b2172ec9466e1aee70ec8572a14c233
 const std::string CHUKWA_V1 = "c0dad0eeb9c52e92a1c3aa5b76a3cb90bd7376c28dce191ceeb1096e3a390d2e";
 const std::string CHUKWA_V2 = "3578c135261366a7bac407b8c0ff50f3ad96f096ec2813e9644e6e77a43f803d";
 
+const std::string CN_UPX = "38591572f820d4de253cf55a2192b622b0289e2e5c3616e61e787a8fe462ec5a";
+
 const std::string CN_SOFT_SHELL_V0[] = {"5e1891a15d5d85c09baf4a3bbe33675cfa3f77229c8ad66c01779e590528d6d3",
                                         "e1239347694df77cab780b7ec8920ec6f7e48ecef1d8c368e06708c08e1455f1",
                                         "118a03801c564d12f7e68972419303fe06f7a54ab8f44a8ce7deafbc6b1b5183",
@@ -360,6 +362,10 @@ int main(int argc, char **argv)
 
         TEST_HASH_FUNCTION(Core::Cryptography::chukwa_slow_hash_v1, CHUKWA_V1);
         TEST_HASH_FUNCTION(Core::Cryptography::chukwa_slow_hash_v2, CHUKWA_V2);
+
+        std::cout << std::endl;
+
+        TEST_HASH_FUNCTION(Core::Cryptography::cn_upx, CN_UPX);
 
         std::cout << std::endl;
 

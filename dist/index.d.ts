@@ -401,6 +401,16 @@ export declare class Crypto {
      */
     cn_turtle_lite_slow_hash_v2(data: string): Promise<string>;
     /**
+     * Calculates the hash of the data supplied using the generateTransactionPow method
+     * @param data
+     */
+    generateTransactionPow(serializedTransaction: string, nonceOffset: number, diff: number): Promise<number>;
+    /**
+     * Calculates the hash of the data supplied using the cn_upx method
+     * @param data
+     */
+    cn_upx(data: string): Promise<string>;
+    /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
      * @param data
      * @param height the height of the blockchain

@@ -22,6 +22,17 @@ if (process.env.FORCE_JS) {
 
 describe('Cryptography', function () {
     describe('Core', () => {
+
+        it('Generate Transaction Proof of Work 1000', async () => {
+            const nonce = await TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1, 100);
+            assert(nonce > 0);
+        })
+
+        it('Generate Transaction Proof of Work 20000', async () => {
+            const nonce2 = await TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1, 2000);
+            assert(nonce2 > 0);
+        })
+
         it('Generate Random Keys', async () => {
             const keys = await TurtleCoinCrypto.generateKeys();
 

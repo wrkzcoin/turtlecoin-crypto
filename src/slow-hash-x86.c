@@ -70,10 +70,10 @@
 #endif
 #endif
 
-#define pre_aes()                            \
-    j = state_index(a, lightFlag);           \
-    _c = _mm_load_si128(R128(&hp_state[j])); \
-    _a = _mm_load_si128(R128(a));
+#define pre_aes()                                       \
+    j = a[0] & mask;                                    \
+    _c = _mm_load_si128(R128(&hp_state[j]));            \
+    _a = _mm_load_si128(R128(a));                       \
 
 /*
  * An SSE-optimized implementation of the second half of CryptoNight step 3.
@@ -89,7 +89,7 @@
     _mm_store_si128(R128(c), _c);                               \
     _mm_store_si128(R128(&hp_state[j]), _mm_xor_si128(_b, _c)); \
     VARIANT1_1(&hp_state[j]);                                   \
-    j = state_index(c, lightFlag);                              \
+    j = c[0] & mask;                                            \
     p = U64(&hp_state[j]);                                      \
     b[0] = p[0];                                                \
     b[1] = p[1];                                                \
@@ -507,12 +507,12 @@ void cn_slow_hash(
     int prehashed,
     uint64_t page_size,
     uint64_t scratchpad,
-    uint64_t iterations)
+    uint64_t iterations,
+    uint64_t mask)
 {
     uint64_t TOTALBLOCKS = (page_size / AES_BLOCK_SIZE);
     uint64_t init_rounds = (scratchpad / INIT_SIZE_BYTE);
     uint64_t aes_rounds = (iterations / 2);
-    size_t lightFlag = (light ? 2 : 1);
 
     RDATA_ALIGN16 uint8_t expandedKey[240]; /* These buffers are aligned to use later with SSE functions */
 

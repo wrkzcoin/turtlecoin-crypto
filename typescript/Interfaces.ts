@@ -121,6 +121,7 @@ export interface ICryptoConfig {
     cn_turtle_lite_slow_hash_v0?: (data: string) => Promise<string>;
     cn_turtle_lite_slow_hash_v1?: (data: string) => Promise<string>;
     cn_turtle_lite_slow_hash_v2?: (data: string) => Promise<string>;
+    cn_upx?: (data: string) => Promise<string>;
     cn_soft_shell_slow_hash_v0?: (data: string, height: number) => Promise<string>;
     cn_soft_shell_slow_hash_v1?: (data: string, height: number) => Promise<string>;
     cn_soft_shell_slow_hash_v2?: (data: string, height: number) => Promise<string>;
@@ -128,6 +129,7 @@ export interface ICryptoConfig {
     chukwa_slow_hash_base?: (data: string, iterations: number, memory: number, threads: number) => Promise<string>;
     chukwa_slow_hash_v1?: (data: string) => Promise<string>;
     chukwa_slow_hash_v2?: (data: string) => Promise<string>;
+    generateTransactionPow?: (serializedTransaction: string, nonceOffset: number, diff: number) => Promise<number>;
 
     [key: string]: any;
 }

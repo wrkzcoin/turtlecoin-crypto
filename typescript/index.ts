@@ -1307,6 +1307,34 @@ export class Crypto {
     }
 
     /**
+     * Calculates the hash of the data supplied using the generateTransactionPow method
+     * @param data
+     */
+
+    public async generateTransactionPow(serializedTransaction: string, nonceOffset: number, diff: number): Promise<number> {
+        if (!isHex(serializedTransaction)) {
+            throw new Error('Invalid data found');
+        }
+        if (!isUInt(diff)) {
+            throw new Error('Invalid diff found');
+        }
+        return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
+    }
+
+    /**
+     * Calculates the hash of the data supplied using the cn_upx method
+     * @param data
+     */
+
+    public async cn_upx (data: string): Promise<string> {
+        if (!isHex(data)) {
+            throw new Error('Invalid data found');
+        }
+
+        return tryRunFunc('cn_upx', data.toLowerCase());
+    }
+
+    /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
      * @param data
      * @param height the height of the blockchain

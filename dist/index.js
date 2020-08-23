@@ -1152,6 +1152,33 @@ class Crypto {
         });
     }
     /**
+     * Calculates the hash of the data supplied using the generateTransactionPow method
+     * @param data
+     */
+    generateTransactionPow(serializedTransaction, nonceOffset, diff) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!isHex(serializedTransaction)) {
+                throw new Error('Invalid data found');
+            }
+            if (!isUInt(diff)) {
+                throw new Error('Invalid diff found');
+            }
+            return tryRunFunc('generateTransactionPow', serializedTransaction, nonceOffset, diff);
+        });
+    }
+    /**
+     * Calculates the hash of the data supplied using the cn_upx method
+     * @param data
+     */
+    cn_upx(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!isHex(data)) {
+                throw new Error('Invalid data found');
+            }
+            return tryRunFunc('cn_upx', data.toLowerCase());
+        });
+    }
+    /**
      * Calculates the hash of the data supplied using the cn_soft_shell_slow_hash_v0 method
      * @param data
      * @param height the height of the blockchain
