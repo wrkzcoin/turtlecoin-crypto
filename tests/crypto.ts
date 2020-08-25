@@ -5,7 +5,7 @@
 import * as assert from 'assert';
 import { keccak256 } from 'js-sha3';
 import { before, describe, it } from 'mocha';
-import { Crypto } from '../';
+import { Crypto, IKeyPair } from '../';
 
 const TurtleCoinCrypto = new Crypto();
 
@@ -20,7 +20,7 @@ if (process.env.FORCE_JS) {
     console.warn('Performing tests with C++ Cryptographic library');
 }
 
-describe('Cryptography', function () {
+describe('Cryptography', async function () {
     describe('Core', () => {
 
         it('Generate Transaction Proof of Work 1000', async () => {
@@ -32,13 +32,6 @@ describe('Cryptography', function () {
             const nonce2 = await TurtleCoinCrypto.generateTransactionPow('040000000000000000deadbeef', 1, 2000);
             assert(nonce2 > 0);
         })
-
-        it('Generate Random Keys', async () => {
-            const keys = await TurtleCoinCrypto.generateKeys();
-
-            assert(keys.public_key);
-            assert(keys.private_key);
-        });
 
         it('Check Key - Public Key', async () => {
             const key = '7849297236cd7c0d6c69a3c8c179c038d3c1c434735741bb3c8995c3c9d6f2ac';
@@ -62,7 +55,36 @@ describe('Cryptography', function () {
             assert(generatedKey === '7849297236cd7c0d6c69a3c8c179c038d3c1c434735741bb3c8995c3c9d6f2ac');
         });
 
-        describe('Traditional Derivation Math', () => {
+        describe('Key Generation', async () => {
+            let keys: IKeyPair;
+
+            it('Generate Random Keys', async () => {
+                keys = await TurtleCoinCrypto.generateKeys();
+
+                assert(keys.public_key);
+                assert(keys.private_key);
+            });
+
+            it('Check Generated Private Key', async () => {
+                const isValid = await TurtleCoinCrypto.checkScalar(keys.private_key);
+
+                assert(isValid === true);
+            });
+
+            it('Check Generated Public Key', async () => {
+                const isValid = await TurtleCoinCrypto.checkKey(keys.public_key);
+
+                assert(isValid === true);
+            });
+
+            it('Check Public Key is for Private Key', async () => {
+                const public_key = await TurtleCoinCrypto.secretKeyToPublicKey(keys.private_key);
+
+                assert(public_key === keys.public_key);
+            });
+        });
+
+        describe('Traditional Derivation Math', async () => {
             it('Generate Key Derivation', async () => {
                 const derivation = await TurtleCoinCrypto.generateKeyDerivation(
                     '3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94',
@@ -108,7 +130,7 @@ describe('Cryptography', function () {
             });
         });
 
-        describe('New Derivation Math', () => {
+        describe('New Derivation Math', async () => {
             it('Generate Key Derivation Scalar', async () => {
                 const derivationScalar = await TurtleCoinCrypto.generateKeyDerivationScalar(
                     '3b0cc2b066812e6b9fcc42a797dc3c723a7344b604fd4be0b22e06254ff57f94',
@@ -267,7 +289,7 @@ describe('Cryptography', function () {
         });
     });
 
-    describe('Multisig', () => {
+    describe('Multisig', async () => {
         const party1 = {
             spend: {
                 secretKey: 'a0ba0cae34ce1133b9cb658e5d0a56440608622a64562ac360907a2c68ea130d',
@@ -357,7 +379,7 @@ describe('Cryptography', function () {
                 keyImage: '6865866ed8a25824e042e21dd36e946836b58b03366e489aecf979f444f599b0'
             };
 
-            describe('Party 1', () => {
+            describe('Party 1', async () => {
                 it('Generate Shared Public Spend Key', async () => {
                     const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(
                         [party1.spend.publicKey, party2.spend.publicKey]);
@@ -373,7 +395,7 @@ describe('Cryptography', function () {
                 });
             });
 
-            describe('Party 2', () => {
+            describe('Party 2', async () => {
                 it('Generate Shared Public Spend Key', async () => {
                     const sharedKey = await TurtleCoinCrypto.calculateSharedPublicKey(
                         [party2.spend.publicKey, party1.spend.publicKey]);
@@ -389,7 +411,7 @@ describe('Cryptography', function () {
                 });
             });
 
-            describe('Transactions', () => {
+            describe('Transactions', async () => {
                 it('Restore KeyImage from Partial KeyImages', async () => {
                     const keyImage1 = await TurtleCoinCrypto.generateKeyImage(
                         tx.publicEphemeral, party1.spend.secretKey);
@@ -432,7 +454,7 @@ describe('Cryptography', function () {
             });
         });
 
-        describe('N1/N', () => {
+        describe('N1/N', async () => {
             const sharedKeys = {
                 spend: {
                     secretKey: '8c7ce8ccbffc4ead3305d8fd4ce68928ced7d522ab1d9f314c1b200531a2a60a',
@@ -458,7 +480,7 @@ describe('Cryptography', function () {
                 keyImage: '174d0e7323ec00fa3e0d8432ffd3614cac829685d32a0a5b8f107cef80043178'
             };
 
-            describe('Party 1', () => {
+            describe('Party 1', async () => {
                 it('Generate Multisig Keys', async () => {
                     const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
                         party1.spend.secretKey, [party2.spend.publicKey, party3.spend.publicKey]);
@@ -482,7 +504,7 @@ describe('Cryptography', function () {
                 });
             });
 
-            describe('Party 2', () => {
+            describe('Party 2', async () => {
                 it('Generate Multisig Keys', async () => {
                     const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
                         party2.spend.secretKey, [party3.spend.publicKey, party1.spend.publicKey]);
@@ -507,7 +529,7 @@ describe('Cryptography', function () {
                 });
             });
 
-            describe('Party 3', () => {
+            describe('Party 3', async () => {
                 it('Generate Multisig Keys', async () => {
                     const keys = await TurtleCoinCrypto.calculateMultisigPrivateKeys(
                         party3.spend.secretKey, [party1.spend.publicKey, party2.spend.publicKey]);
@@ -782,7 +804,7 @@ describe('Cryptography', function () {
     });
 });
 
-describe('Hash Generation Methods', function () {
+describe('Hash Generation Methods', async function () {
     const testdata =
         '0100fb8e8ac805899323371bb790db19218afd8db8e3755d8b90f39b3d5506a9' +
         'abce4fa912244500000000ee8146d49fa93ee724deb57d12cbc6c6f3b924d946' +
