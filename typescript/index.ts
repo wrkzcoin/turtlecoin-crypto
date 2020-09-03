@@ -185,7 +185,7 @@ export class Crypto {
 
         for (const key of public_keys) {
             if (!await this.checkKey(key)) {
-                throw new Error('Invalid public key found');
+                throw new Error(`Invalid public key found ${key}`);
             }
         }
 
@@ -226,7 +226,7 @@ export class Crypto {
 
         for (const key of public_keys) {
             if (!await this.checkKey(key)) {
-                throw new Error('Invalid public key found');
+                throw new Error(`Invalid public key found ${key}`);
             }
         }
 
@@ -428,7 +428,7 @@ export class Crypto {
             throw new Error('Invalid output index found');
         }
         if (!await this.checkKey(public_key)) {
-            throw new Error('Invalid public key found');
+            throw new Error(`Invalid public key found ${public_key}`);
         }
 
         return tryRunFunc('derivePublicKey',
@@ -498,7 +498,7 @@ export class Crypto {
      */
     public async generateKeyDerivation (public_key: string, private_key: string): Promise<string> {
         if (!await this.checkKey(public_key)) {
-            throw new Error('Invalid public key found');
+            throw new Error(`Invalid public key found ${public_key}`);
         }
         if (!await this.checkScalar(private_key)) {
             throw new Error('Invalid private key found');
@@ -520,7 +520,7 @@ export class Crypto {
         output_index: number
     ): Promise<string> {
         if (!await this.checkKey(public_key)) {
-            throw new Error('Invalid public key found');
+            throw new Error(`Invalid public key found ${public_key}`);
         }
 
         if (!await this.checkScalar(private_key)) {
@@ -632,7 +632,7 @@ export class Crypto {
 
         for (const key of public_keys) {
             if (!await this.checkKey(key)) {
-                throw new Error('Invalid public key found');
+                throw new Error(`Invalid public key found ${key}`);
             }
         }
 
@@ -656,7 +656,7 @@ export class Crypto {
             throw new Error('Invalid hash found');
         }
         if (!await this.checkKey(public_key)) {
-            throw new Error('Invalid public key found');
+            throw new Error(`Invalid public key found ${public_key}`);
         }
         if (!await this.checkScalar(private_key)) {
             throw new Error('Invalid private key found');
@@ -752,7 +752,7 @@ export class Crypto {
 
         for (const key of public_keys) {
             if (!await this.checkKey(key)) {
-                throw new Error('Invalid public key found');
+                throw new Error(`Invalid public key found ${key}`);
             }
         }
 
@@ -909,7 +909,7 @@ export class Crypto {
         }
 
         if (!await this.checkKey(public_key)) {
-            throw new Error('Invalid public key found');
+            throw new Error(`Invalid public key found ${public_key}`);
         }
 
         return tryRunFunc('scalarDerivePublicKey',
