@@ -164,7 +164,7 @@ class Crypto {
             public_keys = public_keys.map(elem => elem.toLowerCase());
             for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
-                    throw new Error('Invalid public key found');
+                    throw new Error(`calculateMultisigPrivateKeys: Invalid public key found '${key}'`);
                 }
             }
             return tryRunFunc('calculateMultisigPrivateKeys', private_spend_key.toLowerCase(), public_keys);
@@ -200,7 +200,7 @@ class Crypto {
             public_keys = public_keys.map(elem => elem.toLowerCase());
             for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
-                    throw new Error('Invalid public key found');
+                    throw new Error(`calculateSharedPublicKey: Invalid public key found '${key}'`);
                 }
             }
             return tryRunFunc('calculateSharedPublicKey', public_keys);
@@ -368,7 +368,7 @@ class Crypto {
                 throw new Error('Invalid output index found');
             }
             if (!(yield this.checkKey(public_key))) {
-                throw new Error('Invalid public key found');
+                throw new Error(`derivePublicKey: Invalid public key found '${public_key}'`);
             }
             return tryRunFunc('derivePublicKey', derivation.toLowerCase(), output_index, public_key.toLowerCase());
         });
@@ -428,7 +428,7 @@ class Crypto {
     generateKeyDerivation(public_key, private_key) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkKey(public_key))) {
-                throw new Error('Invalid public key found');
+                throw new Error(`generateKeyDerivation: Invalid public key found '${public_key}'`);
             }
             if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
@@ -445,7 +445,7 @@ class Crypto {
     generateKeyDerivationScalar(public_key, private_key, output_index) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(yield this.checkKey(public_key))) {
-                throw new Error('Invalid public key found');
+                throw new Error(`generateKeyDerivationScalar: Invalid public key found '${public_key}'`);
             }
             if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
@@ -545,7 +545,7 @@ class Crypto {
             public_keys = public_keys.map(elem => elem.toLowerCase());
             for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
-                    throw new Error('Invalid public key found');
+                    throw new Error(`generateRingSignatures: Invalid public key found '${key}'`);
                 }
             }
             return tryRunFunc('generateRingSignatures', hash.toLowerCase(), key_image.toLowerCase(), public_keys, private_ephemeral.toLowerCase(), real_output_index);
@@ -563,7 +563,7 @@ class Crypto {
                 throw new Error('Invalid hash found');
             }
             if (!(yield this.checkKey(public_key))) {
-                throw new Error('Invalid public key found');
+                throw new Error(`generateSignature: Invalid public key found '${public_key}'`);
             }
             if (!(yield this.checkScalar(private_key))) {
                 throw new Error('Invalid private key found');
@@ -646,7 +646,7 @@ class Crypto {
             public_keys = public_keys.map(elem => elem.toLowerCase());
             for (const key of public_keys) {
                 if (!(yield this.checkKey(key))) {
-                    throw new Error('Invalid public key found');
+                    throw new Error(`prepareRingSignatures: Invalid public key found '${key}'`);
                 }
             }
             let result;
@@ -775,7 +775,7 @@ class Crypto {
                 throw new Error('Invalid derivation scalar found');
             }
             if (!(yield this.checkKey(public_key))) {
-                throw new Error('Invalid public key found');
+                throw new Error(`scalarDerivePublicKey: Invalid public key found '${public_key}'`);
             }
             return tryRunFunc('scalarDerivePublicKey', derivationScalar.toLowerCase(), public_key.toLowerCase());
         });
