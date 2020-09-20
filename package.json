@@ -1,7 +1,7 @@
 {
-  "name": "turtlecoin-crypto",
+  "name": "wrkzcoin-crypto",
   "version": "6.0.2",
-  "description": "Node C++ Addon for TurtleCoin Cryptographic Functions",
+  "description": "Node C++ Addon for WrkzCoin Cryptographic Functions forked from TurtleCoin",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "scripts": {
@@ -22,17 +22,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/turtlecoin/turtlecoin-crypto.git"
+    "url": "git+https://github.com/wrkzcoin/wrkzcoin-crypto.git"
   },
   "bugs": {
-    "url": "https://github.com/turtlecoin/turtlecoin-crypto/issues"
+    "url": "https://github.com/wrkzcoin/wrkzcoin-crypto/issues"
   },
   "engines": {
     "node": ">=10"
   },
   "engineStrict": true,
-  "homepage": "https://crypto.turtlecoin.dev/",
-  "author": "The TurtleCoin Developers",
+  "homepage": "https://wrkz.work/",
+  "author": "The WrkzCoin Developers",
   "license": "GPL-3.0",
   "dependencies": {
     "bindings": "^1.5.0",
