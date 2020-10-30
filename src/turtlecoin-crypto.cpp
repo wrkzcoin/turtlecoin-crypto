@@ -177,7 +177,7 @@ namespace Core
 
             Crypto::Hash hash;
 
-            Crypto::cn_upx(serializedTransaction.data(), serializedTransaction.size(), hash);
+            Crypto::cn_turtle_lite_slow_hash_v2(serializedTransaction.data(), serializedTransaction.size(), hash);
 
             if (check_hash(hash, diff))
             {
